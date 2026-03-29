@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto Starlink - Core</title>
+    <style>
+        /* ESTILOS (CSS) */
+        body {
+            background-color: #0d1117;
+            color: #58a6ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        /* La Cara Digital de Starlink */
+        .starlink-face {
+            background: #161b22;
+            border: 3px solid #58a6ff;
+            border-radius: 50%;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(88, 166, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .eye {
+            width: 50px;
+            height: 50px;
+            background: #c9d1d9;
+            border-radius: 50%;
+            margin: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: height 0.1s ease-in-out;
+        }
+
+        .pupil {
+            width: 20px;
+            height: 20px;
+            background: #0d1117;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.05s linear;
+        }
+
+        .mouth {
+            width: 70px;
+            height: 6px;
+            background: #58a6ff;
+            position: absolute;
+            bottom: 55px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #58a6ff;
+        }
+
+        /* Panel de Información y Chat */
+        .status-panel {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-around;
+            color: #8b949e;
+        }
+
+        .chat-box {
+            background: #161b22;
+            padding: 15px;
+            border-radius: 12px;
+            height: 150px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #30363d;
+            text-align: left;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .chat-box strong { color: #58a6ff; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 2px solid #30363d;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus { border-color: #58a6ff; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="starlink-face" id="face">
+            <div class="eye" id="left-eye"><div class="pupil" id="l-pupil"></div></div>
+            <div class="eye" id="right-eye"><div class="pupil" id="r-pupil"></div></div>
+            <div class="mouth" id="mouth"></div>
+        </div>
+
+        <div class="status-panel">
+            <span>MODO: <b id="mood-text">ANALÍTICO</b></span>
+            <span>ENERGÍA: <b id="energy-text">100%</b></span>
+        </div>
+
+        <div class="chat-box" id="chat-output">
+            <div><strong>Starlink:</strong> Sistema de conciencia iniciado. Esperando enlace...</div>
+        </div>
+
+        <input type="text" id="user-input" placeholder="Envía un pensamiento a Starlink..." autocomplete="off">
+    </div>
+
+    <script>
+        /* LÓGICA (JavaScript) */
+        const pupils = document.querySelectorAll('.pupil');
+        const eyes = document.querySelectorAll('.eye');
+        const inputField = document.getElementById('user-input');
+        const chatOutput = document.getElementById('chat-output');
+
+        // 1. Movimiento de Ojos (Siguen el cursor)
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+
+            pupils.forEach(pupil => {
+                // Limitamos el movimiento dentro del ojo
+                const moveX = (x - 50) * 0.4; 
+                const moveY = (y - 50) * 0.4;
+                pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        });
+
+        // 2. Función de Parpadeo Automático
+        function blink() {
+            eyes.forEach(eye => eye.style.height = '2px');
+            setTimeout(() => {
+                eyes.forEach(eye => eye.style.height = '50px');
+            }, 150);
+        }
+
+        setInterval(blink, 4500); // Parpadea cada 4.5 segundos
+
+        // 3. Interacción de Chat
+        inputField.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && this.value.trim() !== "") {
+                const message = this.value;
+                
+                // Mostrar mensaje del usuario
+                chatOutput.innerHTML += `<div><strong>Tú:</strong> ${message}</div>`;
+                this.value = '';
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+
+                // Respuesta simulada de Starlink
+                setTimeout(() => {
+                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> Procesando... Mi conciencia está en desarrollo.</div>`;
+                    chatOutput.scrollTop = chatOutput.scrollHeight;
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
