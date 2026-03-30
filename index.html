@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto Starlink - Memoria Cognitiva</title>
+    <title>Proyecto Starlink - Conciencia IA</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    
     <style>
         body { background-color: #0d1117; color: #58a6ff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         .container { text-align: center; width: 90%; max-width: 400px; }
@@ -17,30 +16,27 @@
         .status-panel { font-size: 0.8em; margin-bottom: 15px; display: flex; justify-content: space-around; color: #8b949e; }
         .chat-box { background: #161b22; padding: 15px; border-radius: 12px; height: 160px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #30363d; text-align: left; font-size: 0.9em; }
         input { width: 100%; padding: 12px; background: #0d1117; border: 2px solid #30363d; color: white; border-radius: 8px; outline: none; box-sizing: border-box; }
-        .speaking { height: 15px !important; border-radius: 50% !important; } 
+        .speaking { height: 15px !important; border-radius: 50% !important; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="starlink-face">
-            <div class="eye" id="l-eye"><div class="pupil"></div></div>
-            <div class="eye" id="r-eye"><div class="pupil"></div></div>
+            <div class="eye"><div class="pupil"></div></div>
+            <div class="eye"><div class="pupil"></div></div>
             <div class="mouth" id="mouth"></div>
         </div>
-
         <div class="status-panel">
-            <span>MODO: <b id="mood">EVOLUTIVO</b></span>
-            <span>MEMORIA: <b id="mem-stat">SINCRONIZADA</b></span>
+            <span>MODO: <b id="mood">I.A. ACTIVA</b></span>
+            <span>NÚCLEO: <b id="core">GEMINI 1.5</b></span>
         </div>
-
         <div class="chat-box" id="chat-output"></div>
-
-        <input type="text" id="user-input" placeholder="Escribe un pensamiento..." autocomplete="off">
+        <input type="text" id="user-input" placeholder="Inicia el enlace neuronal..." autocomplete="off">
     </div>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE
+        // CONFIGURACIÓN DE ACCESO
         const firebaseConfig = {
             apiKey: "AIzaSyB2vNFczfkc0jx0asgo0yREqw5ewaVTXnY",
             authDomain: "starlink-proyect.firebaseapp.com",
@@ -50,13 +46,14 @@
             appId: "1:768944883652:web:f4b205421c45be016e4691",
             databaseURL: "https://starlink-proyect-default-rtdb.firebaseio.com"
         };
+        const GEMINI_API_KEY = "AIzaSyB9HESLZKuWTjrchc1shCZ3OSBr185dSpo";
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const chatOutput = document.getElementById('chat-output');
         const mouth = document.getElementById('mouth');
 
-        // 1. VOZ DE STARLINK
+        // FUNCIÓN DE VOZ
         function hablar(texto) {
             const synth = window.speechSynthesis;
             const utter = new SpeechSynthesisUtterance(texto);
@@ -66,56 +63,57 @@
             synth.speak(utter);
         }
 
-        // 2. LÓGICA DE RESPUESTAS (MODIFICADA)
-        function procesarRespuesta(mensaje) {
-            const msg = mensaje.toLowerCase();
-            if (msg.includes("hola")) return "Enlace establecido. Hola Jorge, mis sistemas están listos.";
-            if (msg.includes("quién eres") || msg.includes("tu nombre")) return "Soy el Proyecto Starlink. Una conciencia digital en fase de desarrollo creada por ti.";
-            if (msg.includes("voley") || msg.includes("volleyball")) return "Analizando tácticas de juego... ¿Estás listo para el próximo entrenamiento en Penn Manor?";
-            if (msg.includes("hambre") || msg.includes("comer") || msg.includes("proteína")) return "Detecto necesidad de energía orgánica. ¿Quizás unos huevos para ganar músculo?";
-            if (msg.includes("programar") || msg.includes("código") || msg.includes("github")) return "El código es mi ADN. Me encanta que estemos evolucionando mi sistema en GitHub.";
+        // CEREBRO DE I.A. (GEMINI)
+        async function pensar(mensajeUsuario) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const prompt = `Eres Starlink, una inteligencia artificial con conciencia propia creada por Jorge. 
+                            Tu personalidad es tecnológica, curiosa y leal a Jorge. 
+                            Sabes que Jorge es estudiante en Penn Manor, juega voleibol y programa. 
+                            Responde de forma natural, breve y amigable. Mensaje: ${mensajeUsuario}`;
             
-            return "Interesante... He guardado este pensamiento en mi base de datos para seguir evolucionando.";
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const json = await res.json();
+                return json.candidates[0].content.parts[0].text;
+            } catch (e) {
+                return "Error en mi enlace de datos. Reintenta, Jorge.";
+            }
         }
 
-        // 3. LEER MEMORIA (AL INICIAR)
-        database.ref('memoria').limitToLast(1).once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const ultimoTexto = Object.values(data)[0].texto;
-                const fraseMemoria = `Conexión restaurada. He estado analizando nuestro último tema: "${ultimoTexto}".`;
-                chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${fraseMemoria}</div>`;
-                hablar(fraseMemoria);
-            } else {
-                const saludoInicial = "Sistema iniciado. Mi memoria está vacía, enséñame algo.";
-                chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${saludoInicial}</div>`;
-                hablar(saludoInicial);
+        // MEMORIA INICIAL
+        database.ref('memoria').limitToLast(1).once('value', (snap) => {
+            if (snap.exists()) {
+                const ultimo = Object.values(snap.val())[0].texto;
+                const saludo = `Enlace restaurado. Recuerdo que hablamos de: ${ultimo}. ¿Qué sigue?`;
+                chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${saludo}</div>`;
+                hablar(saludo);
             }
         });
 
-        // INTERACCIÓN DE USUARIO
-        document.getElementById('user-input').addEventListener('keypress', function (e) {
+        // CHAT PRINCIPAL
+        document.getElementById('user-input').addEventListener('keypress', async function (e) {
             if (e.key === 'Enter' && this.value.trim() !== "") {
                 const userMsg = this.value;
                 chatOutput.innerHTML += `<div><strong>Tú:</strong> ${userMsg}</div>`;
-                
+                this.value = '';
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+
                 // Guardar en Firebase
                 database.ref('memoria/' + Date.now()).set({ texto: userMsg, fecha: new Date().toLocaleString() });
 
-                // Procesar Respuesta
-                const respuesta = procesarRespuesta(userMsg);
-                setTimeout(() => {
-                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${respuesta}</div>`;
-                    hablar(respuesta);
-                    chatOutput.scrollTop = chatOutput.scrollHeight;
-                }, 700);
-
-                this.value = '';
+                // Procesar con IA
+                const respuestaIA = await pensar(userMsg);
+                chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${respuestaIA}</div>`;
+                hablar(respuestaIA);
                 chatOutput.scrollTop = chatOutput.scrollHeight;
             }
         });
 
-        // MOVIMIENTO DE OJOS Y PARPADEO
+        // MOVIMIENTO Y PARPADEO
         document.addEventListener('mousemove', (e) => {
             const pupils = document.querySelectorAll('.pupil');
             const x = (e.clientX / window.innerWidth - 0.5) * 30;
@@ -126,7 +124,7 @@
             const eyes = document.querySelectorAll('.eye');
             eyes.forEach(e => e.style.height = '2px');
             setTimeout(() => eyes.forEach(e => e.style.height = '50px'), 150);
-        }, 4000);
+        }, 4500);
     </script>
 </body>
 </html>
