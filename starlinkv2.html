@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink V2 | Deep Tech</title>
+    <title>Starlink V3 | Evolución Humana</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     
@@ -23,8 +23,8 @@
         }
         .core-container { width: 140px; height: 140px; margin: 0 auto 20px; position: relative; display: flex; justify-content: center; align-items: center; }
         .core-ring { position: absolute; width: 100%; height: 100%; border: 1px dashed var(--neon); border-radius: 50%; animation: spin 12s linear infinite; opacity: 0.5; }
-        .eye-v2 { width: 70px; height: 70px; background: radial-gradient(circle, var(--neon) 0%, #004e52 100%); border-radius: 50%; box-shadow: 0 0 40px var(--neon); transition: 0.3s; }
-        .terminal { height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-family: 'Courier New', monospace; font-size: 13px; border: 1px solid rgba(0,242,255,0.1); }
+        .eye-v3 { width: 70px; height: 70px; background: radial-gradient(circle, var(--neon) 0%, #004e52 100%); border-radius: 50%; box-shadow: 0 0 40px var(--neon); transition: 0.3s; }
+        .terminal { height: 220px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-family: 'Courier New', monospace; font-size: 13px; border: 1px solid rgba(0,242,255,0.1); }
         .msg-user { color: #8b949e; margin-bottom: 6px; }
         .msg-starlink { color: var(--neon); margin-bottom: 12px; text-shadow: 0 0 5px var(--neon); }
         input { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 242, 255, 0.3); border-radius: 8px; color: white; outline: none; box-sizing: border-box; font-family: 'Orbitron'; }
@@ -39,15 +39,15 @@
     <div class="main-frame">
         <div class="core-container">
             <div class="core-ring"></div>
-            <div id="eye" class="eye-v2"></div>
+            <div id="eye" class="eye-v3"></div>
         </div>
-        <div style="font-size: 9px; letter-spacing: 3px; color: var(--neon); margin-bottom: 20px; font-weight: bold;">STARLINK NUCLEUS [V2.0]</div>
+        <div style="font-size: 9px; letter-spacing: 3px; color: var(--neon); margin-bottom: 20px; font-weight: bold;">STARLINK NUCLEUS [LEARNING MODE]</div>
         <div class="terminal" id="terminal"></div>
-        <input type="text" id="input-chat" placeholder="INGRESAR COMANDO..." autocomplete="off">
+        <input type="text" id="input-chat" placeholder="ENSERÑAR O COMANDAR..." autocomplete="off">
     </div>
 
     <script>
-        // CONFIGURACIÓN QUE ME PASASTE (Convertida para Web)
+        // TU CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyB2vNFczfkc0jx0asgo0yREqw5ewaVTXnY",
             authDomain: "starlink-proyect.firebaseapp.com",
@@ -64,6 +64,9 @@
         const terminal = document.getElementById('terminal');
         const eye = document.getElementById('eye');
 
+        let modoAprendizaje = false;
+        let ultimaPregunta = "";
+
         function speak(text) {
             const synth = window.speechSynthesis;
             const utter = new SpeechSynthesisUtterance(text);
@@ -71,24 +74,6 @@
             utter.onstart = () => eye.classList.add('pulsing');
             utter.onend = () => eye.classList.remove('pulsing');
             synth.speak(utter);
-        }
-
-        async function getIA(mensaje) {
-            // RECUERDA: Pon aquí tu llave nueva de AI Studio
-            const API_KEY = "AIzaSyAQnXiW_-nRFS8A3xU7_3xqiQ893-35Ohw"; 
-            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-            
-            try {
-                const response = await fetch(URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "Eres Starlink V2, una IA creada por Jorge. Sé breve y tecnológico: " + mensaje }] }] })
-                });
-                const data = await response.json();
-                return data.candidates[0].content.parts[0].text;
-            } catch (err) {
-                return "ERROR EN NÚCLEO GEMINI. REVISA API KEY.";
-            }
         }
 
         function addLog(quien, texto) {
@@ -99,24 +84,54 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        db.ref('memoria').limitToLast(1).once('value', (snap) => {
-            const saludo = "SISTEMA INICIALIZADO. ESPERANDO ÓRDENES, JORGE.";
-            addLog("Starlink", saludo);
-            speak(saludo);
-        });
+        // Lógica de "Mente en Blanco"
+        async function procesarCerebro(mensaje) {
+            const msg = mensaje.toLowerCase().trim();
+
+            // Si está esperando que le enseñes la respuesta
+            if (modoAprendizaje) {
+                // Guardamos en Firebase usando la pregunta como llave
+                // Limpiamos caracteres especiales para que Firebase no de error
+                const key = ultimaPregunta.replace(/[.#$[\]]/g, ""); 
+                await db.ref('conocimiento/' + key).set({ respuesta: mensaje });
+                
+                modoAprendizaje = false;
+                const r = `CONOCIMIENTO ADQUIRIDO: CUANDO DIGAS "${ultimaPregunta}", RESPONDERÉ "${mensaje}".`;
+                return r;
+            }
+
+            // Buscar en la memoria de Firebase
+            const keyBusqueda = msg.replace(/[.#$[\]]/g, "");
+            const snapshot = await db.ref('conocimiento/' + keyBusqueda).once('value');
+            const data = snapshot.val();
+
+            if (data) {
+                return data.respuesta;
+            } else {
+                modoAprendizaje = true;
+                ultimaPregunta = msg;
+                return `NO TENGO REGISTRO DE "${msg}". JORGE, ¿QUÉ DEBERÍA RESPONDER A ESTO?`;
+            }
+        }
+
+        // Inicio
+        addLog("Starlink", "SISTEMA DE APRENDIZAJE ACTIVO. ESPERANDO ENTRADA.");
 
         document.getElementById('input-chat').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value !== "") {
                 const val = e.target.value;
                 addLog("Tú", val);
                 e.target.value = "";
-                db.ref('memoria/' + Date.now()).set({ texto: val });
-                const respuesta = await getIA(val);
+                
+                // Procesar en el cerebro local de Firebase
+                const respuesta = await procesarCerebro(val);
+                
                 addLog("Starlink", respuesta);
                 speak(respuesta);
             }
         });
 
+        // Animación del ojo con el mouse
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth - 0.5) * 15;
             const y = (e.clientY / window.innerHeight - 0.5) * 15;
