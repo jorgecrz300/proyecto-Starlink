@@ -3,74 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink V2 | Sistema Operativo</title>
+    <title>Starlink V2 | Deep Tech</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     
     <style>
         :root { --neon: #00f2ff; --bg: #05070a; --glass: rgba(255, 255, 255, 0.05); }
-        
         body { 
-            background-color: var(--bg); 
-            color: white; 
-            font-family: 'Orbitron', sans-serif; /* Fuente tipo gamer/tech */
+            background: radial-gradient(circle at center, #0a111a 0%, #05070a 100%);
+            color: white; font-family: 'Orbitron', sans-serif;
             display: flex; justify-content: center; align-items: center; 
             height: 100vh; margin: 0; overflow: hidden;
-            background: radial-gradient(circle at center, #10141d 0%, #05070a 100%);
         }
-
-        /* Contenedor Principal */
         .main-frame {
-            width: 380px; padding: 25px;
-            background: var(--glass);
-            border: 1px solid rgba(0, 242, 255, 0.2);
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 242, 255, 0.05);
-            text-align: center;
+            width: 380px; padding: 25px; background: var(--glass);
+            border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px;
+            backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            text-align: center; border-top: 2px solid var(--neon);
         }
-
-        /* El Ojo de Starlink (Nuevo Diseño) */
-        .core-container {
-            width: 150px; height: 150px; margin: 0 auto 20px;
-            position: relative; display: flex; justify-content: center; align-items: center;
-        }
-        .core-ring {
-            position: absolute; width: 100%; height: 100%;
-            border: 2px dashed var(--neon);
-            border-radius: 50%;
-            animation: spin 10s linear infinite;
-        }
-        .eye-v2 {
-            width: 80px; height: 80px;
-            background: radial-gradient(circle, var(--neon) 0%, #004e52 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 30px var(--neon);
-            transition: all 0.3s ease;
-        }
-
-        /* Pantalla de Chat */
-        .terminal {
-            height: 200px; overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px; padding: 10px;
-            margin-bottom: 15px; text-align: left;
-            font-family: 'Courier New', monospace; font-size: 13px;
-            border-left: 2px solid var(--neon);
-        }
-        .msg-user { color: #8b949e; margin-bottom: 5px; }
-        .msg-starlink { color: var(--neon); margin-bottom: 10px; font-weight: bold; }
-
-        input {
-            width: 100%; padding: 12px;
-            background: transparent; border: 1px solid rgba(0, 242, 255, 0.3);
-            border-radius: 5px; color: white; outline: none;
-            transition: 0.3s; box-sizing: border-box;
-        }
-        input:focus { border-color: var(--neon); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
-
+        .core-container { width: 140px; height: 140px; margin: 0 auto 20px; position: relative; display: flex; justify-content: center; align-items: center; }
+        .core-ring { position: absolute; width: 100%; height: 100%; border: 1px dashed var(--neon); border-radius: 50%; animation: spin 12s linear infinite; opacity: 0.5; }
+        .eye-v2 { width: 70px; height: 70px; background: radial-gradient(circle, var(--neon) 0%, #004e52 100%); border-radius: 50%; box-shadow: 0 0 40px var(--neon); transition: 0.3s; }
+        .terminal { height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-family: 'Courier New', monospace; font-size: 13px; border: 1px solid rgba(0,242,255,0.1); }
+        .msg-user { color: #8b949e; margin-bottom: 6px; }
+        .msg-starlink { color: var(--neon); margin-bottom: 12px; text-shadow: 0 0 5px var(--neon); }
+        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 242, 255, 0.3); border-radius: 8px; color: white; outline: none; box-sizing: border-box; font-family: 'Orbitron'; }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .pulsing { transform: scale(1.1); box-shadow: 0 0 50px var(--neon); }
+        .pulsing { transform: scale(1.15); filter: brightness(1.3); }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -79,28 +39,24 @@
     <div class="main-frame">
         <div class="core-container">
             <div class="core-ring"></div>
-            <div class="eye-v2" id="eye"></div>
+            <div id="eye" class="eye-v2"></div>
         </div>
-
-        <div style="font-size: 10px; letter-spacing: 2px; color: var(--neon); margin-bottom: 15px;">
-            SISTEMA STARLINK [ONLINE]
-        </div>
-
+        <div style="font-size: 9px; letter-spacing: 3px; color: var(--neon); margin-bottom: 20px; font-weight: bold;">STARLINK NUCLEUS [V2.0]</div>
         <div class="terminal" id="terminal"></div>
-
-        <input type="text" id="input-chat" placeholder="ENVIAR COMANDO..." autocomplete="off">
+        <input type="text" id="input-chat" placeholder="INGRESAR COMANDO..." autocomplete="off">
     </div>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Tu misma base de datos)
+        // CONFIGURACIÓN QUE ME PASASTE (Convertida para Web)
         const firebaseConfig = {
             apiKey: "AIzaSyB2vNFczfkc0jx0asgo0yREqw5ewaVTXnY",
             authDomain: "starlink-proyect.firebaseapp.com",
+            databaseURL: "https://starlink-proyect-default-rtdb.firebaseio.com",
             projectId: "starlink-proyect",
             storageBucket: "starlink-proyect.firebasestorage.app",
             messagingSenderId: "768944883652",
             appId: "1:768944883652:web:f4b205421c45be016e4691",
-            databaseURL: "https://starlink-proyect-default-rtdb.firebaseio.com"
+            measurementId: "G-P22T5TVPRE"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -108,7 +64,6 @@
         const terminal = document.getElementById('terminal');
         const eye = document.getElementById('eye');
 
-        // FUNCIÓN PARA HABLAR (VOZ)
         function speak(text) {
             const synth = window.speechSynthesis;
             const utter = new SpeechSynthesisUtterance(text);
@@ -118,9 +73,8 @@
             synth.speak(utter);
         }
 
-        // --- EL NUEVO CEREBRO (IA) ---
         async function getIA(mensaje) {
-            // AQUÍ PONDREMOS LA NUEVA API KEY CUANDO LA TENGAS
+            // RECUERDA: Pon aquí tu llave nueva de AI Studio
             const API_KEY = "AIzaSyCYsX3-bhrfQiEyfVksS3zeJ2_fnQCJHi0"; 
             const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             
@@ -128,52 +82,44 @@
                 const response = await fetch(URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "Eres Starlink V2, un sistema avanzado creado por Jorge. Responde breve: " + mensaje }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Eres Starlink V2, una IA creada por Jorge. Sé breve y tecnológico: " + mensaje }] }] })
                 });
                 const data = await response.json();
                 return data.candidates[0].content.parts[0].text;
             } catch (err) {
-                return "ERROR DE ENLACE. VERIFICA LLAVE API.";
+                return "ERROR EN NÚCLEO GEMINI. REVISA API KEY.";
             }
         }
 
-        // MOSTRAR MENSAJES
         function addLog(quien, texto) {
             const div = document.createElement('div');
             div.className = quien === "Tú" ? "msg-user" : "msg-starlink";
-            div.innerHTML = `> ${quien}: ${texto}`;
+            div.innerHTML = `> ${quien.toUpperCase()}: ${texto}`;
             terminal.appendChild(div);
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // CARGAR MEMORIA AL INICIAR
         db.ref('memoria').limitToLast(1).once('value', (snap) => {
-            const saludo = snap.exists() ? "Memoria recuperada. Núcleo listo, Jorge." : "Primer arranque. Hola, Jorge.";
+            const saludo = "SISTEMA INICIALIZADO. ESPERANDO ÓRDENES, JORGE.";
             addLog("Starlink", saludo);
             speak(saludo);
         });
 
-        // INPUT EVENT
         document.getElementById('input-chat').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value !== "") {
                 const val = e.target.value;
                 addLog("Tú", val);
                 e.target.value = "";
-
-                // Guardar en Firebase
                 db.ref('memoria/' + Date.now()).set({ texto: val });
-
-                // Obtener respuesta
                 const respuesta = await getIA(val);
                 addLog("Starlink", respuesta);
                 speak(respuesta);
             }
         });
 
-        // MOVIMIENTO DEL OJO
         document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            const x = (e.clientX / window.innerWidth - 0.5) * 15;
+            const y = (e.clientY / window.innerHeight - 0.5) * 15;
             eye.style.transform = `translate(${x}px, ${y}px)`;
         });
     </script>
