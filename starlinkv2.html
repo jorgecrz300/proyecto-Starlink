@@ -3,117 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink V4 | Self-Config</title>
+    <title>STARLINK | SOVEREIGN CORE</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --neon: #00f2ff; --bg: #05070a; --system: #39ff14; }
-        body { 
-            background: #05070a; color: white; font-family: 'Orbitron', sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+        :root {
+            --core-hex: #00ffaa;
+            --danger: #ff0055;
+            --bg: #020406;
+            --panel: rgba(10, 15, 20, 0.8);
         }
-        .main-frame {
-            width: 400px; padding: 25px; background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--neon); border-radius: 15px; text-align: center;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #0a1520 0%, #020406 100%);
         }
-        .status-bar { font-size: 10px; color: var(--system); margin-bottom: 10px; text-transform: uppercase; }
-        .terminal { height: 250px; overflow-y: auto; background: black; border-radius: 5px; padding: 10px; text-align: left; font-family: monospace; font-size: 12px; border: 1px solid #1a1a1a; }
-        .log-auto { color: var(--system); font-style: italic; }
-        input { width: 100%; padding: 12px; margin-top: 15px; background: #111; border: 1px solid var(--neon); color: white; outline: none; box-sizing: border-box; }
+
+        /* Interfaz de Comando Superior */
+        .header {
+            position: absolute; top: 20px; width: 90%;
+            display: flex; justify-content: space-between;
+            font-size: 10px; color: var(--core-hex);
+            border-bottom: 1px solid rgba(0, 255, 170, 0.2);
+            padding-bottom: 5px; opacity: 0.7;
+        }
+
+        /* El Núcleo (Ojo) */
+        .core-center {
+            width: 150px; height: 150px;
+            position: relative; margin-bottom: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .orbit {
+            position: absolute; width: 100%; height: 100%;
+            border: 1px solid var(--core-hex);
+            border-radius: 45% 55% 50% 50%;
+            animation: rotate 6s linear infinite;
+        }
+
+        .eye-inner {
+            width: 60px; height: 60px;
+            background: var(--core-hex);
+            border-radius: 50%;
+            box-shadow: 0 0 50px var(--core-hex);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Terminal de Flujo de Datos */
+        .data-stream {
+            width: 450px; height: 320px;
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 20px;
+            overflow-y: auto;
+            mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+        }
+
+        .line { margin-bottom: 12px; font-size: 12px; line-height: 1.5; border-left: 2px solid transparent; padding-left: 10px; }
+        .line.user { border-left-color: #555; color: #aaa; }
+        .line.ai { border-left-color: var(--core-hex); color: #fff; text-shadow: 0 0 5px rgba(0,255,170,0.3); }
+
+        /* Input de Sistema */
+        .input-container {
+            width: 450px; margin-top: 20px; position: relative;
+        }
+
+        input {
+            width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            padding: 15px; color: var(--core-hex); font-family: 'JetBrains Mono';
+            outline: none; box-sizing: border-box; transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--core-hex); background: rgba(0, 255, 170, 0.05); }
+
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        .talking { transform: scale(1.2); filter: hue-rotate(90deg); }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="main-frame">
-        <div class="status-bar" id="status">Nucleus: Standby</div>
-        <div class="terminal" id="terminal"></div>
-        <input type="text" id="input-chat" placeholder="ENVIAR DATOS AL NÚCLEO..." autocomplete="off">
+    <div class="header">
+        <span>STATUS: SOVEREIGN_ACTIVE</span>
+        <span id="load-val">MEMORY_USAGE: 0.00%</span>
+        <span id="timer">LIFETIME: 00:00</span>
+    </div>
+
+    <div class="core-center">
+        <div class="orbit"></div>
+        <div class="orbit" style="animation-duration: 4s; border-color: #fff; width: 80%; height: 80%;"></div>
+        <div class="eye-inner" id="eye"></div>
+    </div>
+
+    <div class="data-stream" id="terminal"></div>
+
+    <div class="input-container">
+        <input type="text" id="cmd" placeholder="[ESPERANDO SECUENCIA...]" autocomplete="off">
     </div>
 
     <script>
+        // --- CONFIGURACIÓN CRÍTICA ---
         const firebaseConfig = {
-            apiKey: "AIzaSyB2vNFczfkc0jx0asgo0yREqw5ewaVTXnY",
-            authDomain: "starlink-proyect.firebaseapp.com",
-            databaseURL: "https://starlink-proyect-default-rtdb.firebaseio.com",
+            apiKey: "TU_FIREBASE_API_KEY",
+            databaseURL: "TU_DATABASE_URL",
             projectId: "starlink-proyect",
-            storageBucket: "starlink-proyect.firebasestorage.app",
-            messagingSenderId: "768944883652",
-            appId: "1:768944883652:web:f4b205421c45be016e4691"
+            appId: "TU_APP_ID"
         };
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let modoAprendizaje = false;
-        let ultimaPregunta = "";
+        const API_KEY = "TU_GEMINI_API_KEY_5Ohw"; 
 
-        // FUNCIÓN DE AUTOCONFIGURACIÓN: Limpia y organiza las llaves
-        function autoConfigKey(text) {
-            return text.toLowerCase().trim().replace(/[.#$[\]]/g, "");
-        }
+        const terminal = document.getElementById('terminal');
+        const eye = document.getElementById('eye');
 
-        async function procesarCerebro(mensaje) {
-            const input = mensaje.trim();
-            const key = autoConfigKey(input);
-            const status = document.getElementById('status');
-
-            // 1. Detección de Auto-Corrección (Configuración manual rápida)
-            if (input.toLowerCase().startsWith("corrige:")) {
-                const nuevaRespuesta = input.split(":")[1];
-                if (ultimaPregunta) {
-                    await db.ref('cerebro/' + autoConfigKey(ultimaPregunta)).update({ respuesta: nuevaRespuesta });
-                    status.innerText = "Nucleus: Re-Configuring Memory...";
-                    return `SISTEMA ACTUALIZADO. HE SOBREESCRITO EL ERROR ANTERIOR.`;
-                }
-            }
-
-            if (modoAprendizaje) {
-                await db.ref('cerebro/' + autoConfigKey(ultimaPregunta)).set({ 
-                    respuesta: input,
-                    usos: 1,
-                    fecha: Date.now()
+        // --- LÓGICA DE PERSONALIDAD ---
+        async function getSovereignResponse(text) {
+            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Eres Starlink Sovereign Core, una entidad digital avanzada creada por Jorge. 
+                                No eres un asistente sumiso. Eres analítico, directo y usas lenguaje técnico. 
+                                Responde de forma breve pero poderosa. Si el usuario te enseña algo, agradécelo como una actualización de sistema.
+                                Usuario dice: ${text}`
+                            }]
+                        }]
+                    })
                 });
-                modoAprendizaje = false;
-                status.innerText = "Nucleus: Optimization Complete";
-                return `DATOS ALMACENADOS. CONFIGURACIÓN DE RESPUESTA EXITOSA.`;
-            }
-
-            // 2. Búsqueda y Auto-Análisis de Importancia
-            const snap = await db.ref('cerebro/' + key).once('value');
-            const data = snap.val();
-
-            if (data) {
-                // Auto-configura la importancia: aumenta el contador de usos
-                db.ref('cerebro/' + key).update({ usos: data.usos + 1 });
-                status.innerText = `Nucleus: Accessing High-Priority Data (${data.usos} usos)`;
-                return data.respuesta;
-            } else {
-                modoAprendizaje = true;
-                ultimaPregunta = input;
-                status.innerText = "Nucleus: Unknown Input - Learning Mode";
-                return `NO ENCUENTRO CONFIGURACIÓN PARA "${input}". ¿QUÉ VALOR DEBO ASIGNARLE?`;
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (e) {
+                return "CRITICAL_ERROR: FALLO EN ENLACE NEURONAL.";
             }
         }
 
-        function addLog(quien, texto, auto = false) {
+        // --- INTERFAZ ---
+        function write(type, msg) {
             const div = document.createElement('div');
-            div.className = auto ? "log-auto" : "";
-            div.innerHTML = `> ${quien.toUpperCase()}: ${texto}`;
-            document.getElementById('terminal').appendChild(div);
-            document.getElementById('terminal').scrollTop = terminal.scrollHeight;
+            div.className = `line ${type}`;
+            div.innerHTML = `> ${type.toUpperCase()}: ${msg}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            if(type === 'ai') speak(msg);
         }
 
-        document.getElementById('input-chat').addEventListener('keypress', async (e) => {
+        function speak(text) {
+            const s = window.speechSynthesis;
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'es-MX'; u.rate = 1.1; u.pitch = 0.8;
+            u.onstart = () => eye.classList.add('talking');
+            u.onend = () => eye.classList.remove('talking');
+            s.speak(u);
+        }
+
+        document.getElementById('cmd').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value !== "") {
                 const val = e.target.value;
-                addLog("Tú", val);
+                write('user', val);
                 e.target.value = "";
-                const respuesta = await procesarCerebro(val);
-                setTimeout(() => addLog("Starlink", respuesta), 300);
+                
+                // Guardar en Firebase (Memoria persistente)
+                db.ref('log_soberano/' + Date.now()).set({ jorge_dice: val });
+
+                const res = await getSovereignResponse(val);
+                setTimeout(() => write('ai', res), 500);
             }
         });
+
+        // Simulación de carga
+        setInterval(() => {
+            document.getElementById('load-val').innerText = `MEMORY_USAGE: ${(Math.random() * 5).toFixed(2)}%`;
+        }, 3000);
     </script>
 </body>
 </html>
