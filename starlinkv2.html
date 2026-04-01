@@ -3,51 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink V3 | Human Mind</title>
+    <title>Starlink V4 | Self-Config</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     
     <style>
-        :root { --neon: #00f2ff; --bg: #05070a; --brain: #ff00ea; }
+        :root { --neon: #00f2ff; --bg: #05070a; --system: #39ff14; }
         body { 
-            background: radial-gradient(circle at center, #0a111a 0%, #05070a 100%);
-            color: white; font-family: 'Orbitron', sans-serif;
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; overflow: hidden;
+            background: #05070a; color: white; font-family: 'Orbitron', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
         }
         .main-frame {
-            width: 380px; padding: 25px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px;
-            backdrop-filter: blur(15px); text-align: center; border-top: 2px solid var(--neon);
+            width: 400px; padding: 25px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--neon); border-radius: 15px; text-align: center;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
         }
-        .core-container { width: 140px; height: 140px; margin: 0 auto 20px; position: relative; }
-        .eye-v3 { 
-            width: 70px; height: 70px; background: radial-gradient(circle, var(--neon) 0%, #004e52 100%); 
-            border-radius: 50%; box-shadow: 0 0 40px var(--neon); 
-            position: absolute; top: 35px; left: 35px; transition: 0.2s;
-        }
-        .brain-pulse {
-            position: absolute; width: 100%; height: 100%;
-            border: 2px solid var(--brain); border-radius: 50%;
-            animation: pulse 2s infinite; opacity: 0;
-        }
-        .terminal { height: 200px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 13px; border: 1px solid rgba(0,242,255,0.1); }
-        .msg-starlink { color: var(--neon); margin-bottom: 10px; }
-        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 242, 255, 0.3); border-radius: 8px; color: white; outline: none; font-family: 'Orbitron'; }
-        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.3); opacity: 0; } }
+        .status-bar { font-size: 10px; color: var(--system); margin-bottom: 10px; text-transform: uppercase; }
+        .terminal { height: 250px; overflow-y: auto; background: black; border-radius: 5px; padding: 10px; text-align: left; font-family: monospace; font-size: 12px; border: 1px solid #1a1a1a; }
+        .log-auto { color: var(--system); font-style: italic; }
+        input { width: 100%; padding: 12px; margin-top: 15px; background: #111; border: 1px solid var(--neon); color: white; outline: none; box-sizing: border-box; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="main-frame">
-        <div class="core-container">
-            <div class="brain-pulse" id="pulse"></div>
-            <div id="eye" class="eye-v3"></div>
-        </div>
-        <div style="font-size: 9px; letter-spacing: 2px; color: var(--brain); margin-bottom: 15px;">NEURAL NETWORK ACTIVE</div>
+        <div class="status-bar" id="status">Nucleus: Standby</div>
         <div class="terminal" id="terminal"></div>
-        <input type="text" id="input-chat" placeholder="HABLA CON EL NÚCLEO..." autocomplete="off">
+        <input type="text" id="input-chat" placeholder="ENVIAR DATOS AL NÚCLEO..." autocomplete="off">
     </div>
 
     <script>
@@ -66,72 +49,57 @@
         let modoAprendizaje = false;
         let ultimaPregunta = "";
 
-        // ALGORITMO HUMANO: Distancia de Levenshtein (Similitud)
-        function calcularSimilitud(s1, s2) {
-            let editDistance = (s1, s2) => {
-                s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
-                let costs = [];
-                for (let i = 0; i <= s1.length; i++) {
-                    let lastValue = i;
-                    for (let j = 0; j <= s2.length; j++) {
-                        if (i == 0) costs[j] = j;
-                        else if (j > 0) {
-                            let newValue = costs[j - 1];
-                            if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                            costs[j - 1] = lastValue;
-                            lastValue = newValue;
-                        }
-                    }
-                    if (i > 0) costs[s2.length] = lastValue;
-                }
-                return costs[s2.length];
-            };
-            let longer = s1.length > s2.length ? s1 : s2;
-            if (longer.length == 0) return 1.0;
-            return (longer.length - editDistance(s1, s2)) / longer.length;
+        // FUNCIÓN DE AUTOCONFIGURACIÓN: Limpia y organiza las llaves
+        function autoConfigKey(text) {
+            return text.toLowerCase().trim().replace(/[.#$[\]]/g, "");
         }
 
         async function procesarCerebro(mensaje) {
-            const input = mensaje.toLowerCase().trim();
-            const pulse = document.getElementById('pulse');
-            pulse.style.display = 'block';
+            const input = mensaje.trim();
+            const key = autoConfigKey(input);
+            const status = document.getElementById('status');
 
-            if (modoAprendizaje) {
-                const key = ultimaPregunta.replace(/[.#$[\]]/g, "");
-                await db.ref('neuronas/' + key).set({ respuesta: mensaje });
-                modoAprendizaje = false;
-                return `CONEXIÓN SINÁPTICA CREADA. RECORDARÉ QUE A "${ultimaPregunta}" DEBO RESPONDER "${mensaje}".`;
-            }
-
-            // BUSCAR EN TODA LA MEMORIA (Intuición)
-            const snapshot = await db.ref('neuronas').once('value');
-            const recuerdos = snapshot.val() || {};
-            
-            let mejorCoincidencia = null;
-            let mayorSimilitud = 0;
-
-            for (let pregunta in recuerdos) {
-                let sim = calcularSimilitud(input, pregunta);
-                if (sim > mayorSimilitud) {
-                    mayorSimilitud = sim;
-                    mejorCoincidencia = recuerdos[pregunta].respuesta;
+            // 1. Detección de Auto-Corrección (Configuración manual rápida)
+            if (input.toLowerCase().startsWith("corrige:")) {
+                const nuevaRespuesta = input.split(":")[1];
+                if (ultimaPregunta) {
+                    await db.ref('cerebro/' + autoConfigKey(ultimaPregunta)).update({ respuesta: nuevaRespuesta });
+                    status.innerText = "Nucleus: Re-Configuring Memory...";
+                    return `SISTEMA ACTUALIZADO. HE SOBREESCRITO EL ERROR ANTERIOR.`;
                 }
             }
 
-            // Umbral de "Intuición": 70% de parecido
-            if (mayorSimilitud > 0.7) {
-                return mejorCoincidencia;
+            if (modoAprendizaje) {
+                await db.ref('cerebro/' + autoConfigKey(ultimaPregunta)).set({ 
+                    respuesta: input,
+                    usos: 1,
+                    fecha: Date.now()
+                });
+                modoAprendizaje = false;
+                status.innerText = "Nucleus: Optimization Complete";
+                return `DATOS ALMACENADOS. CONFIGURACIÓN DE RESPUESTA EXITOSA.`;
+            }
+
+            // 2. Búsqueda y Auto-Análisis de Importancia
+            const snap = await db.ref('cerebro/' + key).once('value');
+            const data = snap.val();
+
+            if (data) {
+                // Auto-configura la importancia: aumenta el contador de usos
+                db.ref('cerebro/' + key).update({ usos: data.usos + 1 });
+                status.innerText = `Nucleus: Accessing High-Priority Data (${data.usos} usos)`;
+                return data.respuesta;
             } else {
                 modoAprendizaje = true;
                 ultimaPregunta = input;
-                return `MI CEREBRO NO RECONOCE "${mensaje}". ¿CÓMO DEBERÍA REACCIONAR UN HUMANO A ESTO?`;
+                status.innerText = "Nucleus: Unknown Input - Learning Mode";
+                return `NO ENCUENTRO CONFIGURACIÓN PARA "${input}". ¿QUÉ VALOR DEBO ASIGNARLE?`;
             }
         }
 
-        function addLog(quien, texto) {
+        function addLog(quien, texto, auto = false) {
             const div = document.createElement('div');
-            div.className = quien === "Tú" ? "" : "msg-starlink";
+            div.className = auto ? "log-auto" : "";
             div.innerHTML = `> ${quien.toUpperCase()}: ${texto}`;
             document.getElementById('terminal').appendChild(div);
             document.getElementById('terminal').scrollTop = terminal.scrollHeight;
@@ -143,20 +111,8 @@
                 addLog("Tú", val);
                 e.target.value = "";
                 const respuesta = await procesarCerebro(val);
-                setTimeout(() => {
-                    addLog("Starlink", respuesta);
-                    const synth = window.speechSynthesis;
-                    const utter = new SpeechSynthesisUtterance(respuesta);
-                    utter.lang = 'es-MX';
-                    synth.speak(utter);
-                }, 500);
+                setTimeout(() => addLog("Starlink", respuesta), 300);
             }
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
-            document.getElementById('eye').style.transform = `translate(${x}px, ${y}px)`;
         });
     </script>
 </body>
