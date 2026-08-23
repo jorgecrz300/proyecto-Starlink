@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asistente de Voz IA</title>
+  <title>IA Siri Style Visualizer</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,230 +12,281 @@
     }
 
     body {
-      background-color: #0d0d11;
+      background-color: #050508;
       color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      align-items: center;
       overflow: hidden;
     }
 
-    /* Área central con el orbe / aurora */
-    .visualizer-container {
+    /* Contenedor central del canvas (Aurora) */
+    .visualizer-wrapper {
       flex: 1;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       position: relative;
     }
 
-    .orb {
-      width: 150px;
-      height: 150px;
+    canvas {
+      width: 320px;
+      height: 320px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(147, 51, 234, 1) 0%, rgba(59, 130, 246, 0.8) 50%, rgba(236, 72, 153, 0) 70%);
-      box-shadow: 0 0 60px rgba(147, 51, 234, 0.6), 0 0 100px rgba(59, 130, 246, 0.4);
       cursor: pointer;
-      transition: transform 0.05s ease-out, box-shadow 0.05s ease-out;
-      animation: float 4s ease-in-out infinite;
+      filter: blur(8px);
+      transition: opacity 0.3s ease;
     }
 
-    .status-text {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #a1a1aa;
+    .status-badge {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      color: #8e8e93;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
     }
 
-    /* Animación de flotación básica cuando no detecta audio */
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-10px) scale(1.02); }
-    }
-
-    /* Sección del chat inferior */
-    .chat-container {
+    /* Interfaz de Chat Estilo iOS */
+    .chat-wrapper {
       width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 1rem;
+      max-width: 520px;
+      padding: 1.5rem 1rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
 
-    .messages {
-      max-height: 180px;
+    .messages-container {
+      max-height: 160px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      padding-right: 0.5rem;
+      gap: 0.6rem;
+      padding-right: 4px;
     }
 
-    .message {
-      padding: 0.6rem 1rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      max-width: 80%;
+    .messages-container::-webkit-scrollbar {
+      width: 4px;
     }
 
-    .message.system {
-      background-color: #1e1e24;
+    .messages-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .bubble {
+      padding: 0.75rem 1.1rem;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      max-width: 82%;
+    }
+
+    .bubble.ai {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f2f2f7;
       align-self: flex-start;
-      color: #e4e4e7;
+      border-bottom-left-radius: 4px;
+      backdrop-filter: blur(12px);
     }
 
-    .message.user {
-      background-color: #3b82f6;
+    .bubble.user {
+      background: linear-gradient(135deg, #0a84ff, #0066cc);
+      color: #ffffff;
       align-self: flex-end;
-      color: #ffffff;
+      border-bottom-right-radius: 4px;
     }
 
-    .input-form {
+    .input-bar {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 8px 6px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
     }
 
-    .input-form input {
+    .input-bar input {
       flex: 1;
-      padding: 0.8rem 1rem;
-      border-radius: 24px;
-      border: 1px solid #27272a;
-      background-color: #18181b;
-      color: #ffffff;
-      outline: none;
-    }
-
-    .input-form input:focus {
-      border-color: #3b82f6;
-    }
-
-    .input-form button {
-      padding: 0.8rem 1.2rem;
-      border-radius: 24px;
+      background: transparent;
       border: none;
-      background-color: #3b82f6;
+      outline: none;
       color: #ffffff;
-      font-weight: bold;
-      cursor: pointer;
+      font-size: 0.95rem;
     }
 
-    .input-form button:hover {
-      background-color: #2563eb;
+    .input-bar input::placeholder {
+      color: #636366;
+    }
+
+    .input-bar button {
+      background: #30d158;
+      border: none;
+      color: #000000;
+      font-weight: 600;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease;
+    }
+
+    .input-bar button:active {
+      transform: scale(0.92);
     }
   </style>
 </head>
 <body>
 
-  <!-- Contenedor de la esfera brillante / aurora -->
-  <main class="visualizer-container">
-    <div class="orb" id="orb"></div>
-    <p class="status-text" id="statusText">Haz clic en el orbe para activar el micrófono</p>
-  </main>
+  <!-- Aurora Siri Canvas -->
+  <div class="visualizer-wrapper">
+    <canvas id="auroraCanvas" width="400" height="400"></canvas>
+    <div class="status-badge" id="statusBadge">Haz clic en la aurora para hablar</div>
+  </div>
 
-  <!-- Área de Chat e entrada de texto -->
-  <footer class="chat-container">
-    <div class="messages" id="messages">
-      <div class="message system">Hola, ¿en qué puedo ayudarte hoy?</div>
+  <!-- Chat Inferior -->
+  <div class="chat-wrapper">
+    <div class="messages-container" id="chatBox">
+      <div class="bubble ai">Hola. Haz clic en la aurora para activar el micrófono o escribe abajo.</div>
     </div>
-    <form class="input-form" id="chatForm">
-      <input type="text" id="userInput" placeholder="Escribe un mensaje..." autocomplete="off">
-      <button type="submit">Enviar</button>
+    <form class="input-bar" id="inputForm">
+      <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+      <button type="submit">↑</button>
     </form>
-  </footer>
+  </div>
 
   <script>
-    const orb = document.getElementById('orb');
-    const statusText = document.getElementById('statusText');
-    const chatForm = document.getElementById('chatForm');
+    const canvas = document.getElementById('auroraCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusBadge = document.getElementById('statusBadge');
+    const chatBox = document.getElementById('chatBox');
+    const inputForm = document.getElementById('inputForm');
     const userInput = document.getElementById('userInput');
-    const messages = document.getElementById('messages');
 
-    let audioContext;
-    let analyser;
-    let microphone;
+    let audioCtx, analyser, micSource;
     let isListening = false;
+    let audioVolume = 0;
+    let step = 0;
 
-    // Iniciar micrófono y captura de audio
-    async function initAudio() {
+    // Configuración del efecto de ondas fluido
+    function drawAurora() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const baseRadius = 100 + audioVolume * 0.4;
+
+      step += 0.03 + (audioVolume / 500);
+
+      // Colores estilo Siri (Magenta, Cian, Púrpura, Azul)
+      const colors = [
+        'rgba(255, 45, 85, 0.5)',  // Rosa / Rojo
+        'rgba(88, 86, 214, 0.6)',  // Púrpura
+        'rgba(0, 122, 255, 0.6)',  // Azul Siri
+        'rgba(52, 199, 89, 0.4)'   // Verde
+      ];
+
+      colors.forEach((color, index) => {
+        ctx.beginPath();
+        ctx.fillStyle = color;
+
+        for (let i = 0; i <= 360; i += 5) {
+          const angle = (i * Math.PI) / 180;
+          // Deformación orgánica usando funciones seno y coseno combinadas
+          const offset = Math.sin(angle * (index + 2) + step) * (15 + audioVolume * 0.3) +
+                         Math.cos(angle * 3 - step) * (10 + audioVolume * 0.2);
+          
+          const r = baseRadius + offset;
+          const x = centerX + r * Math.cos(angle);
+          const y = centerY + r * Math.sin(angle);
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      requestAnimationFrame(drawAurora);
+    }
+
+    // Inicialización del audio
+    async function startAudio() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(stream);
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        micSource = audioCtx.createMediaStreamSource(stream);
 
         analyser.fftSize = 64;
-        microphone.connect(analyser);
+        micSource.connect(analyser);
 
         isListening = true;
-        statusText.textContent = "Escuchando tu voz...";
-        visualize();
+        statusBadge.textContent = "Escuchando...";
+        processAudio();
       } catch (err) {
-        statusText.textContent = "Permiso de micrófono denegado.";
-        console.error("Error al acceder al micrófono:", err);
+        statusBadge.textContent = "Micrófono no permitido";
       }
     }
 
-    // Activar audio al dar clic en el orbe
-    orb.addEventListener('click', () => {
-      if (!isListening) {
-        initAudio();
+    function processAudio() {
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      
+      function update() {
+        if (!isListening) return;
+        analyser.getByteFrequencyData(data);
+        
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) sum += data[i];
+        audioVolume = sum / data.length; // Nivel de volumen actual
+
+        requestAnimationFrame(update);
       }
+      update();
+    }
+
+    canvas.addEventListener('click', () => {
+      if (!isListening) startAudio();
     });
 
-    // Animar la esfera según la intensidad del sonido
-    function visualize() {
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-      function renderFrame() {
-        if (!isListening) return;
-
-        requestAnimationFrame(renderFrame);
-        analyser.getByteFrequencyData(dataArray);
-
-        // Promedio de volumen
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
-        }
-        const average = sum / dataArray.length;
-
-        // Calcular tamaño y resplandor dinámico
-        const scale = 1 + average / 70;
-        const glow = 60 + average * 1.5;
-
-        orb.style.transform = `scale(${scale})`;
-        orb.style.boxShadow = `0 0 ${glow}px rgba(147, 51, 234, 0.8), 0 0 ${glow * 1.5}px rgba(59, 130, 246, 0.6)`;
-      }
-
-      renderFrame();
-    }
-
-    // Manejar el envío de mensajes de texto
-    chatForm.addEventListener('submit', (e) => {
+    // Manejo de la ventana de chat
+    inputForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const text = userInput.value.trim();
-      if (!text) return;
+      const val = userInput.value.trim();
+      if (!val) return;
 
-      addMessage(text, 'user');
+      appendBubble(val, 'user');
       userInput.value = '';
 
-      // Respuesta simulada de la IA
       setTimeout(() => {
-        addMessage("Entendido. Procesando solicitud...", 'system');
-      }, 600);
+        appendBubble('Procesando respuesta con la estructura...', 'ai');
+      }, 500);
     });
 
-    function addMessage(text, sender) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', sender);
-      msgDiv.textContent = text;
-      messages.appendChild(msgDiv);
-      messages.scrollTop = messages.scrollHeight;
+    function appendBubble(text, type) {
+      const div = document.createElement('div');
+      div.className = `bubble ${type}`;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    // Arrancar render del canvas
+    drawAurora();
   </script>
 </body>
 </html>
