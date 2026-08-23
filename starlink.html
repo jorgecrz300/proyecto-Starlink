@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlink AI - Core Interface</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Contenedor principal estilo Dashboard */
+        .dashboard {
+            width: 90vw;
+            max-width: 900px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(18, 24, 38, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 0 40px rgba(0, 162, 255, 0.15);
+        }
+
+        /* Indicadores de Estado */
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: #00d9ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Avatar del Rostro */
+        .avatar-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 3px solid #00d9ff;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #06090e;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .face {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .eyes {
+            display: flex;
+            gap: 35px;
+        }
+
+        .eye {
+            width: 28px;
+            height: 28px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pupil {
+            width: 12px;
+            height: 12px;
+            background-color: #0b0e14;
+            border-radius: 50%;
+        }
+
+        .mouth {
+            width: 45px;
+            height: 6px;
+            background-color: #00d9ff;
+            border-radius: 10px;
+            transition: all 0.15s ease;
+            box-shadow: 0 0 10px #00d9ff;
+        }
+
+        .mouth.speaking {
+            height: 18px;
+            border-radius: 50%;
+        }
+
+        /* Área de Chat Ampliada */
+        .chat-box {
+            width: 100%;
+            flex-grow: 1;
+            background: rgba(10, 14, 23, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* Estilo de Mensajes en Tarjetas */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0088ff, #0055ff);
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            color: #e0f7ff;
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Barra de Entrada */
+        .input-area {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex-grow: 1;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            padding: 14px 20px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #00d9ff;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        button {
+            background: #00d9ff;
+            color: #0b0e14;
+            border: none;
+            border-radius: 12px;
+            padding: 0 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:hover {
+            background: #00b3d6;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="status-bar">
+            <span>● Modo: I.A. Activa</span>
+            <span>|</span>
+            <span>Núcleo: Starlink Core</span>
+        </div>
+
+        <div class="avatar-container">
+            <div class="face">
+                <div class="eyes">
+                    <div class="eye"><div class="pupil"></div></div>
+                    <div class="eye"><div class="pupil"></div></div>
+                </div>
+                <div class="mouth" id="mouth"></div>
+            </div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message bot">Sistemas en línea. Hola Jorge, ¿en qué te puedo ayudar hoy?</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Inicia el enlace neuronal..." onkeypress="handleKey(event)">
+            <button onclick="enviarMensaje()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const mouth = document.getElementById('mouth');
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        function hablar(texto) {
+            const synth = window.speechSynthesis;
+            const utter = new SpeechSynthesisUtterance(texto);
+            
+            const voces = synth.getVoices();
+            const vozEspanol = voces.find(v => v.lang.includes('es'));
+            if (vozEspanol) utter.voice = vozEspanol;
+
+            utter.lang = 'es-MX';
+            utter.onstart = () => mouth.classList.add('speaking');
+            utter.onend = () => mouth.classList.remove('speaking');
+            
+            synth.speak(utter);
+        }
+
+        function agregarMensaje(texto, remitente) {
+            const div = document.createElement('div');
+            div.classList.add('message', remitente);
+            div.innerText = texto;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function enviarMensaje() {
+            const mensaje = userInput.value.trim();
+            if (!mensaje) return;
+
+            agregarMensaje(mensaje, 'user');
+            userInput.value = '';
+
+            try {
+                const res = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensaje })
+                });
+                const data = await res.json();
+                
+                agregarMensaje(data.respuesta, 'bot');
+                hablar(data.respuesta);
+            } catch (err) {
+                agregarMensaje('Error de conexión con el núcleo.', 'bot');
+            }
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter') enviarMensaje();
+        }
+    </script>
+</body>
+</html>
