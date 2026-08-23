@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink AI - ChatGPT & Gemini Style</title>
+    <title>Starlink AI - Formas de Boca Realistas</title>
     <style>
         :root {
             --bg-color: #131314;
@@ -27,7 +27,7 @@
             overflow: hidden; 
         }
 
-        /* Encabezado / Header con Rostro de Starlink */
+        /* Header con el Rostro */
         .app-header {
             width: 100%;
             padding: 15px;
@@ -42,8 +42,8 @@
             background: radial-gradient(circle, #1a2333 0%, #0d1117 100%); 
             border: 2px solid var(--primary-accent); 
             border-radius: 50%; 
-            width: 130px; 
-            height: 130px; 
+            width: 140px; 
+            height: 140px; 
             display: flex; 
             flex-direction: column;
             justify-content: center; 
@@ -52,10 +52,10 @@
             box-shadow: 0 0 25px rgba(0, 243, 255, 0.2); 
         }
 
-        .eyes-container { display: flex; gap: 24px; margin-bottom: 10px; }
+        .eyes-container { display: flex; gap: 28px; margin-bottom: 12px; }
         .eye { 
-            width: 26px; 
-            height: 26px; 
+            width: 28px; 
+            height: 28px; 
             background: #ffffff; 
             border-radius: 50%; 
             position: relative; 
@@ -74,19 +74,21 @@
             transition: transform 0.05s linear;
         }
 
+        /* SVG Boca con Relleno para Abrir/Cerrar */
         .mouth-svg {
-            width: 50px;
-            height: 25px;
+            width: 60px;
+            height: 35px;
             position: absolute;
-            bottom: 18px;
+            bottom: 15px;
         }
         .mouth-path {
-            fill: none;
+            fill: rgba(0, 243, 255, 0.2);
             stroke: var(--primary-accent);
-            stroke-width: 3;
+            stroke-width: 2.5;
+            stroke-linejoin: round;
             stroke-linecap: round;
             filter: drop-shadow(0px 0px 4px var(--primary-accent));
-            transition: d 0.08s ease;
+            transition: d 0.07s ease;
         }
 
         /* Feed Estilo Chat AI (Gemini / ChatGPT) */
@@ -101,13 +103,8 @@
             gap: 24px;
         }
 
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-container::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 
         .chat-row {
             display: flex;
@@ -117,10 +114,7 @@
             font-size: 0.98em;
         }
 
-        .chat-row.user {
-            justify-content: flex-end;
-        }
-
+        .chat-row.user { justify-content: flex-end; }
         .chat-row.user .message-content {
             background-color: var(--user-msg-bg);
             border-radius: 20px;
@@ -128,9 +122,7 @@
             max-width: 80%;
         }
 
-        .chat-row.ai {
-            align-items: flex-start;
-        }
+        .chat-row.ai { align-items: flex-start; }
 
         .avatar {
             width: 32px;
@@ -156,7 +148,7 @@
             max-width: 88%;
         }
 
-        /* Barra de entrada tipo Prompt de Gemini/ChatGPT */
+        /* Input Inferior */
         .prompt-wrapper {
             width: 100%;
             max-width: 768px;
@@ -173,9 +165,7 @@
             transition: border-color 0.2s;
         }
 
-        .prompt-container:focus-within {
-            border-color: #55585d;
-        }
+        .prompt-container:focus-within { border-color: #55585d; }
 
         input {
             flex: 1;
@@ -187,9 +177,7 @@
             padding: 10px 0;
         }
 
-        input::placeholder {
-            color: var(--text-secondary);
-        }
+        input::placeholder { color: var(--text-secondary); }
 
         .send-btn {
             background-color: var(--text-color);
@@ -204,15 +192,8 @@
             transition: opacity 0.2s;
         }
 
-        .send-btn:hover {
-            opacity: 0.85;
-        }
-
-        .send-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: #131314;
-        }
+        .send-btn:hover { opacity: 0.85; }
+        .send-btn svg { width: 18px; height: 18px; fill: #131314; }
 
         .disclaimer {
             text-align: center;
@@ -224,7 +205,6 @@
 </head>
 <body>
 
-    <!-- Header con el rostro animado -->
     <header class="app-header">
         <div class="starlink-face">
             <div class="eyes-container">
@@ -232,22 +212,20 @@
                 <div class="eye"><div class="pupil"></div></div>
             </div>
             <svg class="mouth-svg" viewBox="0 0 100 50">
-                <path class="mouth-path" id="mouthPath" d="M 20 20 Q 50 25 80 20" />
+                <path class="mouth-path" id="mouthPath" d="M 25 25 Q 50 25 75 25 Z" />
             </svg>
         </div>
     </header>
 
-    <!-- Área Principal de Chat -->
     <main class="chat-container" id="chat-output">
         <div class="chat-row ai">
             <div class="avatar ai-avatar">✦</div>
             <div class="message-content">
-                Hola, soy <strong>Starlink</strong>. ¿En qué te puedo ayudar hoy?
+                Hola, soy <strong>Starlink</strong>. La apertura de boca ahora es dinámica. ¿En qué te puedo ayudar?
             </div>
         </div>
     </main>
 
-    <!-- Barra de Prompt Flotante Inferior -->
     <footer class="prompt-wrapper">
         <div class="prompt-container">
             <input type="text" id="user-input" placeholder="Escribe un mensaje para Starlink..." autocomplete="off">
@@ -265,28 +243,28 @@
         const mouthPath = document.getElementById('mouthPath');
         let mouthInterval;
 
-        // Movimiento de la boca SVG al hablar
-        const mouthShapes = [
-            "M 20 20 Q 50 40 80 20",
-            "M 25 20 Q 50 15 75 20",
-            "M 30 15 Q 50 35 70 15",
-            "M 20 20 Q 50 30 80 20",
-            "M 20 20 Q 50 22 80 20"
+        // Formas geométricas de boca (Cerrada -> Óvalos -> Círculo)
+        const MOUTH_CLOSED = "M 25 25 Q 50 25 75 25 Z"; // Línea cerrada
+        
+        const mouthOpenShapes = [
+            "M 25 25 Q 50 10 75 25 Q 50 40 25 25 Z", // Óvalo grande abierto (A)
+            "M 30 25 Q 50 15 70 25 Q 50 35 30 25 Z", // Óvalo mediano (E/I)
+            "M 35 25 C 35 12, 65 12, 65 25 C 65 38, 35 38, 35 25 Z", // Círculo/Cilindro (O/U)
+            "M 25 25 Q 50 18 75 25 Q 50 32 25 25 Z"  // Semi-abierto leve
         ];
 
         function animarBoca(hablando) {
             if (hablando) {
                 mouthInterval = setInterval(() => {
-                    const randomShape = mouthShapes[Math.floor(Math.random() * (mouthShapes.length - 1))];
+                    const randomShape = mouthOpenShapes[Math.floor(Math.random() * mouthOpenShapes.length)];
                     mouthPath.setAttribute('d', randomShape);
-                }, 100);
+                }, 90);
             } else {
                 clearInterval(mouthInterval);
-                mouthPath.setAttribute('d', "M 20 20 Q 50 25 80 20");
+                mouthPath.setAttribute('d', MOUTH_CLOSED);
             }
         }
 
-        // Voz del navegador
         function hablar(texto) {
             const synth = window.speechSynthesis;
             synth.cancel();
@@ -299,10 +277,10 @@
 
         function responderLocal(mensaje) {
             const respuestas = [
-                "Entendido. He procesado tu solicitud en la interfaz del sistema.",
-                "Claro, puedo ayudarte con esa estructura.",
-                "Recibido. Todos los parámetros de conexión están respondiendo con normalidad.",
-                "Perfecto, ¿hay algo más en lo que pueda colaborar?"
+                "Entendido. Como ves, la boca ahora se abre en formas ovaladas y circulares al articular palabra.",
+                "Perfecto, el cambio de estado entre reposo y conversación está funcionando.",
+                "Recibido. La gesticulación simula la apertura real de una boca.",
+                "Estructura lista y adaptada a tus instrucciones."
             ];
             return respuestas[Math.floor(Math.random() * respuestas.length)];
         }
@@ -311,7 +289,6 @@
             const text = userInput.value.trim();
             if (!text) return;
 
-            // Fila de mensaje del usuario
             const userRow = document.createElement('div');
             userRow.className = 'chat-row user';
             userRow.innerHTML = `<div class="message-content">${text}</div>`;
@@ -320,7 +297,6 @@
             userInput.value = '';
             chatOutput.scrollTop = chatOutput.scrollHeight;
 
-            // Fila de respuesta de la IA (Simulada)
             setTimeout(() => {
                 const respuesta = responderLocal(text);
                 const aiRow = document.createElement('div');
@@ -340,7 +316,7 @@
             if (e.key === 'Enter') enviarMensaje();
         });
 
-        // Seguimiento de ojos con el cursor
+        // Seguimiento de ojos con el mouse
         document.addEventListener('mousemove', (e) => {
             const pupils = document.querySelectorAll('.pupil');
             const x = (e.clientX / window.innerWidth - 0.5) * 12;
@@ -348,11 +324,11 @@
             pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
         });
 
-        // Parpadeo natural aleatorio
+        // Parpadeo aleatorio
         function parpadear() {
             const eyes = document.querySelectorAll('.eye');
             eyes.forEach(e => e.style.height = '2px');
-            setTimeout(() => eyes.forEach(e => e.style.height = '26px'), 120);
+            setTimeout(() => eyes.forEach(e => e.style.height = '28px'), 120);
             setTimeout(parpadear, Math.random() * 4000 + 2000);
         }
         parpadear();
