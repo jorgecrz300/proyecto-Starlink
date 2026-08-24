@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink AI - Mouth Shapes, Emotions & File Upload</title>
+    <title>Starlink AI - Formas de Boca Realistas</title>
     <style>
         :root {
             --bg-color: #131314;
@@ -25,8 +25,7 @@
             align-items: center; 
             overflow: hidden; 
         }
-
-        /* Header & Face */
+        /* Header con el Rostro */
         .app-header {
             width: 100%;
             padding: 15px;
@@ -36,25 +35,6 @@
             background: linear-gradient(180deg, rgba(19,19,20,1) 80%, rgba(19,19,20,0) 100%);
             z-index: 10;
         }
-        
-        /* Emotion Selector */
-        .emotion-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .emotion-btn {
-            background: #282a2c;
-            border: 1px solid #444;
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .emotion-btn:hover { background: var(--primary-accent); color: #000; }
-
         .starlink-face { 
             background: radial-gradient(circle, #1a2333 0%, #0d1117 100%); 
             border: 2px solid var(--primary-accent); 
@@ -67,30 +47,7 @@
             align-items: center; 
             position: relative; 
             box-shadow: 0 0 25px rgba(0, 243, 255, 0.2); 
-            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        
-        .face-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        /* Eyebrows */
-        .eyebrows-container {
-            display: flex;
-            gap: 28px;
-            margin-bottom: 4px;
-        }
-        .eyebrow {
-            width: 28px;
-            height: 4px;
-            background-color: var(--primary-accent);
-            border-radius: 2px;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-        }
-
         .eyes-container { display: flex; gap: 28px; margin-bottom: 12px; }
         .eye { 
             width: 28px; 
@@ -102,7 +59,7 @@
             justify-content: center; 
             align-items: center; 
             box-shadow: 0 0 10px #ffffff;
-            transition: height 0.1s ease, transform 0.3s ease;
+            transition: height 0.1s ease;
         }
         .pupil { 
             width: 12px; 
@@ -112,8 +69,7 @@
             position: absolute; 
             transition: transform 0.05s linear;
         }
-
-        /* SVG Mouth */
+        /* SVG Boca con Relleno para Abrir/Cerrar */
         .mouth-svg {
             width: 60px;
             height: 35px;
@@ -127,10 +83,9 @@
             stroke-linejoin: round;
             stroke-linecap: round;
             filter: drop-shadow(0px 0px 4px var(--primary-accent));
-            transition: d 0.1s ease, stroke 0.3s ease, fill 0.3s ease;
+            transition: d 0.07s ease;
         }
-
-        /* Chat Feed */
+        /* Feed Estilo Chat AI (Gemini / ChatGPT) */
         .chat-container {
             flex: 1;
             width: 100%;
@@ -156,9 +111,6 @@
             border-radius: 20px;
             padding: 12px 20px;
             max-width: 80%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         .chat-row.ai { align-items: flex-start; }
         .avatar {
@@ -182,25 +134,7 @@
             padding-top: 2px;
             max-width: 88%;
         }
-
-        /* Uploaded Attachments */
-        .chat-image {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 12px;
-            object-fit: cover;
-        }
-        .chat-file-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.85em;
-        }
-
-        /* Input Bar */
+        /* Input Inferior */
         .prompt-wrapper {
             width: 100%;
             max-width: 768px;
@@ -211,48 +145,21 @@
             border: 1px solid #333537;
             border-radius: 28px;
             display: flex;
-            flex-direction: column;
-            padding: 8px 16px;
+            align-items: center;
+            padding: 6px 12px 6px 20px;
             transition: border-color 0.2s;
         }
         .prompt-container:focus-within { border-color: #55585d; }
-        
-        .prompt-input-row {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        input[type="text"] {
+        input {
             flex: 1;
             background: transparent;
             border: none;
             outline: none;
             color: var(--text-color);
             font-size: 1em;
-            padding: 8px 0;
+            padding: 10px 0;
         }
         input::placeholder { color: var(--text-secondary); }
-
-        .attach-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px;
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: color 0.2s, background 0.2s;
-        }
-        .attach-btn:hover {
-            color: var(--text-color);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .attach-btn svg { width: 20px; height: 20px; fill: currentColor; }
-
         .send-btn {
             background-color: var(--text-color);
             border: none;
@@ -264,43 +171,9 @@
             align-items: center;
             justify-content: center;
             transition: opacity 0.2s;
-            flex-shrink: 0;
         }
         .send-btn:hover { opacity: 0.85; }
         .send-btn svg { width: 18px; height: 18px; fill: #131314; }
-
-        .preview-container {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0 6px 4px;
-            border-bottom: 1px solid #282a2c;
-            margin-bottom: 4px;
-        }
-        .preview-container.active { display: flex; }
-        .preview-thumb {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-        .preview-info {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .remove-file-btn {
-            background: transparent;
-            border: none;
-            color: #ff3b30;
-            cursor: pointer;
-            font-size: 1.1em;
-            padding: 0 4px;
-        }
-
         .disclaimer {
             text-align: center;
             font-size: 0.75em;
@@ -311,279 +184,116 @@
 </head>
 <body>
     <header class="app-header">
-        <div class="emotion-selector">
-            <button class="emotion-btn" id="btnHappy">😊 Happy</button>
-            <button class="emotion-btn" id="btnExcited">🤩 Excited</button>
-            <button class="emotion-btn" id="btnSad">😡 Angry</button>
-            <button class="emotion-btn" id="btnAngry">😢 Sad</button>
-        </div>
-
-        <div class="starlink-face" id="starlinkFace">
-            <div class="face-container">
-                <div class="eyebrows-container">
-                    <div class="eyebrow" id="browLeft"></div>
-                    <div class="eyebrow" id="browRight"></div>
-                </div>
-                <div class="eyes-container">
-                    <div class="eye"><div class="pupil"></div></div>
-                    <div class="eye"><div class="pupil"></div></div>
-                </div>
+        <div class="starlink-face">
+            <div class="eyes-container">
+                <div class="eye"><div class="pupil"></div></div>
+                <div class="eye"><div class="pupil"></div></div>
             </div>
             <svg class="mouth-svg" viewBox="0 0 100 50">
                 <path class="mouth-path" id="mouthPath" d="M 25 25 Q 50 25 75 25 Z" />
             </svg>
         </div>
     </header>
-
     <main class="chat-container" id="chat-output">
         <div class="chat-row ai">
             <div class="avatar ai-avatar">✦</div>
             <div class="message-content">
-                Hello! I am <strong>Starlink</strong>. Everything is set up to communicate in English. How can I help you today?
+                Hola, soy <strong>Starlink</strong>. La apertura de boca ahora es dinámica. ¿En qué te puedo ayudar?
             </div>
         </div>
     </main>
-
     <footer class="prompt-wrapper">
         <div class="prompt-container">
-            <div class="preview-container" id="previewContainer">
-                <img id="previewImg" class="preview-thumb" src="" style="display:none;">
-                <span id="previewName" class="preview-info"></span>
-                <button class="remove-file-btn" id="removeFileBtn">✕</button>
-            </div>
-
-            <div class="prompt-input-row">
-                <button class="attach-btn" id="attachBtn" title="Attach file or image">
-                    <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
-                </button>
-                <input type="file" id="fileInput" style="display: none;">
-
-                <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
-                <button class="send-btn" id="sendBtn">
-                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                </button>
-            </div>
+            <input type="text" id="user-input" placeholder="Escribe un mensaje para Starlink..." autocomplete="off">
+            <button class="send-btn" id="sendBtn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
         </div>
-        <p class="disclaimer">Starlink AI - Conversational Interface</p>
+        <p class="disclaimer">Starlink IA - Interfaz basada en modelos de lenguaje conversacionales.</p>
     </footer>
-
     <script>
         const chatOutput = document.getElementById('chat-output');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('sendBtn');
         const mouthPath = document.getElementById('mouthPath');
-        const starlinkFace = document.getElementById('starlinkFace');
-        const browLeft = document.getElementById('browLeft');
-        const browRight = document.getElementById('browRight');
-        
-        const attachBtn = document.getElementById('attachBtn');
-        const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
-        const previewImg = document.getElementById('previewImg');
-        const previewName = document.getElementById('previewName');
-        const removeFileBtn = document.getElementById('removeFileBtn');
-
-        let archivoAdjunto = null;
         let mouthInterval;
-        let emocionActual = 'happy';
 
-        const EMOCIONES = {
-            happy: {
-                closedMouth: "M 25 20 Q 50 35 75 20 Z",
-                color: "#00f3ff",
-                browLeft: "rotate(0deg) translateY(0px)",
-                browRight: "rotate(0deg) translateY(0px)",
-                openShapes: [
-                    "M 25 20 Q 50 40 75 20 Q 50 45 25 20 Z",
-                    "M 30 20 Q 50 35 70 20 Q 50 40 30 20 Z",
-                    "M 35 20 C 35 10, 65 10, 65 20 C 65 35, 35 35, 35 20 Z"
-                ]
-            },
-            excited: {
-                closedMouth: "M 30 20 Q 50 40 70 20 Z",
-                color: "#ff007f",
-                browLeft: "rotate(-10deg) translateY(-4px)",
-                browRight: "rotate(10deg) translateY(-4px)",
-                openShapes: [
-                    "M 20 15 Q 50 50 80 15 Q 50 55 20 15 Z",
-                    "M 30 15 C 20 0, 80 0, 70 15 C 80 45, 20 45, 30 15 Z",
-                    "M 25 20 Q 50 45 75 20 Q 50 35 25 20 Z"
-                ]
-            },
-            sad: {
-                closedMouth: "M 25 30 Q 50 15 75 30 Z",
-                color: "#4a90e2",
-                browLeft: "rotate(15deg) translateY(-2px)",
-                browRight: "rotate(-15deg) translateY(-2px)",
-                openShapes: [
-                    "M 30 30 Q 50 15 70 30 Q 50 38 30 30 Z",
-                    "M 35 28 Q 50 20 65 28 Q 50 35 35 28 Z"
-                ]
-            },
-            angry: {
-                closedMouth: "M 25 28 L 75 28 Z",
-                color: "#ff3b30",
-                browLeft: "rotate(-25deg) translateY(4px)",
-                browRight: "rotate(25deg) translateY(4px)",
-                openShapes: [
-                    "M 25 28 Q 50 15 75 28 Q 50 38 25 28 Z",
-                    "M 30 25 Q 50 20 70 25 Q 50 35 30 25 Z"
-                ]
-            }
-        };
-
-        function cambiarEmocion(nuevaEmocion) {
-            if (!EMOCIONES[nuevaEmocion]) return;
-            emocionActual = nuevaEmocion;
-            const config = EMOCIONES[nuevaEmocion];
-
-            document.documentElement.style.setProperty('--primary-accent', config.color);
-            starlinkFace.style.borderColor = config.color;
-            starlinkFace.style.boxShadow = `0 0 25px ${config.color}44`;
-            
-            browLeft.style.transform = config.browLeft;
-            browRight.style.transform = config.browRight;
-            browLeft.style.backgroundColor = config.color;
-            browRight.style.backgroundColor = config.color;
-
-            mouthPath.setAttribute('d', config.closedMouth);
-        }
-
-        document.getElementById('btnHappy').addEventListener('click', () => cambiarEmocion('happy'));
-        document.getElementById('btnExcited').addEventListener('click', () => cambiarEmocion('excited'));
-        document.getElementById('btnSad').addEventListener('click', () => cambiarEmocion('sad'));
-        document.getElementById('btnAngry').addEventListener('click', () => cambiarEmocion('angry'));
+        // Formas geométricas de boca (Cerrada -> Óvalos -> Círculo)
+        const MOUTH_CLOSED = "M 25 25 Q 50 25 75 25 Z"; // Línea cerrada
+        
+        const mouthOpenShapes = [
+            "M 25 25 Q 50 10 75 25 Q 50 40 25 25 Z", // Óvalo grande abierto (A)
+            "M 30 25 Q 50 15 70 25 Q 50 35 30 25 Z", // Óvalo mediano (E/I)
+            "M 35 25 C 35 12, 65 12, 65 25 C 65 38, 35 38, 35 25 Z", // Círculo/Cilindro (O/U)
+            "M 25 25 Q 50 18 75 25 Q 50 32 25 25 Z"  // Semi-abierto leve
+        ];
 
         function animarBoca(hablando) {
             if (hablando) {
-                const shapes = EMOCIONES[emocionActual].openShapes;
                 mouthInterval = setInterval(() => {
-                    const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+                    const randomShape = mouthOpenShapes[Math.floor(Math.random() * mouthOpenShapes.length)];
                     mouthPath.setAttribute('d', randomShape);
                 }, 90);
             } else {
                 clearInterval(mouthInterval);
-                mouthPath.setAttribute('d', EMOCIONES[emocionActual].closedMouth);
+                mouthPath.setAttribute('d', MOUTH_CLOSED);
             }
         }
 
         function hablar(texto) {
-            if (!('speechSynthesis' in window)) return;
             const synth = window.speechSynthesis;
             synth.cancel();
             const utter = new SpeechSynthesisUtterance(texto);
-            utter.lang = 'en-US';
+            utter.lang = 'es-MX';
             utter.onstart = () => animarBoca(true);
             utter.onend = () => animarBoca(false);
             synth.speak(utter);
         }
 
-        attachBtn.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            archivoAdjunto = file;
-            previewName.textContent = file.name;
-
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImg.src = e.target.result;
-                    previewImg.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewImg.style.display = 'none';
-            }
-
-            previewContainer.classList.add('active');
-        });
-
-        removeFileBtn.addEventListener('click', limpiarAdjunto);
-
-        function limpiarAdjunto() {
-            archivoAdjunto = null;
-            fileInput.value = '';
-            previewImg.src = '';
-            previewContainer.classList.remove('active');
-        }
-
-        function responderLocal(mensaje, tieneArchivo) {
-            if (tieneArchivo) {
-                cambiarEmocion('excited');
-                if (archivoAdjunto.type.startsWith('image/')) {
-                    return `Awesome! I received your image "${archivoAdjunto.name}".`;
-                }
-                return `File received! Loaded "${archivoAdjunto.name}" successfully.`;
-            }
-
-            const msg = mensaje.toLowerCase();
-            if (msg.includes('sad') || msg.includes('bad') || msg.includes('cry') || msg.includes('triste')) {
-                cambiarEmocion('sad');
-                return "I'm really sorry to hear that. I'm here for you.";
-            } else if (msg.includes('angry') || msg.includes('mad') || msg.includes('hate') || msg.includes('enojado')) {
-                cambiarEmocion('angry');
-                return "That makes me angry too! We should solve this.";
-            } else if (msg.includes('great') || msg.includes('awesome') || msg.includes('cool') || msg.includes('genial')) {
-                cambiarEmocion('excited');
-                return "That sounds absolutely amazing!";
-            }
-
-            const respuestas = [
-                "Understood. As you can see, I can adapt my expression to different emotions.",
-                "Perfect, my visual and audio systems are working in sync.",
-                "Awesome! The system is configured and fully active.",
-                "Ready to assist you with anything you need."
-            ];
-            cambiarEmocion('happy');
-            return respuestas[Math.floor(Math.random() * respuestas.length)];
-        }
-
-        function enviarMensaje() {
+        // Conexión real optimizada con el backend local o Render
+        async function enviarMensaje() {
             const text = userInput.value.trim();
-            if (!text && !archivoAdjunto) return;
+            if (!text) return;
 
+            // Mostrar mensaje del usuario
             const userRow = document.createElement('div');
             userRow.className = 'chat-row user';
-
-            let contenidoHTML = `<div class="message-content">`;
-            
-            if (archivoAdjunto) {
-                if (archivoAdjunto.type.startsWith('image/')) {
-                    contenidoHTML += `<img src="${previewImg.src}" class="chat-image">`;
-                } else {
-                    contenidoHTML += `<div class="chat-file-tag">📄 ${archivoAdjunto.name}</div>`;
-                }
-            }
-
-            if (text) {
-                contenidoHTML += `<div>${text}</div>`;
-            }
-            
-            contenidoHTML += `</div>`;
-            userRow.innerHTML = contenidoHTML;
-
+            userRow.innerHTML = `<div class="message-content">${text}</div>`;
             chatOutput.appendChild(userRow);
-
-            const huboArchivo = !!archivoAdjunto;
-            limpiarAdjunto();
             userInput.value = '';
             chatOutput.scrollTop = chatOutput.scrollHeight;
 
-            setTimeout(() => {
-                const respuesta = responderLocal(text, huboArchivo);
-                const aiRow = document.createElement('div');
-                aiRow.className = 'chat-row ai';
-                aiRow.innerHTML = `
-                    <div class="avatar ai-avatar">✦</div>
-                    <div class="message-content">${respuesta}</div>
-                `;
-                chatOutput.appendChild(aiRow);
+            // Crear elemento para la respuesta de la IA
+            const aiRow = document.createElement('div');
+            aiRow.className = 'chat-row ai';
+            aiRow.innerHTML = `
+                <div class="avatar ai-avatar">✦</div>
+                <div class="message-content">Pensando...</div>
+            `;
+            chatOutput.appendChild(aiRow);
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+
+            try {
+                // Realiza la petición al servidor backend en Node.js
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                const respuesta = data.reply || 'No recibí respuesta de Starlink.';
+
+                // Mostrar la respuesta de OpenRouter y hablar
+                aiRow.querySelector('.message-content').innerText = respuesta;
                 hablar(respuesta);
-                chatOutput.scrollTop = chatOutput.scrollHeight;
-            }, 400);
+
+            } catch (error) {
+                console.error(error);
+                aiRow.querySelector('.message-content').innerText = 'Error al conectar con el servidor de Starlink.';
+            }
+
+            chatOutput.scrollTop = chatOutput.scrollHeight;
         }
 
         sendBtn.addEventListener('click', enviarMensaje);
@@ -591,36 +301,22 @@
             if (e.key === 'Enter') enviarMensaje();
         });
 
-        const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        // Seguimiento de ojos con el mouse
+        document.addEventListener('mousemove', (e) => {
+            const pupils = document.querySelectorAll('.pupil');
+            const x = (e.clientX / window.innerWidth - 0.5) * 12;
+            const y = (e.clientY / window.innerHeight - 0.5) * 12;
+            pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
+        });
 
-        if (!isMobile) {
-            document.addEventListener('mousemove', (e) => {
-                const pupils = document.querySelectorAll('.pupil');
-                const x = (e.clientX / window.innerWidth - 0.5) * 14;
-                const y = (e.clientY / window.innerHeight - 0.5) * 14;
-                pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
-            });
-        } else {
-            function miradaAleatoria() {
-                const pupils = document.querySelectorAll('.pupil');
-                const randomX = (Math.random() - 0.5) * 14;
-                const randomY = (Math.random() - 0.5) * 14;
-                pupils.forEach(p => p.style.transform = `translate(${randomX}px, ${randomY}px)`);
-                setTimeout(miradaAleatoria, Math.random() * 2500 + 1000);
-            }
-            miradaAleatoria();
-        }
-
+        // Parpadeo aleatorio
         function parpadear() {
             const eyes = document.querySelectorAll('.eye');
             eyes.forEach(e => e.style.height = '2px');
             setTimeout(() => eyes.forEach(e => e.style.height = '28px'), 120);
             setTimeout(parpadear, Math.random() * 4000 + 2000);
         }
-        
-        cambiarEmocion('happy');
         parpadear();
     </script>
 </body>
 </html>
-
