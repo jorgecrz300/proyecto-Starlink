@@ -218,16 +218,17 @@
         const mouthPath = document.getElementById('mouthPath');
         let mouthInterval;
 
-        // Formas geométricas de boca (Cerrada -> Óvalos -> Círculo)
-        const MOUTH_CLOSED = "M 25 25 Q 50 25 75 25 Z"; // Línea cerrada
+        // Formas geométricas de boca
+        const MOUTH_CLOSED = "M 25 25 Q 50 25 75 25 Z";
         
         const mouthOpenShapes = [
-            "M 25 25 Q 50 10 75 25 Q 50 40 25 25 Z", // Óvalo grande abierto (A)
-            "M 30 25 Q 50 15 70 25 Q 50 35 30 25 Z", // Óvalo mediano (E/I)
-            "M 35 25 C 35 12, 65 12, 65 25 C 65 38, 35 38, 35 25 Z", // Círculo/Cilindro (O/U)
-            "M 25 25 Q 50 18 75 25 Q 50 32 25 25 Z"  // Semi-abierto leve
+            "M 25 25 Q 50 10 75 25 Q 50 40 25 25 Z",
+            "M 30 25 Q 50 15 70 25 Q 50 35 30 25 Z",
+            "M 35 25 C 35 12, 65 12, 65 25 C 65 38, 35 38, 35 25 Z",
+            "M 25 25 Q 50 18 75 25 Q 50 32 25 25 Z"
         ];
 
+        // ANIMACIÓN DE BOCA MANTENIDA
         function animarBoca(hablando) {
             if (hablando) {
                 mouthInterval = setInterval(() => {
@@ -240,6 +241,7 @@
             }
         }
 
+        // VOZ (VOICE SYNTHESIS) MANTENIDA
         function hablar(texto) {
             const synth = window.speechSynthesis;
             synth.cancel();
@@ -250,12 +252,10 @@
             synth.speak(utter);
         }
 
-        // Conexión real optimizada con el backend local o Render
         async function enviarMensaje() {
             const text = userInput.value.trim();
             if (!text) return;
 
-            // Mostrar mensaje del usuario
             const userRow = document.createElement('div');
             userRow.className = 'chat-row user';
             userRow.innerHTML = `<div class="message-content">${text}</div>`;
@@ -263,7 +263,6 @@
             userInput.value = '';
             chatOutput.scrollTop = chatOutput.scrollHeight;
 
-            // Crear elemento para la respuesta de la IA
             const aiRow = document.createElement('div');
             aiRow.className = 'chat-row ai';
             aiRow.innerHTML = `
@@ -274,7 +273,6 @@
             chatOutput.scrollTop = chatOutput.scrollHeight;
 
             try {
-                // Realiza la petición al servidor backend en Node.js
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -284,8 +282,9 @@
                 const data = await response.json();
                 const respuesta = data.reply || 'No recibí respuesta de Starlink.';
 
-                // Mostrar la respuesta de OpenRouter y hablar
                 aiRow.querySelector('.message-content').innerText = respuesta;
+                
+                // AQUÍ SE EJECUTA LA VOZ Y LA BOCA CUANDO EL SERVIDOR RESPONDE
                 hablar(respuesta);
 
             } catch (error) {
@@ -301,7 +300,6 @@
             if (e.key === 'Enter') enviarMensaje();
         });
 
-        // Seguimiento de ojos con el mouse
         document.addEventListener('mousemove', (e) => {
             const pupils = document.querySelectorAll('.pupil');
             const x = (e.clientX / window.innerWidth - 0.5) * 12;
@@ -309,7 +307,6 @@
             pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
         });
 
-        // Parpadeo aleatorio
         function parpadear() {
             const eyes = document.querySelectorAll('.eye');
             eyes.forEach(e => e.style.height = '2px');
