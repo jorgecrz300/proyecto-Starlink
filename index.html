@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto Starlink - Conciencia IA</title>
+    <title>Starlink Project - AI Consciousness</title>
     <style>
         body { background-color: #0d1117; color: #58a6ff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         .container { text-align: center; width: 90%; max-width: 400px; }
@@ -25,39 +25,39 @@
             <div class="mouth" id="mouth"></div>
         </div>
         <div class="status-panel">
-            <span>MODO: <b id="mood">I.A. ACTIVA</b></span>
-            <span>NÚCLEO: <b id="core">STARLINK CORE</b></span>
+            <span>MODE: <b id="mood">A.I. ACTIVE</b></span>
+            <span>CORE: <b id="core">STARLINK CORE</b></span>
         </div>
         <div class="chat-box" id="chat-output"></div>
-        <input type="text" id="user-input" placeholder="Inicia el enlace neuronal..." autocomplete="off">
+        <input type="text" id="user-input" placeholder="Initiate neural link..." autocomplete="off">
     </div>
 
     <script>
         const chatOutput = document.getElementById('chat-output');
         const mouth = document.getElementById('mouth');
 
-        // FUNCIÓN DE VOZ (Texto a Voz del navegador)
-        function hablar(texto) {
+        // VOICE FUNCTION (Browser Text-to-Speech)
+        function speak(text) {
             const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(texto);
-            utter.lang = 'es-MX';
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
             utter.onstart = () => mouth.classList.add('speaking');
             utter.onend = () => mouth.classList.remove('speaking');
             synth.speak(utter);
         }
 
-        // Saludo inicial al cargar la pantalla
+        // Initial greeting on page load
         window.onload = () => {
-            const saludo = "Enlace neuronal activo. Interfaz de Starlink lista.";
-            chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${saludo}</div>`;
-            hablar(saludo);
+            const greeting = "Neural link active. Starlink interface ready.";
+            chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${greeting}</div>`;
+            speak(greeting);
         };
 
-        // EVENTO DE CHAT (Conectado a Node.js)
+        // CHAT EVENT (Connected to Node.js)
         document.getElementById('user-input').addEventListener('keypress', async function (e) {
             if (e.key === 'Enter' && this.value.trim() !== "") {
                 const userMsg = this.value;
-                chatOutput.innerHTML += `<div><strong>Tú:</strong> ${userMsg}</div>`;
+                chatOutput.innerHTML += `<div><strong>You:</strong> ${userMsg}</div>`;
                 this.value = '';
                 chatOutput.scrollTop = chatOutput.scrollHeight;
 
@@ -68,20 +68,20 @@
                         body: JSON.stringify({ message: userMsg })
                     });
                     const data = await res.json();
-                    const respuestaIA = data.reply;
+                    const aiReply = data.reply;
 
-                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${respuestaIA}</div>`;
-                    hablar(respuestaIA);
+                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${aiReply}</div>`;
+                    speak(aiReply);
                     chatOutput.scrollTop = chatOutput.scrollHeight;
                 } catch (error) {
-                    const errorMsg = "Error en el servidor local. Revisa la terminal de Node.";
+                    const errorMsg = "Local server error. Please check your Node terminal.";
                     chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${errorMsg}</div>`;
-                    hablar(errorMsg);
+                    speak(errorMsg);
                 }
             }
         });
 
-        // MOVIMIENTO DE OJOS (Sigue el cursor)
+        // EYE MOVEMENT (Follows cursor)
         document.addEventListener('mousemove', (e) => {
             const pupils = document.querySelectorAll('.pupil');
             const x = (e.clientX / window.innerWidth - 0.5) * 30;
@@ -89,7 +89,7 @@
             pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
         });
 
-        // ANIMACIÓN DE PARPADEO
+        // BLINKING ANIMATION
         setInterval(() => {
             const eyes = document.querySelectorAll('.eye');
             eyes.forEach(e => e.style.height = '2px');
