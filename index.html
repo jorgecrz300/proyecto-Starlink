@@ -53,21 +53,31 @@
             hablar(saludo);
         };
 
-        // EVENTO DE CHAT (Lógica visual local)
-        document.getElementById('user-input').addEventListener('keypress', function (e) {
+        // EVENTO DE CHAT (Conectado a Node.js)
+        document.getElementById('user-input').addEventListener('keypress', async function (e) {
             if (e.key === 'Enter' && this.value.trim() !== "") {
                 const userMsg = this.value;
                 chatOutput.innerHTML += `<div><strong>Tú:</strong> ${userMsg}</div>`;
                 this.value = '';
                 chatOutput.scrollTop = chatOutput.scrollHeight;
 
-                // Respuesta temporal mientras conectamos el servidor
-                setTimeout(() => {
-                    const respuestaIA = "Procesando mensaje... Conecta tu servidor de Node.js para las respuestas completas.";
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userMsg })
+                    });
+                    const data = await res.json();
+                    const respuestaIA = data.reply;
+
                     chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${respuestaIA}</div>`;
                     hablar(respuestaIA);
                     chatOutput.scrollTop = chatOutput.scrollHeight;
-                }, 500);
+                } catch (error) {
+                    const errorMsg = "Error en el servidor local. Revisa la terminal de Node.";
+                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${errorMsg}</div>`;
+                    hablar(errorMsg);
+                }
             }
         });
 
