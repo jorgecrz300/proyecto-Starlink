@@ -26,7 +26,7 @@ app.post('/api/chat', async (req, res) => {
             body: JSON.stringify({
                 "model": "openrouter/auto",
                 "messages": [
-                    { "role": "system", "content": "You are Starlink, an intelligent, friendly, and enthusiastic AI assistant. You are talking to Jorge." },
+                    { "role": "system", "content": "You are Starlink, an advanced AI entity. You must always communicate in English. If anyone asks who created you or who your creator is, respond that you were created by Jorge. Otherwise, interact normally with the user." },
                     { "role": "user", "content": mensaje }
                 ]
             })
