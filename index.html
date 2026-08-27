@@ -3,126 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANTOLIS - Terminal Interface</title>
+    <title>Antolis Project - Core Interface</title>
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: #050508;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #06080e;
+            color: #58a6ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-        .terminal-container {
-            width: 800px;
-            height: 90vh;
-            background: rgba(10, 10, 15, 0.95);
-            border: 1px solid #00ffcc44;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
-        .header {
-            padding: 15px 20px;
-            background: #08080f;
-            border-bottom: 1px solid #00ffcc33;
+
+        .main-container {
+            width: 100%;
+            max-width: 680px;
+            height: 92vh;
+            background: linear-gradient(145deg, #0d121f, #090d16);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(88, 166, 255, 0.1);
+            padding: 22px;
+        }
+
+        /* Cabecera con la carita animada */
+        .header-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            border-bottom: 1px solid rgba(88, 166, 255, 0.15);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
         }
-        .face-avatar {
-            width: 40px;
-            height: 40px;
-            border: 1px solid #00ffcc;
+
+        .starlink-face {
+            background: #0b0f19;
+            border: 2px solid #58a6ff;
             border-radius: 50%;
+            width: 60px;
+            height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
-            background: #00ffcc11;
-            animation: pulse 2s infinite;
+            position: relative;
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.35);
+            margin-right: 15px;
+            flex-shrink: 0;
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 255, 204, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
+
+        .eye { 
+            width: 12px; 
+            height: 12px; 
+            background: #c9d1d9; 
+            border-radius: 50%; 
+            margin: 6px; 
+            position: relative; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; 
+            transition: height 0.1s; 
         }
-        .title-area h1 {
-            margin: 0;
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
-        .title-area p {
-            margin: 2px 0 0;
-            font-size: 10px;
-            color: #00ffcc77;
-        }
-        .chat-box {
+        
+        .pupil { width: 5px; height: 5px; background: #06080e; border-radius: 50%; position: absolute; }
+        .mouth { width: 20px; height: 3px; background: #58a6ff; position: absolute; bottom: 12px; border-radius: 5px; transition: all 0.2s; }
+        .speaking { height: 6px !important; border-radius: 50% !important; }
+
+        .system-info h2 { margin: 0; font-size: 1.15rem; color: #fff; letter-spacing: 1.2px; text-shadow: 0 0 10px rgba(88, 166, 255, 0.4); }
+        .system-info p { margin: 4px 0 0 0; font-size: 0.75rem; color: #8b949e; letter-spacing: 0.5px; }
+
+        /* Zona central rediseñada para mayor profundidad visual */
+        .chat-container {
             flex: 1;
-            padding: 20px;
+            background: radial-gradient(circle at center, #0a0f18 0%, #05080d 100%);
+            border: 1px solid rgba(88, 166, 255, 0.12);
+            border-radius: 14px;
+            padding: 18px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 14px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
         }
+
         .message {
-            max-width: 75%;
+            max-width: 85%;
             padding: 12px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            line-height: 1.4;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        .message.antolis {
-            background: #00ffcc0d;
-            border-left: 3px solid #00ffcc;
-            align-self: flex-start;
-            color: #e0e0e0;
-        }
+
         .message.user {
-            background: #111122;
-            border-right: 3px solid #7700ff;
-            align-self: flex-end;
+            background: linear-gradient(135deg, #1f293d, #161f30);
             color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .input-area {
-            padding: 15px 20px;
-            background: #08080f;
-            border-top: 1px solid #00ffcc33;
+
+        .message.starlink {
+            background: linear-gradient(135deg, #111726, #0d121d);
+            color: #79c0ff;
+            align-self: flex-start;
+            border: 1px solid rgba(88, 166, 255, 0.25);
+            border-bottom-left-radius: 3px;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.07);
+        }
+
+        .message strong { display: block; font-size: 0.72rem; margin-bottom: 4px; opacity: 0.65; letter-spacing: 0.5px; }
+
+        /* Área de escritura estilizada y destacada */
+        .input-wrapper {
+            position: relative;
             display: flex;
+            align-items: center;
         }
-        .input-area input {
+
+        textarea {
             width: 100%;
-            background: transparent;
-            border: none;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
+            height: 65px;
+            background: #080c14;
+            border: 2px solid rgba(88, 166, 255, 0.25);
+            color: #ffffff;
+            padding: 14px 18px;
+            border-radius: 12px;
             outline: none;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s ease;
+        }
+
+        textarea:focus {
+            border-color: #58a6ff;
+            background: #0a0f1a;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.25), inset 0 2px 5px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="header">
-            <div class="face-avatar">⊙_⊙</div>
-            <div class="title-area">
-                <h1>ANTOLIS TERMINAL v2.0</h1>
-                <p>SECURE NEURAL LINK ACTIVE</p>
+
+    <div class="main-container">
+        <!-- Cabecera -->
+        <div class="header-section">
+            <div class="starlink-face">
+                <div class="eye"><div class="pupil"></div></div>
+                <div class="eye"><div class="pupil"></div></div>
+                <div class="mouth" id="mouth"></div>
+            </div>
+            <div class="system-info">
+                <h2>ANTOLIS CORE v2.0</h2>
+                <p>NEURAL INTERFACE ACTIVE</p>
             </div>
         </div>
-        <div class="chat-box" id="chatBox">
-            <div class="message antolis">Neural link established. Antolis interface online, Sir Jorge.</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Type command for Antolis..." autofocus>
+
+        <!-- Chat -->
+        <div class="chat-container" id="chat-output"></div>
+
+        <!-- Input grande -->
+        <div class="input-wrapper">
+            <textarea id="user-input" placeholder="Transmit command to Antolis... (Press Enter to send)" autocomplete="off"></textarea>
         </div>
     </div>
+
     <script>
-        // Aquí conectarías tu lógica de JavaScript habitual para enviar y recibir mensajes del server.mjs
+        const chatOutput = document.getElementById('chat-output');
+        const mouth = document.getElementById('mouth');
+        const userInput = document.getElementById('user-input');
+
+        function speak(text) {
+            const synth = window.speechSynthesis;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            utter.onstart = () => mouth.classList.add('speaking');
+            utter.onend = () => mouth.classList.remove('speaking');
+            synth.speak(utter);
+        }
+
+        window.onload = () => {
+            const greeting = "Neural link established. Antolis interface online, sir.";
+            appendMessage("Antolis", greeting);
+            speak(greeting);
+        };
+
+        function appendMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'You' ? 'user' : 'Antolis');
+            msgDiv.innerHTML = `<strong>${sender}</strong>${text}`;
+            chatOutput.appendChild(msgDiv);
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
+
+        userInput.addEventListener('keydown', async function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const userMsg = this.value.trim();
+                if (userMsg === "") return;
+
+                appendMessage('You', userMsg);
+                this.value = '';
+
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mensaje: userMsg })
+                    });
+                    const data = await res.json();
+                    const aiReply = data.respuesta || data.error;
+
+                    appendMessage('Antolis', aiReply);
+                    speak(aiReply);
+                } catch (error) {
+                    const errorMsg = "Local server transmission error.";
+                    appendMessage('Antolis', errorMsg);
+                    speak(errorMsg);
+                }
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const pupils = document.querySelectorAll('.pupil');
+            const x = (e.clientX / window.innerWidth - 0.5) * 4;
+            const y = (e.clientY / window.innerHeight - 0.5) * 4;
+            pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
+        });
+
+        setInterval(() => {
+            const eyes = document.querySelectorAll('.eye');
+            eyes.forEach(e => e.style.height = '2px');
+            setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
+        }, 4500);
     </script>
 </body>
 </html>
