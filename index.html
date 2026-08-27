@@ -1,100 +1,275 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlink Project - AI Consciousness</title>
+    <title>Antolis OS</title>
     <style>
-        body { background-color: #0d1117; color: #58a6ff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .container { text-align: center; width: 90%; max-width: 400px; }
-        .starlink-face { background: #161b22; border: 3px solid #58a6ff; border-radius: 50%; width: 220px; height: 220px; margin: 0 auto 30px; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 0 30px rgba(88, 166, 255, 0.3); }
-        .eye { width: 50px; height: 50px; background: #c9d1d9; border-radius: 50%; margin: 15px; position: relative; display: flex; justify-content: center; align-items: center; transition: height 0.1s; }
-        .pupil { width: 20px; height: 20px; background: #0d1117; border-radius: 50%; position: absolute; }
-        .mouth { width: 70px; height: 6px; background: #58a6ff; position: absolute; bottom: 55px; border-radius: 10px; box-shadow: 0 0 10px #58a6ff; transition: all 0.2s; }
-        .status-panel { font-size: 0.8em; margin-bottom: 15px; display: flex; justify-content: space-around; color: #8b949e; }
-        .chat-box { background: #161b22; padding: 15px; border-radius: 12px; height: 160px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #30363d; text-align: left; font-size: 0.9em; }
-        input { width: 100%; padding: 12px; background: #0d1117; border: 2px solid #30363d; color: white; border-radius: 8px; outline: none; box-sizing: border-box; }
-        .speaking { height: 15px !important; border-radius: 50% !important; }
+        :root {
+            --bg-color: #050b14;
+            --panel-bg: rgba(10, 20, 35, 0.85);
+            --border-color: #1e3a60;
+            --accent-color: #00f0ff;
+            --text-color: #e0f2fe;
+            --muted-color: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #0d1b2a 0%, #050b14 100%);
+        }
+
+        /* Barra lateral */
+        aside {
+            width: 260px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-box {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .avatar-box span {
+            font-size: 18px;
+        }
+
+        .brand-title h1 {
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+        }
+
+        .brand-title p {
+            font-size: 11px;
+            color: var(--muted-color);
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        /* Panel principal de chat */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.antolis {
+            background: rgba(30, 58, 96, 0.4);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-top-left-radius: 2px;
+        }
+
+        .message.user {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            align-self: flex-end;
+            border-top-right-radius: 2px;
+        }
+
+        .input-area {
+            padding: 20px 30px;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 18px;
+            color: var(--text-color);
+            font-size: 14px;
+            outline: none;
+        }
+
+        button {
+            background: var(--accent-color);
+            color: #050b14;
+            border: none;
+            padding: 0 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="starlink-face">
-            <div class="eye"><div class="pupil"></div></div>
-            <div class="eye"><div class="pupil"></div></div>
-            <div class="mouth" id="mouth"></div>
+
+    <aside>
+        <div class="brand">
+            <div class="avatar-box">
+                <span>🤖</span>
+            </div>
+            <div class="brand-title">
+                <h1>ANTOLIS</h1>
+                <p>CORE v2.0</p>
+            </div>
         </div>
-        <div class="status-panel">
-            <span>MODE: <b id="mood">A.I. ACTIVE</b></span>
-            <span>CORE: <b id="core">STARLINK CORE</b></span>
+        <ul class="menu-list">
+            <li class="menu-item">System Status</li>
+            <li class="menu-item">Quick Shortcuts</li>
+            <li class="menu-item">Clear Memory</li>
+            <li class="menu-item">Diagnostics</li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="chat-header">
+            <h3>Neural Interface</h3>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                Online
+            </div>
         </div>
-        <div class="chat-box" id="chat-output"></div>
-        <input type="text" id="user-input" placeholder="Initiate neural link..." autocomplete="off">
-    </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message antolis">
+                Neural link established. Antolis interface online, sir.
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Transmit command to Antolis..." autofocus>
+                <button onclick="enviarMensaje()">Send</button>
+            </div>
+        </div>
+    </main>
 
     <script>
-        const chatOutput = document.getElementById('chat-output');
-        const mouth = document.getElementById('mouth');
+        // Aquí puedes conectar tu lógica de fetch hacia tu server.mjs
+        function enviarMensaje() {
+            const input = document.getElementById('userInput');
+            const container = document.getElementById('chatContainer');
+            if(!input.value.trim()) return;
 
-        // VOICE FUNCTION (Browser Text-to-Speech)
-        function speak(text) {
-            const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'en-US';
-            utter.onstart = () => mouth.classList.add('speaking');
-            utter.onend = () => mouth.classList.remove('speaking');
-            synth.speak(utter);
+            // Mensaje usuario
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = input.value;
+            container.appendChild(userMsg);
+
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
         }
-
-        // Initial greeting on page load
-        window.onload = () => {
-            const greeting = "Neural link active. Starlink interface ready.";
-            chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${greeting}</div>`;
-            speak(greeting);
-        };
-
-        // CHAT EVENT (Connected to Node.js)
-        document.getElementById('user-input').addEventListener('keypress', async function (e) {
-            if (e.key === 'Enter' && this.value.trim() !== "") {
-                const userMsg = this.value;
-                chatOutput.innerHTML += `<div><strong>You:</strong> ${userMsg}</div>`;
-                this.value = '';
-                chatOutput.scrollTop = chatOutput.scrollHeight;
-
-                try {
-                    const res = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: userMsg })
-                    });
-                    const data = await res.json();
-                    const aiReply = data.reply;
-
-                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${aiReply}</div>`;
-                    speak(aiReply);
-                    chatOutput.scrollTop = chatOutput.scrollHeight;
-                } catch (error) {
-                    const errorMsg = "Local server error. Please check your Node terminal.";
-                    chatOutput.innerHTML += `<div><strong>Starlink:</strong> ${errorMsg}</div>`;
-                    speak(errorMsg);
-                }
-            }
-        });
-
-        // EYE MOVEMENT (Follows cursor)
-        document.addEventListener('mousemove', (e) => {
-            const pupils = document.querySelectorAll('.pupil');
-            const x = (e.clientX / window.innerWidth - 0.5) * 30;
-            const y = (e.clientY / window.innerHeight - 0.5) * 30;
-            pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
-        });
-
-        // BLINKING ANIMATION
-        setInterval(() => {
-            const eyes = document.querySelectorAll('.eye');
-            eyes.forEach(e => e.style.height = '2px');
-            setTimeout(() => eyes.forEach(e => e.style.height = '50px'), 150);
-        }, 4500);
     </script>
 </body>
 </html>
