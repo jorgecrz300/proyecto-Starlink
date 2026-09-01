@@ -1,832 +1,361 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FinanzasPro & Antolis">
-    
-    <title>FinanzasPro V15.0 - Antolis Neural AI</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <style>
-        /* --- TEMAS VISUALES --- */
-        :root[data-theme="cyberpunk"] {
-            --bg-color: #0b0f19; --card-bg: #151f32; --text-color: #f8fafc;
-            --primary: #a855f7; --success: #22c55e; --danger: #ef4444; --border: #22314d; --input-bg: #0b0f19;
-            --glass-bg: rgba(21, 31, 50, 0.7); --glass-border: rgba(168, 85, 247, 0.4);
-            --ai-accent: #06b6d4;
-        }
-        :root[data-theme="light"] {
-            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #212529;
-            --primary: #4361ee; --success: #2ec4b6; --danger: #e63946; --border: #e9ecef; --input-bg: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(63, 97, 238, 0.4);
-            --ai-accent: #00f5d4;
-        }
-        :root[data-theme="glass"] {
-            --bg-color: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #2e1065 100%);
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-color: #f8fafc;
-            --primary: #38bdf8;
-            --success: #34d399;
-            --danger: #f87171;
-            --border: rgba(255, 255, 255, 0.1);
-            --input-bg: rgba(0, 0, 0, 0.2);
-            --glass-blur: blur(12px);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
-        :root[data-theme="space"] {
-            --bg-color: #030712;
-            --card-bg: #111827;
-            --text-color: #f3f4f6;
-            --primary: #818cf8;
-            --success: #10b981;
-            --danger: #ef4444;
-            --border: #1f2937;
-            --input-bg: #1f2937;
-            --glass-blur: none;
-            --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-            --ai-accent: #9b5de5;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antolis Project - Core Interface</title>
+<style>
+* { box-sizing: border-box; }
+body {
+background-color: #0b0f19;
+color: #58a6ff;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+margin: 0;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+overflow: hidden;
+}
+.main-container {
+width: 100%;
+max-width: 650px;
+height: 90vh;
+background: #111625;
+border: 1px solid #1f293d;
+border-radius: 16px;
+display: flex;
+flex-direction: column;
+box-shadow: 0 0 40px rgba(88, 166, 255, 0.15);
+padding: 20px;
+}
+/* Cabecera con la carita animada */
+.header-section {
+display: flex;
+align-items: center;
+border-bottom: 1px solid #1f293d;
+padding-bottom: 15px;
+margin-bottom: 15px;
+}
+.starlink-face {
+background: #161b22;
+border: 2px solid #58a6ff;
+border-radius: 50%;
+width: 60px;
+height: 60px;
+display: flex;
+justify-content: center;
+align-items: center;
+position: relative;
+box-shadow: 0 0 15px rgba(88, 166, 255, 0.3);
+margin-right: 15px;
+flex-shrink: 0;
+}
+.eye {
+width: 12px;
+height: 12px;
+background: #c9d1d9;
+border-radius: 50%;
+margin: 6px;
+position: relative;
+display: flex;
+justify-content: center;
+align-items: center;
+overflow: hidden;
+transition: height 0.1s;
+}
+.pupil { width: 5px; height: 5px; background: #0b0f19; border-radius: 50%; position: absolute; }
+.mouth { width: 20px; height: 3px; background: #58a6ff; position: absolute; bottom: 12px; border-radius: 5px; transition: all 0.2s; }
+.speaking { height: 6px !important; border-radius: 50% !important; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg-color); color: var(--text-color);
-            margin: 0; padding: 0; min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-        #app-screen { width: 100%; max-width: 500px; padding: env(safe-area-inset-top) 16px 80px 16px; position: relative; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
-        header h1 { margin: 0; font-size: 22px; color: var(--primary); font-weight: 800; }
-        
-        .menu-btn {
-            background: var(--card-bg); border: 1px solid var(--border); color: var(--primary);
-            font-size: 20px; width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none;
-        }
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-            background: var(--card-bg); z-index: 200; box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-            padding: 40px 20px; display: flex; flex-direction: column; gap: 10px; transition: left 0.3s ease;
-        }
-        .sidebar.active { left: 0; }
-        .sidebar-item {
-            padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px;
-            text-decoration: none; color: var(--text-color); font-weight: 600; cursor: pointer;
-        }
-        .sidebar-item:hover { background: var(--bg-color); color: var(--primary); }
-        .sidebar-item.active-nav { background: var(--bg-color); color: var(--primary); border-left: 4px solid var(--primary); }
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; z-index: 150;
-        }
-        .overlay.active { display: block; }
+.system-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.system-info h2 { margin: 0; font-size: 1.1rem; color: #fff; letter-spacing: 1px; }
+.system-info p { margin: 3px 0 0 0; font-size: 0.75rem; color: #8b949e; }
 
-        /* --- CONTROL DE PANTALLAS --- */
-        .screen { display: none; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- DASHBOARD --- */
-        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 25px; }
-        
-        .glass-card-wallet {
-            grid-column: span 2; background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); border-radius: 20px; padding: 22px; position: relative; overflow: hidden;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-        }
-        .wallet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .wallet-header h3 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #868e96; font-weight: 700; }
-        .privacy-toggle-btn { background: transparent; border: none; color: var(--primary); font-size: 16px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
-        .wallet-balance { margin: 0 0 10px 0; font-size: 26px; font-weight: 800; }
-        .wallet-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #868e96; font-weight: 600; margin-top: 5px; }
-        
-        .card-sub { background: var(--card-bg); padding: 14px; border-radius: 14px; border: 1px solid var(--border); }
-        .card-sub h4 { margin: 0 0 4px 0; font-size: 10px; text-transform: uppercase; color: #868e96; }
-        .card-sub p { margin: 0; font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.clear-history-btn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  margin-top: 4px;
+}
+.clear-history-btn:hover {
+  color: #58a6ff;
+}
 
-        .main-content { display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; }
-        .panel { 
-            background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); position: relative; 
-            backdrop-filter: var(--glass-blur, none); -webkit-backdrop-filter: var(--glass-blur, none);
-            box-shadow: var(--glass-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
-        }
-        .panel h2 { margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        
-        .select-filter { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 13px; font-weight: 600; outline: none; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
-        .form-group input, .form-group select { width: 100%; height: 46px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; background-color: var(--input-bg); color: var(--text-color); }
-        
-        .currency-input-group { display: grid; grid-template-columns: 1fr 90px; gap: 8px; }
-        button.btn-submit { width: 100%; height: 48px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button.btn-secondary { width: 100%; height: 44px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        
-        .transaction-list { list-style: none; padding: 0; margin: 0; }
-        .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .item-left-block { display: flex; align-items: center; gap: 12px; max-width: 65%; }
-        .category-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-        .item-details { display: flex; flex-direction: column; min-width: 0; }
-        .item-details strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item-category { font-size: 11px; color: #868e96; margin-top: 2px; }
-        .item-amount { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .btn-delete { background: var(--bg-color); border: none; color: #adb5bd; border-radius: 50%; width: 28px; height: 28px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
-        .chart-container { position: relative; height: 200px; width: 100%; }
-        .line-chart-box { height: 240px; margin-bottom: 25px; position: relative; width: 100%; }
 
-        /* --- ASISTENTE ANTOLIS & CARITA ANIMADA --- */
-        .ai-header-card { background: linear-gradient(135deg, var(--card-bg) 0%, rgba(6,182,212,0.1) 100%); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
-        
-        /* Estilos de la carita Starlink/Antolis integrados */
-        .starlink-face {
-            background: #161b22;
-            border: 2px solid var(--ai-accent);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-            flex-shrink: 0;
-        }
-        .eye {
-            width: 12px;
-            height: 12px;
-            background: #c9d1d9;
-            border-radius: 50%;
-            margin: 6px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: height 0.1s;
-        }
-        .pupil { width: 5px; height: 5px; background: #0b0f19; border-radius: 50%; position: absolute; }
-        .mouth { width: 20px; height: 3px; background: var(--ai-accent); position: absolute; bottom: 12px; border-radius: 5px; transition: all 0.2s; }
-        .speaking { height: 6px !important; border-radius: 50% !important; }
+/* Caja de chat grande y limpia */
+.chat-container {
+flex: 1;
+background: #0d1117;
+border: 1px solid #1f293d;
+border-radius: 12px;
+padding: 15px;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-bottom: 15px;
+}
+.message {
+max-width: 85%;
+padding: 10px 14px;
+border-radius: 10px;
+font-size: 0.9rem;
+line-height: 1.4;
+}
+.message.user {
+background: #1f293d;
+color: #fff;
+align-self: flex-end;
+border-bottom-right-radius: 2px;
+}
+.message.starlink {
+background: #161b22;
+color: #58a6ff;
+align-self: flex-start;
+border: 1px solid #30363d;
+border-bottom-left-radius: 2px;
+}
+.message strong { display: block; font-size: 0.75rem; margin-bottom: 3px; opacity: 0.7; }
 
-        .ai-insight-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 4px solid var(--ai-accent); border-radius: 12px; padding: 16px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .ai-insight-title { font-weight: 700; font-size: 14px; color: var(--ai-accent); display: flex; align-items: center; gap: 8px; }
-        .ai-insight-desc { font-size: 13px; color: var(--text-color); opacity: 0.9; line-height: 1.4; }
-        .ai-metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 25px; }
-        
-        /* Chat AI Interactivo */
-        .ai-chat-wrapper { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; height: 350px; margin-top: 20px; }
-        .ai-chat-header { background: rgba(6,182,212,0.1); border-bottom: 1px solid var(--border); padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--ai-accent); display: flex; align-items: center; gap: 8px; }
-        .ai-chat-log { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
-        .chat-msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; line-height: 1.4; word-break: break-word; }
-        .chat-msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-msg.bot { background: var(--bg-color); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-msg.bot-alert { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: #fca5a5; align-self: flex-start; border-bottom-left-radius: 2px; }
-        
-        .ai-chat-input-bar { display: grid; grid-template-columns: auto 1fr 50px; gap: 8px; padding: 10px; border-top: 1px solid var(--border); background: var(--bg-color); align-items: center; position: relative; }
-        .ai-chat-input-bar input { height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-color); padding: 0 12px; font-size: 14px; outline: none; width: 100%; }
-        .ai-chat-send-btn { background: var(--ai-accent); color: #0b0f19; border: none; border-radius: 10px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; font-weight: bold; }
 
-        /* FAB Button & Sheets */
-        .fab-button { position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 90; }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; height: auto; max-height: 85vh; background: var(--card-bg); border-radius: 24px 24px 0 0; border-top: 1px solid var(--border); padding: 24px; z-index: 180; box-shadow: 0 -5px 25px rgba(0,0,0,0.3); transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1); overflow-y: auto; }
-        .bottom-sheet.active { bottom: 0; }
-        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sheet-header h2 { margin: 0; font-size: 18px; }
-        .close-sheet-btn { background: var(--bg-color); border: none; color: var(--text-color); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
-
-        /* Calendario */
-        .calendar-nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .calendar-title-wrapper { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
-        .calendar-arrows { display: flex; gap: 4px; }
-        .cal-nav-btn { background: var(--bg-color); border: 1px solid var(--border); color: var(--text-color); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; background: var(--card-bg); padding: 10px; border-radius: 12px; }
-        .cal-day-name { text-align: center; font-size: 11px; font-weight: bold; color: var(--primary); padding-bottom: 8px; }
-        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; position: relative; cursor: pointer; color: var(--text-color); }
-        .cal-day.today { border: 2px solid var(--primary); font-weight: bold; }
-        .cal-day.has-data::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: var(--success); border-radius: 50%; }
-        .cal-day.selected { background: var(--primary); color: white !important; }
-        .chart-box { height: 220px; margin: 15px 0; }
-        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-reset-view { background: var(--bg-color); color: var(--primary); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: none; }
-
-        @media (min-width: 769px) {
-            body { align-items: flex-start; padding-top: 40px; }
-            #app-screen { max-width: 900px; }
-            .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .bottom-sheet { left: 50%; transform: translateX(-50%); max-width: 500px; border-radius: 24px; bottom: -100%; }
-            .bottom-sheet.active { bottom: 40px; }
-        }
-    </style>
+/* Área de escritura grande con botón de adjuntar */
+.input-wrapper {
+position: relative;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.upload-btn {
+background: #161b22;
+border: 2px solid #1f293d;
+color: #58a6ff;
+width: 60px;
+height: 60px;
+border-radius: 10px;
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 1.2rem;
+flex-shrink: 0;
+transition: border-color 0.2s, background 0.2s;
+}
+.upload-btn:hover {
+border-color: #58a6ff;
+background: #1f293d;
+}
+.image-preview-tag {
+font-size: 0.7rem;
+color: #3fb950;
+margin-bottom: 4px;
+display: none;
+}
+textarea {
+width: 100%;
+height: 60px;
+background: #0d1117;
+border: 2px solid #1f293d;
+color: #fff;
+padding: 12px 15px;
+border-radius: 10px;
+outline: none;
+font-size: 0.95rem;
+font-family: inherit;
+resize: none;
+box-sizing: border-box;
+transition: border-color 0.2s;
+}
+textarea:focus {
+border-color: #58a6ff;
+box-shadow: 0 0 10px rgba(88, 166, 255, 0.1);
+}
+</style>
 </head>
 <body>
-    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
-    
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-        <h2 style="color:var(--primary); margin-bottom: 15px; padding-left: 15px;">FinanzasPro</h2>
-        <div class="sidebar-item active-nav" id="nav-home" onclick="showScreen('home-screen', 'FinanzasPro', this)"><i class="fa-solid fa-house"></i> Home</div>
-        <div class="sidebar-item" id="nav-cal" onclick="showScreen('calendar-screen', getWord('calendar'), this)"><i class="fa-solid fa-calendar"></i> Calendario</div>
-        <div class="sidebar-item" id="nav-assistant" onclick="showScreen('assistant-screen', getWord('aiAssistant'), this)"><i class="fa-solid fa-robot"></i> Antolis AI</div>
-        <div class="sidebar-item" id="nav-graph" onclick="showScreen('analytics-screen', getWord('chartsTitle'), this)"><i class="fa-solid fa-chart-line"></i> Gráficas</div>
-        <div class="sidebar-item" id="nav-set" onclick="showScreen('settings-screen', getWord('settings'), this)"><i class="fa-solid fa-gear"></i> Settings</div>
-    </div>
+<div class="main-container">
+<!-- Cabecera -->
+<div class="header-section">
+<div class="starlink-face">
+<div class="eye"><div class="pupil"></div></div>
+<div class="eye"><div class="pupil"></div></div>
+<div class="mouth" id="mouth"></div>
+</div>
+<div class="system-info">
+<div>
+<h2>ANTOLIS CORE v2.0</h2>
+<p>NEURAL INTERFACE ACTIVE</p>
+</div>
+<button class="clear-history-btn" onclick="clearHistory()">Clear history</button>
+</div>
+</div>
+<!-- Chat -->
+<div class="chat-container" id="chat-output"></div>
 
-    <button class="fab-button" id="fab-btn" onclick="openBottomSheet()"><i class="fa-solid fa-plus"></i></button>
 
-    <!-- BOTTOM SHEET NUEVO MOVIMIENTO -->
-    <div class="bottom-sheet" id="entry-sheet">
-        <div class="sheet-header">
-            <h2 id="lbl-new-move">Nuevo Movimiento</h2>
-            <button class="close-sheet-btn" onclick="closeBottomSheet()">✕</button>
-        </div>
-        <form id="transaction-form">
-            <div class="form-group">
-                <label id="lbl-desc">Descripción</label>
-                <input type="text" id="description" placeholder="Ej. Almuerzo, Netflix" required>
-            </div>
-            <div class="form-group">
-                <label id="lbl-amount">Monto e Importe</label>
-                <div class="currency-input-group">
-                    <input type="number" id="amount" step="0.01" inputmode="decimal" placeholder="0.00" required>
-                    <select id="currency">
-                        <option value="USD">USD ($)</option>
-                        <option value="MXN">MXN ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label id="lbl-type">Tipo</label>
-                <select id="type" onchange="localizeCategories()">
-                    <option value="expense" id="opt-expense">Gasto</option>
-                    <option value="income" id="opt-income">Ingreso</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label id="lbl-cat">Categoría</label>
-                <select id="category"></select>
-            </div>
-            <button type="submit" class="btn-submit" id="btn-save-move">Guardar Movimiento</button>
-        </form>
-    </div>
+<!-- Input grande con botón de imagen -->
+<div>
+<div id="image-preview-tag" class="image-preview-tag">📷 Image attached and ready to send</div>
+<div class="input-wrapper">
+<input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
+<button class="upload-btn" onclick="document.getElementById('image-input').click()" title="Attach image">📷</button>
+<textarea id="user-input" placeholder="Transmit command or image to Antolis... (Press Enter to send)" autocomplete="off"></textarea>
+</div>
+</div>
 
-    <!-- PANTALLA PRINCIPAL -->
-    <div id="app-screen">
-        <header>
-            <h1 id="screen-title">FinanzasPro</h1>
-            <button class="menu-btn" onclick="toggleMenu()">☰</button>
-        </header>
 
-        <!-- HOME SCREEN -->
-        <div id="home-screen" class="screen active">
-            <div class="dashboard">
-                <div class="glass-card-wallet">
-                    <div class="wallet-header">
-                        <h3 id="lbl-net-flow">Flujo Neto del Período</h3>
-                        <button class="privacy-toggle-btn" onclick="togglePrivacyMode(event)">
-                            <i id="privacy-eye-icon" class="fa-solid fa-eye"></i>
-                        </button>
-                    </div>
-                    <p class="wallet-balance" id="total-balance">$0.00</p>
-                    <div class="wallet-footer">
-                        <span id="lbl-monthly-bal">Balance Mensual</span>
-                        <span id="lbl-active-filter">Filtro Activo</span>
-                    </div>
-                </div>
-                <div class="card-sub"><h4 id="lbl-tot-inc">Ingresos Totales</h4><p id="total-income" style="color:var(--success);">$0.00</p></div>
-                <div class="card-sub"><h4 id="lbl-tot-exp">Gastos Totales</h4><p id="total-expense" style="color:var(--danger);">$0.00</p></div>
-            </div>
-            <div class="main-content">
-                <div class="panel">
-                    <h2 id="lbl-dist">Distribución del Período</h2>
-                    <div class="chart-container"><canvas id="expenseChart"></canvas></div>
-                </div>
-                <div class="panel">
-                    <h2>
-                        <span id="lbl-history">Historial</span>
-                        <select id="month-filter" class="select-filter" onchange="updateUI()"></select>
-                    </h2>
-                    <ul id="transaction-list" class="transaction-list"></ul>
-                </div>
-            </div>
-        </div>
+</div>
+<script>
+const chatOutput = document.getElementById('chat-output');
+const mouth = document.getElementById('mouth');
+const userInput = document.getElementById('user-input');
+const imagePreviewTag = document.getElementById('image-preview-tag');
 
-        <!-- CALENDARIO -->
-        <div id="calendar-screen" class="screen">
-            <div class="panel" style="margin-bottom: 20px;">
-                <div class="calendar-nav-header">
-                    <div class="calendar-title-wrapper">
-                        <h2 id="month-name" style="margin:0; color:var(--primary); font-size:18px;">Mes Año</h2>
-                    </div>
-                    <div class="calendar-arrows">
-                        <button class="cal-nav-btn" onclick="navigateCalendar(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="cal-nav-btn" onclick="navigateCalendar(1)"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                </div>
-                <div class="calendar-grid" id="calendar-grid"></div>
-            </div>
-            <div id="day-detail-panel">
-                <div class="panel" style="margin-bottom: 20px;">
-                    <div class="detail-header">
-                        <h2 id="selected-date-text">Resumen del Mes</h2>
-                        <button id="btn-reset-view" class="btn-reset-view" onclick="resetCalendarFilter()">Ver mes completo</button>
-                    </div>
-                    <div class="chart-box"><canvas id="dayBarChart"></canvas></div>
-                </div>
-                <div class="panel">
-                    <h2 id="list-title-text">Flujo de caja mensual</h2>
-                    <ul class="transaction-list" id="day-list"></ul>
-                </div>
-            </div>
-        </div>
 
-        <!-- ASISTENTE ANTOLIS AI -->
-        <div id="assistant-screen" class="screen">
-            <div class="ai-header-card">
-                <!-- Carita animada Antolis integrada -->
-                <div class="starlink-face">
-                    <div class="eye"><div class="pupil"></div></div>
-                    <div class="eye"><div class="pupil"></div></div>
-                    <div class="mouth" id="mouth"></div>
-                </div>
-                <div>
-                    <h2 style="margin:0; font-size:16px;" id="lbl-ai-name">Antolis Core v2.0</h2>
-                    <p style="margin:2px 0 0 0; font-size:11px; color:#868e96;" id="lbl-ai-status">Interfaz Neural Activa</p>
-                </div>
-            </div>
-            <div class="ai-metric-grid">
-                <div class="card-sub"><h4 id="lbl-ai-saving-rate">Tasa de Ahorro</h4><p id="ai-saving-value" style="color:var(--ai-accent);">0%</p></div>
-                <div class="card-sub"><h4 id="lbl-ai-projection">Proyección Fin de Mes</h4><p id="ai-projected-value">$0.00</p></div>
-            </div>
-            <div class="main-content" id="ai-insights-container"></div>
-            
-            <div class="ai-chat-wrapper">
-                <div class="ai-chat-header">
-                    <i class="fa-solid fa-brain"></i> <span id="lbl-chat-header-title">Transmisión Neural de Datos</span>
-                </div>
-                <div class="ai-chat-log" id="ai-chat-log"></div>
-                <div class="ai-chat-input-bar">
-                    <!-- Botón de comandos rápidos estilo Antolis -->
-                    <button id="btn-comandos" type="button" onclick="toggleMenuComandos(event)" style="background-color: var(--primary); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-                        Comandos
-                    </button>
-                    <div id="menu-comandos" style="display: none; position: absolute; bottom: 55px; left: 10px; background-color: var(--card-bg); border: 1px solid var(--primary); border-radius: 8px; width: 230px; z-index: 1000; box-shadow: 0px 4px 12px rgba(0,0,0,0.5); padding: 6px;">
-                        <p style="color: #868e96; font-size: 11px; margin: 2px 0 6px 4px; font-weight: bold;">Comandos Antolis:</p>
-                        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px;">
-                            <li><button type="button" onclick="ejecutarComando('¿Cuánto dinero tengo en total?')" style="width: 100%; text-align: left; background: none; border: none; color: var(--text-color); padding: 6px; font-size: 12px; cursor: pointer;">💰 Balance Total</button></li>
-                            <li><button type="button" onclick="ejecutarComando('¿Cuáles son mis gastos totales del mes?')" style="width: 100%; text-align: left; background: none; border: none; color: var(--text-color); padding: 6px; font-size: 12px; cursor: pointer;">📉 Gastos Totales</button></li>
-                            <li><button type="button" onclick="ejecutarComando('¿Cuánto dinero gasté en comida?')" style="width: 100%; text-align: left; background: none; border: none; color: var(--text-color); padding: 6px; font-size: 12px; cursor: pointer;">🍔 Gasto en Comida</button></li>
-                        </ul>
-                    </div>
-                    <input type="text" id="ai-chat-input" placeholder="Transmit command to Antolis..." onkeydown="if(event.key==='Enter') sendChatMessage()">
-                    <button class="ai-chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
+let selectedImageBase64 = null;
 
-        <!-- GRÁFICAS -->
-        <div id="analytics-screen" class="screen">
-            <div class="main-content">
-                <div class="panel">
-                    <h2 style="color: var(--danger);" id="lbl-chart-exp-title"><i class="fa-solid fa-chart-line"></i> Historial de Gastos Diarios</h2>
-                    <div class="line-chart-box"><canvas id="lineExpenseChart"></canvas></div>
-                </div>
-                <div class="panel">
-                    <h2 style="color: var(--success);" id="lbl-chart-inc-title"><i class="fa-solid fa-chart-line"></i> Historial de Ingresos Diarios</h2>
-                    <div class="line-chart-box"><canvas id="lineIncomeChart"></canvas></div>
-                </div>
-            </div>
-        </div>
 
-        <!-- SETTINGS -->
-        <div id="settings-screen" class="screen">
-            <div class="panel" style="margin-bottom: 20px;">
-                <h2 id="lbl-custom">Personalización</h2>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label id="lbl-lang-select">Idioma de la Aplicación</label>
-                    <select id="lang-select">
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="en">🇺🇸 English</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label id="lbl-theme-select">Cambiar de Tema Visual</label>
-                    <select id="theme-select">
-                        <option value="cyberpunk">🌑 Cyberpunk</option>
-                        <option value="light">☀️ Claro Minimal</option>
-                        <option value="space">🌌 Espacial</option>
-                        <option value="glass">🔮 Glassmorphism</option>
-                    </select>
-                </div>
-            </div>
-            <div class="panel">
-                <h2 id="lbl-maintenance">Mantenimiento</h2>
-                <p style="font-size:13px; color:#868e96;" id="lbl-maintenance-desc">Borrar toda la memoria guardada en el dispositivo.</p>
-                <button onclick="resetData()" style="background:var(--danger)" class="btn-submit" id="btn-reset-all">Limpiar Memoria Local</button>
-            </div>
-        </div>
-    </div>
+// Manejar selección de imagen
+function handleImageSelection(event) {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+selectedImageBase64 = e.target.result;
+imagePreviewTag.style.display = 'block';
+imagePreviewTag.textContent = `📷 Attached: ${file.name}`;
+};
+reader.readAsDataURL(file);
+}
+}
 
-    <script>
-        const I18N = {
-            es: {
-                calendar: "Calendario", chartsTitle: "Gráficas Temporales", settings: "Configuración",
-                aiAssistant: "Antolis AI", newMove: "Nuevo Movimiento", description: "Descripción", amount: "Monto",
-                type: "Tipo", category: "Categoría", expense: "Gasto", income: "Ingreso",
-                saveMove: "Guardar Movimiento", netFlow: "Flujo Neto del Período", monthlyBal: "Balance Mensual",
-                activeFilter: "Filtro Activo", totInc: "Ingresos Totales", totExp: "Gastos Totales", distribution: "Distribución",
-                history: "Historial", allHistory: "Todo el Historial", custom: "Personalización", langSelect: "Idioma",
-                themeSelect: "Tema Visual", maintenance: "Mantenimiento", maintenanceDesc: "Eliminar datos locales.",
-                resetBtn: "Limpiar Memoria Local", alertResetConfirm: "¿Borrar todo el historial?",
-                cats: ["Comida", "Vivienda", "Transporte", "Entretenimiento", "Otros"],
-                months: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
-                monthsShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-                aiName: "Antolis Core v2.0", aiStatus: "Neural Interface Active", aiSavingRate: "Tasa de Ahorro", aiProjection: "Proyección",
-                chatWelcome: "Neural link established. Antolis interface online, sir."
-            },
-            en: {
-                calendar: "Calendar", chartsTitle: "Temporal Charts", settings: "Settings",
-                aiAssistant: "Antolis AI", newMove: "New Transaction", description: "Description", amount: "Amount",
-                type: "Type", category: "Category", expense: "Expense", income: "Income",
-                saveMove: "Save Transaction", netFlow: "Net Flow", monthlyBal: "Monthly Balance",
-                activeFilter: "Active Filter", totInc: "Total Income", totExp: "Total Expenses", distribution: "Distribution",
-                history: "History", allHistory: "All History", custom: "Customization", langSelect: "Language",
-                themeSelect: "Visual Theme", maintenance: "Maintenance", maintenanceDesc: "Delete local data.",
-                resetBtn: "Clear Local Memory", alertResetConfirm: "Delete all history?",
-                cats: ["Food", "Housing", "Transportation", "Entertainment", "Others"],
-                months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
-                monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-                aiName: "Antolis Core v2.0", aiStatus: "Neural Interface Active", aiSavingRate: "Saving Rate", aiProjection: "Forecast",
-                chatWelcome: "Neural link established. Antolis interface online, sir."
-            }
-        };
 
-        const EXCHANGE_RATES = { USD: 1, MXN: 0.059, EUR: 1.08 };
-        let transactions = JSON.parse(localStorage.getItem('fpro_antolis_data')) || [];
-        let myChart = null, barChart = null, lineExpenseChart = null, lineIncomeChart = null;
-        let isPrivateMode = localStorage.getItem('fpro_privacy') === 'true';
-        let currentLang = localStorage.getItem('fpro_lang') || 'es';
-        let seasonalBalanceValue = 0, seasonalIncomeValue = 0, seasonalExpenseValue = 0;
-        let calendarCurrentDate = new Date();
+// Función de voz (Speech Synthesis)
+function speak(text) {
+const synth = window.speechSynthesis;
+const utter = new SpeechSynthesisUtterance(text);
+utter.lang = 'en-US';
+utter.onstart = () => mouth.classList.add('speaking');
+utter.onend = () => mouth.classList.remove('speaking');
+synth.speak(utter);
+}
 
-        function getWord(key) { return I18N[currentLang][key]; }
 
-        function applyLanguageStrings() {
-            localizeCategories();
-            resetChatLog();
-        }
+// Cargar historial persistente al iniciar
+window.onload = () => {
+  const savedHistory = localStorage.getItem('antolis_chat_history');
+  if (savedHistory) {
+    chatOutput.innerHTML = savedHistory;
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+  } else {
+    const greeting = "Neural link established. Antolis interface online, sir.";
+    appendMessage("Antolis", greeting);
+    speak(greeting);
+  }
+};
 
-        function localizeCategories() {
-            const catSelect = document.getElementById('category');
-            if(!catSelect) return;
-            catSelect.innerHTML = '';
-            getWord('cats').forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.innerText = c;
-                catSelect.appendChild(opt);
-            });
-        }
 
-        // --- SISTEMA DE VOZ Y CARITA ANIMADA ANTOLIS ---
-        const mouth = document.getElementById('mouth');
-        function speak(text) {
-            if (!window.speechSynthesis) return;
-            const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = currentLang === 'es' ? 'es-ES' : 'en-US';
-            utter.onstart = () => mouth && mouth.classList.add('speaking');
-            utter.onend = () => mouth && mouth.classList.remove('speaking');
-            synth.speak(utter);
-        }
+function saveHistoryToStorage() {
+  localStorage.setItem('antolis_chat_history', chatOutput.innerHTML);
+}
 
-        function toggleMenuComandos(e) {
-            e.stopPropagation();
-            const menu = document.getElementById('menu-comandos');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
 
-        function ejecutarComando(texto) {
-            document.getElementById('menu-comandos').style.display = 'none';
-            document.getElementById('ai-chat-input').value = texto;
-            sendChatMessage();
-        }
+function clearHistory() {
+  localStorage.removeItem('antolis_chat_history');
+  chatOutput.innerHTML = '';
+  const resetMsg = "Memory banks cleared, sir.";
+  appendMessage("Antolis", resetMsg);
+  speak(resetMsg);
+  saveHistoryToStorage();
+}
 
-        function resetChatLog() {
-            const chatLog = document.getElementById('ai-chat-log');
-            if(!chatLog) return;
-            chatLog.innerHTML = `<div class="chat-msg bot">${getWord('chatWelcome')}</div>`;
-        }
 
-        function sendChatMessage() {
-            const inputEl = document.getElementById('ai-chat-input');
-            const chatLog = document.getElementById('ai-chat-log');
-            if(!inputEl || !chatLog || inputEl.value.trim() === "") return;
-            const userText = inputEl.value.trim();
-            inputEl.value = "";
-            
-            chatLog.innerHTML += `<div class="chat-msg user">${userText}</div>`;
-            chatLog.scrollTop = chatLog.scrollHeight;
+function appendMessage(sender, text) {
+const msgDiv = document.createElement('div');
+msgDiv.classList.add('message');
+msgDiv.classList.add(sender === 'You' ? 'user' : 'Antolis');
+msgDiv.innerHTML = `<strong>${sender}</strong>${text}`;
+chatOutput.appendChild(msgDiv);
+chatOutput.scrollTop = chatOutput.scrollHeight;
+saveHistoryToStorage();
+}
 
-            setTimeout(() => {
-                const query = userText.toLowerCase();
-                const totalIncomes = transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-                const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
-                const netBalance = totalIncomes - totalExpenses;
-                let botResponse = "";
 
-                if(query.includes('saldo') || query.includes('balance') || query.includes('total') || query.includes('tengo')) {
-                    botResponse = `Analizando telemetría: Tu saldo neto actual es de $${netBalance.toFixed(2)}, sir.`;
-                } else if(query.includes('gasto') || query.includes('gastado')) {
-                    botResponse = `Tus egresos totales acumulados ascienden a $${totalExpenses.toFixed(2)}, sir.`;
-                } else if(query.includes('comida') || query.includes('food')) {
-                    const foodAmt = transactions.filter(t => t.category === 'Comida' || t.category === 'Food').reduce((s,t) => s + t.amount, 0);
-                    botResponse = `El consumo registrado en la categoría de alimentación es de $${foodAmt.toFixed(2)}.`;
-                } else {
-                    botResponse = `Comando procesado correctamente. Registros activos: ${transactions.length}. Balance: $${netBalance.toFixed(2)}.`;
-                }
+// Enviar mensaje con la tecla Enter
+userInput.addEventListener('keydown', async function (e) {
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+const userMsg = this.value.trim();
+if (userMsg === "" && !selectedImageBase64) return;
 
-                chatLog.innerHTML += `<div class="chat-msg bot">${botResponse}</div>`;
-                chatLog.scrollTop = chatLog.scrollHeight;
-                speak(botResponse);
-            }, 500);
-        }
 
-        // Movimiento ocular interactivo
-        document.addEventListener('mousemove', (e) => {
-            const pupils = document.querySelectorAll('.pupil');
-            const x = (e.clientX / window.innerWidth - 0.5) * 4;
-            const y = (e.clientY / window.innerHeight - 0.5) * 4;
-            pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
-        });
+let displayText = userMsg;
+if (selectedImageBase64) {
+displayText += `<br><img src="${selectedImageBase64}" style="max-width: 200px; border-radius: 8px; margin-top: 5px;">`;
+}
 
-        // Animación de parpadeo automático
-        setInterval(() => {
-            const eyes = document.querySelectorAll('.eye');
-            eyes.forEach(e => e.style.height = '2px');
-            setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
-        }, 4500);
 
-        // --- NAVEGACIÓN Y MODALES ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-        function openBottomSheet() {
-            document.getElementById('entry-sheet').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
-        }
-        function closeBottomSheet() {
-            document.getElementById('entry-sheet').classList.remove('active');
-            if(!document.getElementById('sidebar').classList.contains('active')) document.getElementById('overlay').classList.remove('active');
-        }
-        function closeAllModals() {
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('entry-sheet').classList.remove('active');
-            document.getElementById('overlay').classList.remove('active');
-            const menu = document.getElementById('menu-comandos');
-            if(menu) menu.style.display = 'none';
-        }
+appendMessage('You', displayText);
 
-        function showScreen(screenId, titleText, menuElement) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            document.getElementById('screen-title').innerText = titleText;
-            
-            if(menuElement) {
-                document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active-nav'));
-                menuElement.classList.add('active-nav');
-            }
-            closeAllModals();
-            document.getElementById('fab-btn').style.display = (screenId === 'home-screen') ? 'flex' : 'none';
-            
-            if(screenId === 'calendar-screen') { renderCalendar(); resetCalendarFilter(); }
-            if(screenId === 'analytics-screen') { renderLineCharts(); }
-            if(screenId === 'assistant-screen') { calculateAiInsights(); resetChatLog(); }
-            updateUI();
-        }
 
-        // --- CONFIGURACIÓN DE TEMA Y IDIOMA ---
-        const themeSelect = document.getElementById('theme-select');
-        const savedTheme = localStorage.getItem('fpro_theme') || 'cyberpunk';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeSelect.value = savedTheme;
-        themeSelect.addEventListener('change', (e) => {
-            document.documentElement.setAttribute('data-theme', e.target.value);
-            localStorage.setItem('fpro_theme', e.target.value);
-            updateUI();
-        });
+const payloadText = userMsg;
+const payloadImage = selectedImageBase64;
 
-        const langSelect = document.getElementById('lang-select');
-        langSelect.value = currentLang;
-        langSelect.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            localStorage.setItem('fpro_lang', currentLang);
-            applyLanguageStrings();
-            populateMonthFilter();
-            updateUI();
-        });
 
-        // --- GESTIÓN DE DATOS Y UI ---
-        function populateMonthFilter() {
-            const filter = document.getElementById('month-filter');
-            if(!filter) return;
-            const previousSelection = filter.value;
-            filter.innerHTML = `<option value="all">${getWord('allHistory')}</option>`;
-            const months = [...new Set(transactions.map(t => t.date.substring(0, 7)))].sort().reverse();
-            const shorts = getWord('monthsShort');
-            months.forEach(m => {
-                const [year, monthNum] = m.split('-');
-                const option = document.createElement('option');
-                option.value = m;
-                option.innerText = `${shorts[parseInt(monthNum)-1]} ${year}`;
-                filter.appendChild(option);
-            });
-            const now = new Date();
-            const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            if(previousSelection) filter.value = previousSelection;
-            else if (months.includes(currentPeriod)) filter.value = currentPeriod;
-            else filter.value = 'all';
-        }
+this.value = '';
+selectedImageBase64 = null;
+imagePreviewTag.style.display = 'none';
 
-        document.getElementById('transaction-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const date = new Date();
-            const dateStr = date.toISOString().split('T')[0];
-            const inputAmt = parseFloat(document.getElementById('amount').value);
-            const selectedCurrency = document.getElementById('currency').value;
-            const convertedAmount = inputAmt * EXCHANGE_RATES[selectedCurrency];
-            let cleanCat = document.getElementById('category').value;
-            
-            const t = {
-                id: Date.now(), description: document.getElementById('description').value,
-                amount: convertedAmount, originalAmount: inputAmt, currency: selectedCurrency,
-                type: document.getElementById('type').value, category: cleanCat, date: dateStr
-            };
-            transactions.push(t);
-            localStorage.setItem('fpro_antolis_data', JSON.stringify(transactions));
-            e.target.reset(); closeBottomSheet(); populateMonthFilter(); updateUI();
-        });
 
-        function deleteTransaction(id) {
-            transactions = transactions.filter(t => t.id !== id);
-            localStorage.setItem('fpro_antolis_data', JSON.stringify(transactions));
-            populateMonthFilter(); updateUI();
-        }
+try {
+const res = await fetch('/api/chat', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+mensaje: payloadText,
+imagen: payloadImage
+})
+});
+const data = await res.json();
+const aiReply = data.respuesta || data.error;
+appendMessage('Antolis', aiReply);
+speak(aiReply);
+} catch (error) {
+const errorMsg = "Local server transmission error.";
+appendMessage('Antolis', errorMsg);
+speak(errorMsg);
+}
+}
+});
 
-        function updateUI() {
-            const filterVal = document.getElementById('month-filter') ? document.getElementById('month-filter').value : 'all';
-            let filtered = transactions;
-            if(filterVal !== 'all') {
-                filtered = transactions.filter(t => t.date.startsWith(filterVal));
-            }
-            seasonalIncomeValue = filtered.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-            seasonalExpenseValue = filtered.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
-            seasonalBalanceValue = seasonalIncomeValue - seasonalExpenseValue;
 
-            renderDashboardNumbers();
-            renderTransactionList(filtered);
-            renderExpenseChart(filtered);
-        }
+// Movimiento de ojos interactivo
+document.addEventListener('mousemove', (e) => {
+const pupils = document.querySelectorAll('.pupil');
+const x = (e.clientX / window.innerWidth - 0.5) * 4;
+const y = (e.clientY / window.innerHeight - 0.5) * 4;
+pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
+});
 
-        function renderDashboardNumbers() {
-            const balanceEl = document.getElementById('total-balance');
-            const incomeEl = document.getElementById('total-income');
-            const expenseEl = document.getElementById('total-expense');
-            const eyeIcon = document.getElementById('privacy-eye-icon');
-            
-            const format = num => (num < 0 ? '-' : '') + '$' + Math.abs(num).toFixed(2);
-            if(isPrivateMode) {
-                balanceEl.innerText = "$ ••••••"; incomeEl.innerText = "$ ••••"; expenseEl.innerText = "$ ••••";
-                eyeIcon.className = "fa-solid fa-eye-slash";
-            } else {
-                balanceEl.innerText = format(seasonalBalanceValue);
-                incomeEl.innerText = format(seasonalIncomeValue);
-                expenseEl.innerText = format(seasonalExpenseValue);
-                eyeIcon.className = "fa-solid fa-eye";
-            }
-        }
 
-        function togglePrivacyMode(e) {
-            if(e) e.preventDefault();
-            isPrivateMode = !isPrivateMode;
-            localStorage.setItem('fpro_privacy', isPrivateMode);
-            renderDashboardNumbers();
-        }
-
-        function renderTransactionList(list) {
-            const ul = document.getElementById('transaction-list');
-            if(!ul) return;
-            ul.innerHTML = '';
-            if(list.length === 0) {
-                ul.innerHTML = `<li style="text-align:center; color:#868e96; padding:15px;">No hay movimientos registrados.</li>`;
-                return;
-            }
-            list.slice().reverse().forEach(t => {
-                const isInc = t.type === 'income';
-                ul.innerHTML += `
-                    <li class="transaction-item">
-                        <div class="item-left-block">
-                            <div class="category-avatar" style="background:${isInc?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)'}; color:${isInc?'var(--success)':'var(--danger)'}">
-                                <i class="fa-solid ${isInc?'fa-arrow-down':'fa-arrow-up'}"></i>
-                            </div>
-                            <div class="item-details">
-                                <strong>${t.description}</strong>
-                                <span class="item-category">${t.category} • ${t.date}</span>
-                            </div>
-                        </div>
-                        <div class="item-amount" style="color:${isInc?'var(--success)':'var(--text-color)'}">
-                            ${isInc?'+':'-'}$${t.amount.toFixed(2)}
-                            <button class="btn-delete" onclick="deleteTransaction(${t.id})"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </li>`;
-            });
-        }
-
-        function renderExpenseChart(list) {
-            const ctx = document.getElementById('expenseChart');
-            if(!ctx) return;
-            const expenses = list.filter(t => t.type === 'expense');
-            const catTotals = {};
-            expenses.forEach(t => { catTotals[t.category] = (catTotals[t.category] || 0) + t.amount; });
-
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(catTotals),
-                    datasets: [{ data: Object.values(catTotals), backgroundColor: ['#f77f00','#4cc9f0','#22c55e','#eab308','#a855f7'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') } } } }
-            });
-        }
-
-        function calculateAiInsights() {
-            const container = document.getElementById('ai-insights-container');
-            const savingValEl = document.getElementById('ai-saving-value');
-            const projectedValEl = document.getElementById('ai-projected-value');
-            if(!container) return;
-
-            const now = new Date();
-            const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const monthTransactions = transactions.filter(t => t.date.startsWith(currentPeriod));
-            
-            const inc = monthTransactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-            const exp = monthTransactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
-            const savingRate = inc > 0 ? ((inc - exp) / inc) * 100 : 0;
-            
-            savingValEl.innerText = `${savingRate > 0 ? '+' : ''}${savingRate.toFixed(0)}%`;
-            projectedValEl.innerText = `$${(exp * 1.2).toFixed(2)}`;
-
-            container.innerHTML = `
-                <div class="ai-insight-card">
-                    <div class="ai-insight-title"><i class="fa-solid fa-brain"></i> Análisis Neural Antolis</div>
-                    <div class="ai-insight-desc">Sistemas estables. El flujo de efectivo actual se mantiene dentro de los parámetros esperados, sir.</div>
-                </div>`;
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendar-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            const year = calendarCurrentDate.getFullYear();
-            const month = calendarCurrentDate.getMonth();
-            document.getElementById('month-name').innerText = `${I18N[currentLang].months[month]} ${year}`;
-            ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-day-name">${d}</div>`);
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
-            for(let d=1; d<=daysInMonth; d++) {
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const hasData = transactions.some(t => t.date === dateStr);
-                const dayEl = document.createElement('div');
-                dayEl.className = `cal-day ${hasData ? 'has-data' : ''}`; dayEl.innerText = d;
-                grid.appendChild(dayEl);
-            }
-        }
-        function navigateCalendar(offset) {
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + offset);
-            renderCalendar();
-        }
-        function resetCalendarFilter() { renderCalendar(); }
-        function renderLineCharts() { /* Inicialización de gráficas de líneas vacía o adaptada */ }
-        function resetData() {
-            if(confirm(getWord('alertResetConfirm'))) { localStorage.clear(); location.reload(); }
-        }
-
-        // Inicialización
-        populateMonthFilter();
-        applyLanguageStrings();
-        updateUI();
-    </script>
+// Animación de parpadeo
+setInterval(() => {
+const eyes = document.querySelectorAll('.eye');
+eyes.forEach(e => e.style.height = '2px');
+setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
+}, 4500);
+</script>
 </body>
 </html>
+
