@@ -1,17 +1,14 @@
 {
-  "name": "Antolis-project",
+  "name": "antolis-project",
   "version": "1.0.0",
   "type": "module",
-  "main": "main.js",
+  "main": "server.mjs",
   "scripts": {
-    "start": "electron ."
+    "start": "node server.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
-  },
-  "devDependencies": {
-    "electron": "^30.0.0"
   }
 }
