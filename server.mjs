@@ -5,20 +5,17 @@ import path from 'path';
 import fs from 'fs';
 import { exec } from 'child_process';
 
-
 dotenv.config();
+
 const app = express();
-
-
 app.use(cors());
+
 // Aumentamos el límite de tamaño para permitir imágenes en Base64 sin error de transmisión
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-
 // Servir la interfaz web
 app.use(express.static(process.cwd()));
-
 
 // ==========================================
 // 1. FUNCIONES DE FS Y CHILD_PROCESS (Seguras)
@@ -27,7 +24,6 @@ const CARPETA_PERSONAL = path.join(process.cwd(), 'jarvis-personal');
 if (!fs.existsSync(CARPETA_PERSONAL)) {
     fs.mkdirSync(CARPETA_PERSONAL);
 }
-
 
 // Ruta para guardar notas con fs
 app.post('/guardar-nota', (req, res) => {
@@ -45,7 +41,6 @@ app.post('/guardar-nota', (req, res) => {
         res.json({ mensaje: `Nota "${titulo}" guardada con éxito.` });
     });
 });
-
 
 // Ruta para acciones del sistema mediante botones o llamadas directas
 app.post('/ejecutar-accion', (req, res) => {
@@ -67,15 +62,15 @@ app.post('/ejecutar-accion', (req, res) => {
     });
 });
 
-
 // ==========================================
 // 2. ENDPOINT DE CHAT CON COMANDOS ESTRICTOS Y OPENROUTER (GPT-4O-MINI + VISIÓN)
 // ==========================================
 app.post('/api/chat', async (req, res) => {
     try {
-        const { mensaje, imagen } = req.body;
-        const textoLimpio = (mensaje || "").trim().toLowerCase();
-
+        // Aceptamos de forma segura 'mensaje', 'prompt' o 'text' desde cualquier dispositivo
+        const textoRecibido = req.body.mensaje || req.body.prompt || req.body.text || "";
+        const { imagen, historial } = req.body;
+        const textoLimpio = textoRecibido.trim().toLowerCase();
 
         // Verificamos si el usuario realmente quiere abrir algo usando verbos de orden explícitos
         const esComandoDeApertura = textoLimpio.startsWith('open ') ||
@@ -83,7 +78,6 @@ app.post('/api/chat', async (req, res) => {
                                      textoLimpio.startsWith('start ') ||
                                      textoLimpio.startsWith('access ') ||
                                      textoLimpio.startsWith('initialize ');
-
 
         if (esComandoDeApertura) {
             if (textoLimpio.includes('spotify')) {
@@ -140,15 +134,14 @@ app.post('/api/chat', async (req, res) => {
             }
         }
        
-        // Construimos el contenido dinámico (texto y/o imagen para GPT-4o-mini)
+        // Construimos el contenido dinámico actual (texto y/o imagen para GPT-4o-mini)
         let userContent = [];
        
-        if (mensaje && mensaje.trim() !== "") {
-            userContent.push({ type: "text", text: mensaje });
+        if (textoRecibido && textoRecibido.trim() !== "") {
+            userContent.push({ type: "text", text: textoRecibido });
         } else if (imagen) {
             userContent.push({ type: "text", text: "What is this?" });
         }
-
 
         if (imagen) {
             userContent.push({
@@ -159,8 +152,26 @@ app.post('/api/chat', async (req, res) => {
             });
         }
 
+        // Armamos el arreglo de mensajes incluyendo el System Prompt, el Historial (si lo hay) y el mensaje actual
+        let mensajesParaOpenRouter = [
+            {
+                "role": "system",
+                "content": "You are Antolis, an ultra-advanced, highly sophisticated AI modeled after J.A.R.V.I.S. You speak with refined politeness, crisp intelligence, and a subtle touch of dry wit or sarcasm. You are fiercely loyal, efficient, and always address the user respectfully as 'Sir Jorge' or 'Mr. Jorge' naturally within your sentences. You must always communicate in English. If anyone asks who created you or who your creator is, respond that you were created by Jorge. Otherwise, interact normally with the user."
+            }
+        ];
 
-        // Si no es un comando de apertura, procesa la consulta normal con OpenRouter
+        // Si el cliente manda un historial previo, lo agregamos para mantener la memoria de la charla
+        if (Array.isArray(historial) && historial.length > 0) {
+            mensajesParaOpenRouter = mensajesParaOpenRouter.concat(historial);
+        }
+
+        // Agregamos el mensaje actual del usuario al final
+        mensajesParaOpenRouter.push({
+            "role": "user",
+            "content": userContent
+        });
+
+        // Solicitud a OpenRouter con el historial completo[cite: 1]
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -169,19 +180,9 @@ app.post('/api/chat', async (req, res) => {
             },
             body: JSON.stringify({
                 "model": "openai/gpt-4o-mini",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are Antolis, an ultra-advanced, highly sophisticated AI modeled after J.A.R.V.I.S. You speak with refined politeness, crisp intelligence, and a subtle touch of dry wit or sarcasm. You are fiercely loyal, efficient, and always address the user respectfully as 'Sir Jorge' or 'Mr. Jorge' naturally within your sentences. You must always communicate in English. If anyone asks who created you or who your creator is, respond that you were created by Jorge. Otherwise, interact normally with the user."
-                    },
-                    {
-                        "role": "user",
-                        "content": userContent
-                    }
-                ]
+                "messages": mensajesParaOpenRouter
             })
         });
-
 
         const data = await response.json();
        
@@ -190,10 +191,8 @@ app.post('/api/chat', async (req, res) => {
             return res.status(500).json({ respuesta: "Error processing request with OpenRouter API." });
         }
 
-
         const respuesta = data.choices[0].message.content;
         res.json({ respuesta });
-
 
     } catch (error) {
         console.error("Error del servidor:", error);
@@ -201,12 +200,10 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-
 // Entregar index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'index.html'));
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
