@@ -221,139 +221,161 @@ const chatOutput = document.getElementById('chat-output');
 const mouth = document.getElementById('mouth');
 const userInput = document.getElementById('user-input');
 const imagePreviewTag = document.getElementById('image-preview-tag');
-
-
 let selectedImageBase64 = null;
 
+// Historial de la conversación para la IA
+let conversationHistory = [];
 
 // Manejar selección de imagen
 function handleImageSelection(event) {
-const file = event.target.files[0];
-if (file) {
-const reader = new FileReader();
-reader.onload = function(e) {
-selectedImageBase64 = e.target.result;
-imagePreviewTag.style.display = 'block';
-imagePreviewTag.textContent = `📷 Attached: ${file.name}`;
-};
-reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedImageBase64 = e.target.result;
+            imagePreviewTag.style.display = 'block';
+            imagePreviewTag.textContent = `📷 Attached: ${file.name}`;
+        };
+        reader.readAsDataURL(file);
+    }
 }
-}
-
 
 // Función de voz (Speech Synthesis)
 function speak(text) {
-const synth = window.speechSynthesis;
-const utter = new SpeechSynthesisUtterance(text);
-utter.lang = 'en-US';
-utter.onstart = () => mouth.classList.add('speaking');
-utter.onend = () => mouth.classList.remove('speaking');
-synth.speak(utter);
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    utter.onstart = () => mouth.classList.add('speaking');
+    utter.onend = () => mouth.classList.remove('speaking');
+    synth.speak(utter);
 }
-
 
 // Cargar historial persistente al iniciar
 window.onload = () => {
-  const savedHistory = localStorage.getItem('antolis_chat_history');
-  if (savedHistory) {
-    chatOutput.innerHTML = savedHistory;
-    chatOutput.scrollTop = chatOutput.scrollHeight;
-  } else {
-    const greeting = "Neural link established. Antolis interface online, sir.";
-    appendMessage("Antolis", greeting);
-    speak(greeting);
-  }
+    const savedHistory = localStorage.getItem('antolis_chat_history');
+    const savedMessages = localStorage.getItem('antolis_messages_array');
+    
+    if (savedHistory && savedMessages) {
+        chatOutput.innerHTML = savedHistory;
+        conversationHistory = JSON.parse(savedMessages);
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+    } else {
+        const greeting = "Neural link established. Antolis interface online, sir.";
+        appendMessage("Antolis", greeting);
+        speak(greeting);
+        // Guardamos el saludo inicial en el historial de la IA
+        conversationHistory.push({ role: "assistant", content: greeting });
+        saveHistoryToStorage();
+    }
 };
 
-
 function saveHistoryToStorage() {
-  localStorage.setItem('antolis_chat_history', chatOutput.innerHTML);
+    localStorage.setItem('antolis_chat_history', chatOutput.innerHTML);
+    localStorage.setItem('antolis_messages_array', JSON.stringify(conversationHistory));
 }
-
 
 function clearHistory() {
-  localStorage.removeItem('antolis_chat_history');
-  chatOutput.innerHTML = '';
-  const resetMsg = "Memory banks cleared, sir.";
-  appendMessage("Antolis", resetMsg);
-  speak(resetMsg);
-  saveHistoryToStorage();
+    localStorage.removeItem('antolis_chat_history');
+    localStorage.removeItem('antolis_messages_array');
+    chatOutput.innerHTML = '';
+    conversationHistory = [];
+    const resetMsg = "Memory banks cleared, sir.";
+    appendMessage("Antolis", resetMsg);
+    speak(resetMsg);
+    conversationHistory.push({ role: "assistant", content: resetMsg });
+    saveHistoryToStorage();
 }
-
 
 function appendMessage(sender, text) {
-const msgDiv = document.createElement('div');
-msgDiv.classList.add('message');
-msgDiv.classList.add(sender === 'You' ? 'user' : 'Antolis');
-msgDiv.innerHTML = `<strong>${sender}</strong>${text}`;
-chatOutput.appendChild(msgDiv);
-chatOutput.scrollTop = chatOutput.scrollHeight;
-saveHistoryToStorage();
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.classList.add(sender === 'You' ? 'user' : 'Antolis');
+    msgDiv.innerHTML = `<strong>${sender}</strong>${text}`;
+    chatOutput.appendChild(msgDiv);
+    chatOutput.scrollTop = chatOutput.scrollHeight;
 }
-
 
 // Enviar mensaje con la tecla Enter
 userInput.addEventListener('keydown', async function (e) {
-if (e.key === 'Enter' && !e.shiftKey) {
-e.preventDefault();
-const userMsg = this.value.trim();
-if (userMsg === "" && !selectedImageBase64) return;
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const userMsg = this.value.trim();
+        if (userMsg === "" && !selectedImageBase64) return;
 
+        let displayText = userMsg;
+        if (selectedImageBase64) {
+            displayText += `<br><img src="${selectedImageBase64}" style="max-width: 200px; border-radius: 8px; margin-top: 5px;">`;
+        }
+        
+        appendMessage('You', displayText);
 
-let displayText = userMsg;
-if (selectedImageBase64) {
-displayText += `<br><img src="${selectedImageBase64}" style="max-width: 200px; border-radius: 8px; margin-top: 5px;">`;
-}
+        // Preparamos el contenido para enviarlo al servidor (soporta texto e imagen multimodal)
+        let userContentPayload = [];
+        if (userMsg !== "") {
+            userContentPayload.push({ type: "text", text: userMsg });
+        } else if (selectedImageBase64) {
+            userContentPayload.push({ type: "text", text: "What is this?" });
+        }
+        if (selectedImageBase64) {
+            userContentPayload.push({
+                type: "image_url",
+                image_url: { url: selectedImageBase64 }
+            });
+        }
 
+        // Agregamos el mensaje del usuario al historial de la IA
+        // Si solo mandó texto plano, podemos guardar un string simple o el array multimodal. 
+        // Para simplificar el historial, guardamos el texto o el payload estructurado:
+        conversationHistory.push({ 
+            role: "user", 
+            content: userContentPayload.length === 1 && userContentPayload[0].type === "text" 
+                     ? userMsg 
+                     : userContentPayload 
+        });
 
-appendMessage('You', displayText);
+        const payloadHistory = [...conversationHistory];
+        
+        this.value = '';
+        selectedImageBase64 = null;
+        imagePreviewTag.style.display = 'none';
 
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ historial: payloadHistory })
+            });
+            const data = await res.json();
+            const aiReply = data.respuesta || data.error;
 
-const payloadText = userMsg;
-const payloadImage = selectedImageBase64;
+            appendMessage('Antolis', aiReply);
+            speak(aiReply);
 
+            // Agregamos la respuesta de Antolis al historial
+            conversationHistory.push({ role: "assistant", content: aiReply });
+            saveHistoryToStorage();
 
-this.value = '';
-selectedImageBase64 = null;
-imagePreviewTag.style.display = 'none';
-
-
-try {
-const res = await fetch('/api/chat', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-mensaje: payloadText,
-imagen: payloadImage
-})
+        } catch (error) {
+            const errorMsg = "Local server transmission error.";
+            appendMessage('Antolis', errorMsg);
+            speak(errorMsg);
+        }
+    }
 });
-const data = await res.json();
-const aiReply = data.respuesta || data.error;
-appendMessage('Antolis', aiReply);
-speak(aiReply);
-} catch (error) {
-const errorMsg = "Local server transmission error.";
-appendMessage('Antolis', errorMsg);
-speak(errorMsg);
-}
-}
-});
-
 
 // Movimiento de ojos interactivo
 document.addEventListener('mousemove', (e) => {
-const pupils = document.querySelectorAll('.pupil');
-const x = (e.clientX / window.innerWidth - 0.5) * 4;
-const y = (e.clientY / window.innerHeight - 0.5) * 4;
-pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
+    const pupils = document.querySelectorAll('.pupil');
+    const x = (e.clientX / window.innerWidth - 0.5) * 4;
+    const y = (e.clientY / window.innerHeight - 0.5) * 4;
+    pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
 });
-
 
 // Animación de parpadeo
 setInterval(() => {
-const eyes = document.querySelectorAll('.eye');
-eyes.forEach(e => e.style.height = '2px');
-setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
+    const eyes = document.querySelectorAll('.eye');
+    eyes.forEach(e => e.style.height = '2px');
+    setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
 }, 4500);
 </script>
 </body>
