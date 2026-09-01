@@ -1,14 +1,17 @@
 {
-  "name": "proyecto-starlink",
+  "name": "Antolis-project",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.mjs",
+  "main": "main.js",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "electron ."
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0"
   }
 }
