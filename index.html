@@ -34,11 +34,7 @@ header {
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
 .meta { color: var(--mute); font-size: 13px; text-align: right; }
 #estado.bad { color: var(--bad); }
-main {
-    flex: 1;
-    overflow: auto;
-    padding: 24px 0 12px;
-}
+main { flex: 1; overflow: auto; padding: 24px 0 12px; }
 .col { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .msg { display: flex; gap: 14px; padding: 14px 0; }
 .msg.user { justify-content: flex-end; }
@@ -69,6 +65,8 @@ main {
         radial-gradient(circle at 45% 80%, rgba(40, 190, 150, 0.85), transparent 38%);
     animation: drift 6s ease-in-out infinite alternate;
 }
+.aurora.listening { box-shadow: 0 0 16px rgba(140, 255, 200, 0.7); }
+.aurora.speaking i { animation-duration: 1.4s; }
 @keyframes drift {
     from { transform: translate(-6%, -4%) rotate(0deg); }
     to { transform: translate(8%, 6%) rotate(18deg); }
@@ -83,7 +81,7 @@ form { padding: 8px 16px 16px; }
     background: var(--bar);
     border: 1px solid var(--line);
     border-radius: 26px;
-    padding: 8px 8px 8px 16px;
+    padding: 8px 8px 8px 10px;
 }
 textarea {
     flex: 1;
@@ -96,21 +94,28 @@ textarea {
     font: 16px/1.4 "Segoe UI", sans-serif;
     padding: 10px 0;
 }
-button {
-    width: 36px;
+.side, .send {
     height: 36px;
     border: 0;
+    border-radius: 18px;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+}
+.side { background: transparent; color: var(--ink); padding: 0 10px; }
+.side.active { background: #1c3a30; color: #b6ffdf; }
+.send {
+    width: 36px;
     border-radius: 50%;
     background: #fff;
     color: #111;
     font-size: 18px;
-    cursor: pointer;
 }
 </style>
 </head>
 <body>
 <header>
-    <div class="brand"><div class="aurora"><i></i></div> Crelis</div>
+    <div class="brand"><div class="aurora" id="face"><i></i></div> Crelis</div>
     <div class="meta"><span id="fecha"></span><br><span id="estado">Guardado</span></div>
 </header>
 <main>
@@ -118,15 +123,45 @@ button {
 </main>
 <form id="linea">
     <div class="composer">
+        <button type="button" class="side" id="mic-btn">VOZ</button>
+        <button type="button" class="side" id="mute-btn">MUTE</button>
         <textarea id="texto" placeholder="Escribe lo que hay que anotar" required></textarea>
-        <button type="submit" aria-label="Enviar">↑</button>
+        <button class="send" type="submit" aria-label="Enviar">↑</button>
     </div>
 </form>
 <script>
 const KEY = "crelis-libro-v3";
 const libro = document.getElementById("libro");
 const estado = document.getElementById("estado");
+const face = document.getElementById("face");
+const micBtn = document.getElementById("mic-btn");
 document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+
+let listening = false;
+let recognition = null;
+let mouthOpen = false;
+
+function hush() {
+    window.speechSynthesis.cancel();
+    mouthOpen = false;
+    face.classList.remove("speaking");
+}
+function speak(text) {
+    const clean = String(text || "").replace(/[*_`]/g, " ").replace(/\s{2,}/g, " ").trim();
+    if (!clean) return;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = "es-MX";
+    const voices = synth.getVoices();
+    const voice = voices.find((v) => /sabina|paulina|m[oó]nica|helena/i.test(v.name) && v.lang.toLowerCase().startsWith("es"))
+        || voices.find((v) => v.lang.toLowerCase().startsWith("es"));
+    if (voice) utter.voice = voice;
+    utter.rate = 1;
+    utter.onstart = () => { mouthOpen = true; face.classList.add("speaking"); };
+    utter.onend = () => { mouthOpen = false; face.classList.remove("speaking"); };
+    synth.speak(utter);
+}
 function load() {
     try { return JSON.parse(localStorage.getItem(KEY)) || []; }
     catch { return []; }
@@ -148,6 +183,67 @@ function paint(items) {
     }
     libro.parentElement.scrollTop = libro.parentElement.scrollHeight;
 }
+function reply(text, say) {
+    items.push({ who: "Crelis", text });
+    save();
+    paint(items);
+    if (say !== false) speak(text);
+}
+function save() {
+    try {
+        localStorage.setItem(KEY, JSON.stringify(items));
+        estado.textContent = "Guardado";
+        estado.classList.remove("bad");
+    } catch {
+        estado.textContent = "No quedó anotado";
+        estado.classList.add("bad");
+    }
+}
+function takeOrder(transcript) {
+    const lower = transcript.toLowerCase();
+    if (/^(silencio|basta|ya|mute|callate|cállate)$/i.test(lower)) {
+        hush();
+        return;
+    }
+    const order = transcript.replace(/oye |ok |hey /ig, "").replace(/crelis|creles|krelis/ig, "").replace(/^[,.\s]+/, "").trim();
+    if (!order) return;
+    items.push({ who: "Tú", text: order });
+    reply("Quedó anotado. No agregué nada que tú no hayas escrito.");
+}
+function stopMic() {
+    listening = false;
+    micBtn.classList.remove("active");
+    face.classList.remove("listening");
+    if (recognition) recognition.stop();
+}
+function startMic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { estado.textContent = "Este navegador no oye"; return; }
+    recognition = new SR();
+    recognition.lang = "es-MX";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+        if (mouthOpen) return;
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) transcript += event.results[i][0].transcript;
+        }
+        transcript = transcript.trim();
+        if (transcript) takeOrder(transcript);
+    };
+    recognition.onend = () => { if (listening) setTimeout(() => { try { recognition.start(); } catch (e) {} }, 300); };
+    recognition.onerror = (event) => {
+        if (event.error !== "no-speech" && listening) setTimeout(() => { try { recognition.start(); } catch (e) {} }, 800);
+    };
+    listening = true;
+    micBtn.classList.add("active");
+    face.classList.add("listening");
+    try { recognition.start(); } catch (e) {}
+}
+micBtn.addEventListener("click", () => listening ? stopMic() : startMic());
+document.getElementById("mute-btn").addEventListener("click", hush);
+
 let items = load();
 if (!items.length) {
     items = [
@@ -161,18 +257,10 @@ document.getElementById("linea").addEventListener("submit", (e) => {
     e.preventDefault();
     const text = document.getElementById("texto").value.trim();
     if (!text) return;
-    items.push({ who: "Tú", text });
-    items.push({ who: "Crelis", text: "Quedó anotado. No agregué nada que tú no hayas escrito." });
-    try {
-        localStorage.setItem(KEY, JSON.stringify(items));
-        estado.textContent = "Guardado";
-        estado.classList.remove("bad");
-    } catch {
-        estado.textContent = "No quedó anotado";
-        estado.classList.add("bad");
-    }
     document.getElementById("texto").value = "";
-    paint(items);
+    if (/^(silencio|mute)$/i.test(text)) { hush(); return; }
+    items.push({ who: "Tú", text });
+    reply("Quedó anotado. No agregué nada que tú no hayas escrito.");
 });
 </script>
 </body>
