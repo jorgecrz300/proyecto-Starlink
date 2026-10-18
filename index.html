@@ -6,177 +6,138 @@
 <title>Crelis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-    --paper: #121714;
-    --sheet: #181e1a;
-    --ink: #e8e2d6;
-    --copper: #b08d62;
-    --copper-dim: #7c6244;
-    --line: rgba(176, 141, 98, 0.32);
-    --mute: #8d877c;
-    --bad: #c45448;
+    --bg: #0c0c0c;
+    --ink: #f4f1eb;
+    --bone: #d8d2c6;
+    --mute: #8f8b84;
+    --line: rgba(216, 210, 198, 0.18);
+    --bad: #e23d3d;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
-    background: var(--paper);
+    background: var(--bg);
     color: var(--ink);
-    font-family: "Libre Baskerville", Georgia, serif;
+    font-family: Manrope, sans-serif;
     display: flex;
     flex-direction: column;
-    min-height: 100%;
 }
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 16px;
-    padding: 22px 22px 14px;
-    border-bottom: 1px solid var(--line);
+    padding: 28px 20px 16px;
 }
-.brand { display: flex; align-items: center; gap: 12px; }
-.stamp {
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--copper);
-    color: var(--copper);
-    display: grid;
-    place-items: center;
-    font-family: "Source Sans 3", sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-}
-h1 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 400;
+.kicker {
+    margin: 0 0 8px;
+    color: var(--mute);
+    font-size: 12px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
 }
-.sub {
-    margin-top: 2px;
-    color: var(--mute);
-    font-family: "Source Sans 3", sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.04em;
+h1 {
+    margin: 0;
+    font-family: Syne, sans-serif;
+    font-size: 64px;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
 }
-.meta {
-    text-align: right;
-    font-family: "Source Sans 3", sans-serif;
-    font-size: 13px;
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bone);
     color: var(--mute);
+    font-size: 13px;
 }
-#estado { display: block; margin-top: 4px; color: var(--copper); letter-spacing: 0.08em; text-transform: uppercase; }
+#estado { color: var(--bone); letter-spacing: 0.14em; text-transform: uppercase; }
 #estado.bad { color: var(--bad); }
 main {
     flex: 1;
     overflow: auto;
-    padding: 8px 22px 18px;
+    padding: 8px 20px 12px;
 }
-.entry {
-    display: grid;
-    grid-template-columns: 72px 1fr;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line);
-}
-.when {
-    color: var(--copper-dim);
-    font-family: "Source Sans 3", sans-serif;
-    font-size: 13px;
-    padding-top: 3px;
-}
+.entry { padding: 16px 0 16px 14px; border-bottom: 1px solid var(--line); }
+.entry.crelis { border-left: 2px solid var(--bone); }
+.when { color: var(--mute); font-size: 12px; letter-spacing: 0.08em; }
 .who {
-    font-family: "Source Sans 3", sans-serif;
+    margin: 4px 0;
     font-size: 11px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--copper);
-    margin-bottom: 4px;
+    color: var(--bone);
 }
-.entry.crelis .text { color: #d9cbb6; }
-.text { font-size: 16px; line-height: 1.45; }
+.text { font-size: 16px; line-height: 1.4; }
 form {
     display: flex;
-    gap: 10px;
-    padding: 14px 22px 18px;
+    gap: 8px;
+    padding: 12px 16px 20px;
     border-top: 1px solid var(--line);
-    background: var(--sheet);
 }
 textarea {
     flex: 1;
-    resize: none;
     height: 52px;
-    border: 1px solid var(--line);
+    resize: none;
+    border: 0;
+    border-bottom: 1px solid var(--bone);
     background: transparent;
     color: var(--ink);
-    font-family: "Libre Baskerville", Georgia, serif;
-    font-size: 16px;
-    padding: 12px;
+    font: 16px/1.3 Manrope, sans-serif;
+    padding: 8px 0;
     outline: none;
 }
 button {
-    border: 1px solid var(--copper);
-    background: transparent;
-    color: var(--copper);
-    font-family: "Source Sans 3", sans-serif;
-    letter-spacing: 0.12em;
+    align-self: flex-end;
+    height: 44px;
+    padding: 0 14px;
+    border: 0;
+    background: var(--bone);
+    color: #111;
+    font-family: Syne, sans-serif;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 0 16px;
-    cursor: pointer;
 }
-@media (max-width: 640px) {
-    header, main, form { padding-left: 14px; padding-right: 14px; }
-    h1 { font-size: 18px; letter-spacing: 0.16em; }
-    .entry { grid-template-columns: 58px 1fr; }
-    form { flex-direction: column; }
-    button { height: 44px; }
+@media (min-width: 800px) {
+    body { max-width: 760px; margin: 0 auto; }
+    h1 { font-size: 92px; }
 }
 </style>
 </head>
 <body>
 <header>
-    <div class="brand">
-        <div class="stamp">C</div>
-        <div>
-            <h1>Crelis</h1>
-            <div class="sub">Libro del día</div>
-        </div>
-    </div>
-    <div class="meta">
+    <p class="kicker">Trabajo</p>
+    <h1>Crelis</h1>
+    <div class="row">
         <span id="fecha"></span>
         <span id="estado">Guardado</span>
     </div>
 </header>
 <main id="libro"></main>
 <form id="linea">
-    <textarea id="texto" placeholder="Anota lo que pidió el patrón" required></textarea>
+    <textarea id="texto" placeholder="Qué hay que anotar" required></textarea>
     <button type="submit">Anotar</button>
 </form>
 <script>
-const KEY = "crelis-libro-v1";
+const KEY = "crelis-libro-v2";
 const libro = document.getElementById("libro");
 const estado = document.getElementById("estado");
-const fecha = document.getElementById("fecha");
-fecha.textContent = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
-
+document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-MX", {
+    weekday: "short", day: "numeric", month: "short"
+});
 function load() {
     try { return JSON.parse(localStorage.getItem(KEY)) || []; }
     catch { return []; }
 }
 function paint(items) {
     libro.innerHTML = "";
-    if (!items.length) {
-        libro.innerHTML = '<article class="entry crelis"><div class="when"></div><div><div class="who">Crelis</div><div class="text">Hoy no hay nada anotado.</div></div></article>';
-        return;
-    }
-    for (const item of items) {
+    const list = items.length ? items : [{ when: "", who: "Crelis", text: "Hoy no hay nada anotado." }];
+    for (const item of list) {
         const article = document.createElement("article");
         article.className = "entry" + (item.who === "Crelis" ? " crelis" : "");
-        article.innerHTML = '<div class="when"></div><div><div class="who"></div><div class="text"></div></div>';
-        article.querySelector(".when").textContent = item.when;
+        article.innerHTML = '<div class="when"></div><div class="who"></div><div class="text"></div>';
+        article.querySelector(".when").textContent = item.when || "";
         article.querySelector(".who").textContent = item.who;
         article.querySelector(".text").textContent = item.text;
         libro.appendChild(article);
@@ -187,12 +148,11 @@ let items = load();
 if (!items.length) {
     items = [
         { when: "06:40", who: "Tú", text: "El patrón pidió contar los de la cerca norte." },
-        { when: "06:44", who: "Crelis", text: "Quedó anotado. No hay número todavía. No lo invento." }
+        { when: "06:44", who: "Crelis", text: "Quedó anotado. No hay número. No lo invento." }
     ];
     localStorage.setItem(KEY, JSON.stringify(items));
 }
 paint(items);
-
 document.getElementById("linea").addEventListener("submit", (event) => {
     event.preventDefault();
     const text = document.getElementById("texto").value.trim();
