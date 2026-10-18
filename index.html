@@ -4,162 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Crelis</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-    --bg: #0c0c0c;
-    --ink: #f4f1eb;
-    --bone: #d8d2c6;
-    --mute: #8f8b84;
-    --line: rgba(216, 210, 198, 0.18);
-    --bad: #e23d3d;
+    --bg: #212121;
+    --bar: #171717;
+    --user: #2f2f2f;
+    --ink: #ececec;
+    --mute: #9b9b9b;
+    --line: rgba(255,255,255,0.08);
+    --bad: #f06a6a;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
     background: var(--bg);
     color: var(--ink);
-    font-family: Manrope, sans-serif;
+    font-family: "Segoe UI", sans-serif;
     display: flex;
     flex-direction: column;
 }
 header {
-    padding: 28px 20px 16px;
-}
-.kicker {
-    margin: 0 0 8px;
-    color: var(--mute);
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-}
-h1 {
-    margin: 0;
-    font-family: Syne, sans-serif;
-    font-size: 64px;
-    line-height: 0.85;
-    letter-spacing: -0.04em;
-}
-.row {
+    height: 56px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 18px;
-    padding-top: 12px;
-    border-top: 1px solid var(--bone);
-    color: var(--mute);
-    font-size: 13px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--line);
 }
-#estado { color: var(--bone); letter-spacing: 0.14em; text-transform: uppercase; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.meta { color: var(--mute); font-size: 13px; text-align: right; }
 #estado.bad { color: var(--bad); }
 main {
     flex: 1;
     overflow: auto;
-    padding: 8px 20px 12px;
+    padding: 24px 0 12px;
 }
-.entry { padding: 16px 0 16px 14px; border-bottom: 1px solid var(--line); }
-.entry.crelis { border-left: 2px solid var(--bone); }
-.when { color: var(--mute); font-size: 12px; letter-spacing: 0.08em; }
-.who {
-    margin: 4px 0;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--bone);
+.col { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.msg { display: flex; gap: 14px; padding: 14px 0; }
+.msg.user { justify-content: flex-end; }
+.bubble {
+    background: var(--user);
+    border-radius: 22px;
+    padding: 12px 16px;
+    max-width: 85%;
+    line-height: 1.45;
 }
-.text { font-size: 16px; line-height: 1.4; }
-form {
+.msg.crelis .text { line-height: 1.5; padding-top: 4px; }
+.aurora {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex: 0 0 32px;
+    position: relative;
+    overflow: hidden;
+    background: #06140f;
+    box-shadow: 0 0 14px rgba(80, 220, 170, 0.35);
+}
+.aurora i {
+    position: absolute;
+    inset: -50%;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(140, 255, 200, 0.95), transparent 40%),
+        radial-gradient(circle at 70% 55%, rgba(110, 90, 255, 0.8), transparent 42%),
+        radial-gradient(circle at 45% 80%, rgba(40, 190, 150, 0.85), transparent 38%);
+    animation: drift 6s ease-in-out infinite alternate;
+}
+@keyframes drift {
+    from { transform: translate(-6%, -4%) rotate(0deg); }
+    to { transform: translate(8%, 6%) rotate(18deg); }
+}
+form { padding: 8px 16px 16px; }
+.composer {
+    max-width: 760px;
+    margin: 0 auto;
     display: flex;
     gap: 8px;
-    padding: 12px 16px 20px;
-    border-top: 1px solid var(--line);
+    align-items: flex-end;
+    background: var(--bar);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    padding: 8px 8px 8px 16px;
 }
 textarea {
     flex: 1;
-    height: 52px;
     resize: none;
+    height: 44px;
     border: 0;
-    border-bottom: 1px solid var(--bone);
+    outline: none;
     background: transparent;
     color: var(--ink);
-    font: 16px/1.3 Manrope, sans-serif;
-    padding: 8px 0;
-    outline: none;
+    font: 16px/1.4 "Segoe UI", sans-serif;
+    padding: 10px 0;
 }
 button {
-    align-self: flex-end;
-    height: 44px;
-    padding: 0 14px;
+    width: 36px;
+    height: 36px;
     border: 0;
-    background: var(--bone);
+    border-radius: 50%;
+    background: #fff;
     color: #111;
-    font-family: Syne, sans-serif;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-@media (min-width: 800px) {
-    body { max-width: 760px; margin: 0 auto; }
-    h1 { font-size: 92px; }
+    font-size: 18px;
+    cursor: pointer;
 }
 </style>
 </head>
 <body>
 <header>
-    <p class="kicker">Trabajo</p>
-    <h1>Crelis</h1>
-    <div class="row">
-        <span id="fecha"></span>
-        <span id="estado">Guardado</span>
-    </div>
+    <div class="brand"><div class="aurora"><i></i></div> Crelis</div>
+    <div class="meta"><span id="fecha"></span><br><span id="estado">Guardado</span></div>
 </header>
-<main id="libro"></main>
+<main>
+    <div class="col" id="libro"></div>
+</main>
 <form id="linea">
-    <textarea id="texto" placeholder="Qué hay que anotar" required></textarea>
-    <button type="submit">Anotar</button>
+    <div class="composer">
+        <textarea id="texto" placeholder="Escribe lo que hay que anotar" required></textarea>
+        <button type="submit" aria-label="Enviar">↑</button>
+    </div>
 </form>
 <script>
-const KEY = "crelis-libro-v2";
+const KEY = "crelis-libro-v3";
 const libro = document.getElementById("libro");
 const estado = document.getElementById("estado");
-document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-MX", {
-    weekday: "short", day: "numeric", month: "short"
-});
+document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short" });
 function load() {
     try { return JSON.parse(localStorage.getItem(KEY)) || []; }
     catch { return []; }
 }
 function paint(items) {
     libro.innerHTML = "";
-    const list = items.length ? items : [{ when: "", who: "Crelis", text: "Hoy no hay nada anotado." }];
+    const list = items.length ? items : [{ who: "Crelis", text: "Hoy no hay nada anotado." }];
     for (const item of list) {
-        const article = document.createElement("article");
-        article.className = "entry" + (item.who === "Crelis" ? " crelis" : "");
-        article.innerHTML = '<div class="when"></div><div class="who"></div><div class="text"></div>';
-        article.querySelector(".when").textContent = item.when || "";
-        article.querySelector(".who").textContent = item.who;
-        article.querySelector(".text").textContent = item.text;
-        libro.appendChild(article);
+        const row = document.createElement("div");
+        row.className = "msg " + (item.who === "Crelis" ? "crelis" : "user");
+        if (item.who === "Crelis") {
+            row.innerHTML = '<div class="aurora"><i></i></div><div class="text"></div>';
+            row.querySelector(".text").textContent = item.text;
+        } else {
+            row.innerHTML = '<div class="bubble"></div>';
+            row.querySelector(".bubble").textContent = item.text;
+        }
+        libro.appendChild(row);
     }
-    libro.scrollTop = libro.scrollHeight;
+    libro.parentElement.scrollTop = libro.parentElement.scrollHeight;
 }
 let items = load();
 if (!items.length) {
     items = [
-        { when: "06:40", who: "Tú", text: "El patrón pidió contar los de la cerca norte." },
-        { when: "06:44", who: "Crelis", text: "Quedó anotado. No hay número. No lo invento." }
+        { who: "Tú", text: "El patrón pidió contar los de la cerca norte." },
+        { who: "Crelis", text: "Quedó anotado. No hay número. No lo invento." }
     ];
     localStorage.setItem(KEY, JSON.stringify(items));
 }
 paint(items);
-document.getElementById("linea").addEventListener("submit", (event) => {
-    event.preventDefault();
+document.getElementById("linea").addEventListener("submit", (e) => {
+    e.preventDefault();
     const text = document.getElementById("texto").value.trim();
     if (!text) return;
-    const when = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-    items.push({ when, who: "Tú", text });
-    items.push({ when, who: "Crelis", text: "Quedó anotado. No agregué nada que tú no hayas escrito." });
+    items.push({ who: "Tú", text });
+    items.push({ who: "Crelis", text: "Quedó anotado. No agregué nada que tú no hayas escrito." });
     try {
         localStorage.setItem(KEY, JSON.stringify(items));
         estado.textContent = "Guardado";
