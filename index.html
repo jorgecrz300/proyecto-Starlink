@@ -1,383 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Antolis Project - Core Interface</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crelis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
+:root {
+    --paper: #121714;
+    --sheet: #181e1a;
+    --ink: #e8e2d6;
+    --copper: #b08d62;
+    --copper-dim: #7c6244;
+    --line: rgba(176, 141, 98, 0.32);
+    --mute: #8d877c;
+    --bad: #c45448;
+}
 * { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
 body {
-background-color: #0b0f19;
-color: #58a6ff;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-margin: 0;
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Baskerville", Georgia, serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
-.main-container {
-width: 100%;
-max-width: 650px;
-height: 90vh;
-background: #111625;
-border: 1px solid #1f293d;
-border-radius: 16px;
-display: flex;
-flex-direction: column;
-box-shadow: 0 0 40px rgba(88, 166, 255, 0.15);
-padding: 20px;
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 22px 22px 14px;
+    border-bottom: 1px solid var(--line);
 }
-/* Cabecera con la carita animada */
-.header-section {
-display: flex;
-align-items: center;
-border-bottom: 1px solid #1f293d;
-padding-bottom: 15px;
-margin-bottom: 15px;
+.brand { display: flex; align-items: center; gap: 12px; }
+.stamp {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--copper);
+    color: var(--copper);
+    display: grid;
+    place-items: center;
+    font-family: "Source Sans 3", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.08em;
 }
-.starlink-face {
-background: #161b22;
-border: 2px solid #58a6ff;
-border-radius: 50%;
-width: 60px;
-height: 60px;
-display: flex;
-justify-content: center;
-align-items: center;
-position: relative;
-box-shadow: 0 0 15px rgba(88, 166, 255, 0.3);
-margin-right: 15px;
-flex-shrink: 0;
+h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
 }
-.eye {
-width: 12px;
-height: 12px;
-background: #c9d1d9;
-border-radius: 50%;
-margin: 6px;
-position: relative;
-display: flex;
-justify-content: center;
-align-items: center;
-overflow: hidden;
-transition: height 0.1s;
+.sub {
+    margin-top: 2px;
+    color: var(--mute);
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
 }
-.pupil { width: 5px; height: 5px; background: #0b0f19; border-radius: 50%; position: absolute; }
-.mouth { width: 20px; height: 3px; background: #58a6ff; position: absolute; bottom: 12px; border-radius: 5px; transition: all 0.2s; }
-.speaking { height: 6px !important; border-radius: 50% !important; }
-
-
-.system-info {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.meta {
+    text-align: right;
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 13px;
+    color: var(--mute);
 }
-.system-info h2 { margin: 0; font-size: 1.1rem; color: #fff; letter-spacing: 1px; }
-.system-info p { margin: 3px 0 0 0; font-size: 0.75rem; color: #8b949e; }
-
-
-.clear-history-btn {
-  background: transparent;
-  border: none;
-  color: #8b949e;
-  font-size: 0.7rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  margin-top: 4px;
+#estado { display: block; margin-top: 4px; color: var(--copper); letter-spacing: 0.08em; text-transform: uppercase; }
+#estado.bad { color: var(--bad); }
+main {
+    flex: 1;
+    overflow: auto;
+    padding: 8px 22px 18px;
 }
-.clear-history-btn:hover {
-  color: #58a6ff;
+.entry {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
 }
-
-
-/* Caja de chat grande y limpia */
-.chat-container {
-flex: 1;
-background: #0d1117;
-border: 1px solid #1f293d;
-border-radius: 12px;
-padding: 15px;
-overflow-y: auto;
-display: flex;
-flex-direction: column;
-gap: 12px;
-margin-bottom: 15px;
+.when {
+    color: var(--copper-dim);
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 13px;
+    padding-top: 3px;
 }
-.message {
-max-width: 85%;
-padding: 10px 14px;
-border-radius: 10px;
-font-size: 0.9rem;
-line-height: 1.4;
+.who {
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 4px;
 }
-.message.user {
-background: #1f293d;
-color: #fff;
-align-self: flex-end;
-border-bottom-right-radius: 2px;
-}
-.message.starlink {
-background: #161b22;
-color: #58a6ff;
-align-self: flex-start;
-border: 1px solid #30363d;
-border-bottom-left-radius: 2px;
-}
-.message strong { display: block; font-size: 0.75rem; margin-bottom: 3px; opacity: 0.7; }
-
-
-/* Área de escritura grande con botón de adjuntar */
-.input-wrapper {
-position: relative;
-display: flex;
-align-items: center;
-gap: 10px;
-}
-.upload-btn {
-background: #161b22;
-border: 2px solid #1f293d;
-color: #58a6ff;
-width: 60px;
-height: 60px;
-border-radius: 10px;
-cursor: pointer;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 1.2rem;
-flex-shrink: 0;
-transition: border-color 0.2s, background 0.2s;
-}
-.upload-btn:hover {
-border-color: #58a6ff;
-background: #1f293d;
-}
-.image-preview-tag {
-font-size: 0.7rem;
-color: #3fb950;
-margin-bottom: 4px;
-display: none;
+.entry.crelis .text { color: #d9cbb6; }
+.text { font-size: 16px; line-height: 1.45; }
+form {
+    display: flex;
+    gap: 10px;
+    padding: 14px 22px 18px;
+    border-top: 1px solid var(--line);
+    background: var(--sheet);
 }
 textarea {
-width: 100%;
-height: 60px;
-background: #0d1117;
-border: 2px solid #1f293d;
-color: #fff;
-padding: 12px 15px;
-border-radius: 10px;
-outline: none;
-font-size: 0.95rem;
-font-family: inherit;
-resize: none;
-box-sizing: border-box;
-transition: border-color 0.2s;
+    flex: 1;
+    resize: none;
+    height: 52px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 16px;
+    padding: 12px;
+    outline: none;
 }
-textarea:focus {
-border-color: #58a6ff;
-box-shadow: 0 0 10px rgba(88, 166, 255, 0.1);
+button {
+    border: 1px solid var(--copper);
+    background: transparent;
+    color: var(--copper);
+    font-family: "Source Sans 3", sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 16px;
+    cursor: pointer;
+}
+@media (max-width: 640px) {
+    header, main, form { padding-left: 14px; padding-right: 14px; }
+    h1 { font-size: 18px; letter-spacing: 0.16em; }
+    .entry { grid-template-columns: 58px 1fr; }
+    form { flex-direction: column; }
+    button { height: 44px; }
 }
 </style>
 </head>
 <body>
-<div class="main-container">
-<!-- Cabecera -->
-<div class="header-section">
-<div class="starlink-face">
-<div class="eye"><div class="pupil"></div></div>
-<div class="eye"><div class="pupil"></div></div>
-<div class="mouth" id="mouth"></div>
-</div>
-<div class="system-info">
-<div>
-<h2>ANTOLIS CORE v2.0</h2>
-<p>NEURAL INTERFACE ACTIVE</p>
-</div>
-<button class="clear-history-btn" onclick="clearHistory()">Clear history</button>
-</div>
-</div>
-<!-- Chat -->
-<div class="chat-container" id="chat-output"></div>
-
-
-<!-- Input grande con botón de imagen -->
-<div>
-<div id="image-preview-tag" class="image-preview-tag">📷 Image attached and ready to send</div>
-<div class="input-wrapper">
-<input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
-<button class="upload-btn" onclick="document.getElementById('image-input').click()" title="Attach image">📷</button>
-<textarea id="user-input" placeholder="Transmit command or image to Antolis... (Press Enter to send)" autocomplete="off"></textarea>
-</div>
-</div>
-
-
-</div>
+<header>
+    <div class="brand">
+        <div class="stamp">C</div>
+        <div>
+            <h1>Crelis</h1>
+            <div class="sub">Libro del día</div>
+        </div>
+    </div>
+    <div class="meta">
+        <span id="fecha"></span>
+        <span id="estado">Guardado</span>
+    </div>
+</header>
+<main id="libro"></main>
+<form id="linea">
+    <textarea id="texto" placeholder="Anota lo que pidió el patrón" required></textarea>
+    <button type="submit">Anotar</button>
+</form>
 <script>
-const chatOutput = document.getElementById('chat-output');
-const mouth = document.getElementById('mouth');
-const userInput = document.getElementById('user-input');
-const imagePreviewTag = document.getElementById('image-preview-tag');
-let selectedImageBase64 = null;
+const KEY = "crelis-libro-v1";
+const libro = document.getElementById("libro");
+const estado = document.getElementById("estado");
+const fecha = document.getElementById("fecha");
+fecha.textContent = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
 
-// Historial de la conversación para la IA
-let conversationHistory = [];
-
-// Manejar selección de imagen
-function handleImageSelection(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedImageBase64 = e.target.result;
-            imagePreviewTag.style.display = 'block';
-            imagePreviewTag.textContent = `📷 Attached: ${file.name}`;
-        };
-        reader.readAsDataURL(file);
+function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch { return []; }
+}
+function paint(items) {
+    libro.innerHTML = "";
+    if (!items.length) {
+        libro.innerHTML = '<article class="entry crelis"><div class="when"></div><div><div class="who">Crelis</div><div class="text">Hoy no hay nada anotado.</div></div></article>';
+        return;
     }
-}
-
-// Función de voz (Speech Synthesis)
-function speak(text) {
-    const synth = window.speechSynthesis;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.onstart = () => mouth.classList.add('speaking');
-    utter.onend = () => mouth.classList.remove('speaking');
-    synth.speak(utter);
-}
-
-// Cargar historial persistente al iniciar
-window.onload = () => {
-    const savedHistory = localStorage.getItem('antolis_chat_history');
-    const savedMessages = localStorage.getItem('antolis_messages_array');
-    
-    if (savedHistory && savedMessages) {
-        chatOutput.innerHTML = savedHistory;
-        conversationHistory = JSON.parse(savedMessages);
-        chatOutput.scrollTop = chatOutput.scrollHeight;
-    } else {
-        const greeting = "Neural link established. Antolis interface online, sir.";
-        appendMessage("Antolis", greeting);
-        speak(greeting);
-        // Guardamos el saludo inicial en el historial de la IA
-        conversationHistory.push({ role: "assistant", content: greeting });
-        saveHistoryToStorage();
+    for (const item of items) {
+        const article = document.createElement("article");
+        article.className = "entry" + (item.who === "Crelis" ? " crelis" : "");
+        article.innerHTML = '<div class="when"></div><div><div class="who"></div><div class="text"></div></div>';
+        article.querySelector(".when").textContent = item.when;
+        article.querySelector(".who").textContent = item.who;
+        article.querySelector(".text").textContent = item.text;
+        libro.appendChild(article);
     }
-};
-
-function saveHistoryToStorage() {
-    localStorage.setItem('antolis_chat_history', chatOutput.innerHTML);
-    localStorage.setItem('antolis_messages_array', JSON.stringify(conversationHistory));
+    libro.scrollTop = libro.scrollHeight;
 }
-
-function clearHistory() {
-    localStorage.removeItem('antolis_chat_history');
-    localStorage.removeItem('antolis_messages_array');
-    chatOutput.innerHTML = '';
-    conversationHistory = [];
-    const resetMsg = "Memory banks cleared, sir.";
-    appendMessage("Antolis", resetMsg);
-    speak(resetMsg);
-    conversationHistory.push({ role: "assistant", content: resetMsg });
-    saveHistoryToStorage();
+let items = load();
+if (!items.length) {
+    items = [
+        { when: "06:40", who: "Tú", text: "El patrón pidió contar los de la cerca norte." },
+        { when: "06:44", who: "Crelis", text: "Quedó anotado. No hay número todavía. No lo invento." }
+    ];
+    localStorage.setItem(KEY, JSON.stringify(items));
 }
+paint(items);
 
-function appendMessage(sender, text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message');
-    msgDiv.classList.add(sender === 'You' ? 'user' : 'Antolis');
-    msgDiv.innerHTML = `<strong>${sender}</strong>${text}`;
-    chatOutput.appendChild(msgDiv);
-    chatOutput.scrollTop = chatOutput.scrollHeight;
-}
-
-// Enviar mensaje con la tecla Enter
-userInput.addEventListener('keydown', async function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        const userMsg = this.value.trim();
-        if (userMsg === "" && !selectedImageBase64) return;
-
-        let displayText = userMsg;
-        if (selectedImageBase64) {
-            displayText += `<br><img src="${selectedImageBase64}" style="max-width: 200px; border-radius: 8px; margin-top: 5px;">`;
-        }
-        
-        appendMessage('You', displayText);
-
-        // Preparamos el contenido para enviarlo al servidor (soporta texto e imagen multimodal)
-        let userContentPayload = [];
-        if (userMsg !== "") {
-            userContentPayload.push({ type: "text", text: userMsg });
-        } else if (selectedImageBase64) {
-            userContentPayload.push({ type: "text", text: "What is this?" });
-        }
-        if (selectedImageBase64) {
-            userContentPayload.push({
-                type: "image_url",
-                image_url: { url: selectedImageBase64 }
-            });
-        }
-
-        // Agregamos el mensaje del usuario al historial de la IA
-        // Si solo mandó texto plano, podemos guardar un string simple o el array multimodal. 
-        // Para simplificar el historial, guardamos el texto o el payload estructurado:
-        conversationHistory.push({ 
-            role: "user", 
-            content: userContentPayload.length === 1 && userContentPayload[0].type === "text" 
-                     ? userMsg 
-                     : userContentPayload 
-        });
-
-        const payloadHistory = [...conversationHistory];
-        
-        this.value = '';
-        selectedImageBase64 = null;
-        imagePreviewTag.style.display = 'none';
-
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ historial: payloadHistory })
-            });
-            const data = await res.json();
-            const aiReply = data.respuesta || data.error;
-
-            appendMessage('Antolis', aiReply);
-            speak(aiReply);
-
-            // Agregamos la respuesta de Antolis al historial
-            conversationHistory.push({ role: "assistant", content: aiReply });
-            saveHistoryToStorage();
-
-        } catch (error) {
-            const errorMsg = "Local server transmission error.";
-            appendMessage('Antolis', errorMsg);
-            speak(errorMsg);
-        }
+document.getElementById("linea").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const text = document.getElementById("texto").value.trim();
+    if (!text) return;
+    const when = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+    items.push({ when, who: "Tú", text });
+    items.push({ when, who: "Crelis", text: "Quedó anotado. No agregué nada que tú no hayas escrito." });
+    try {
+        localStorage.setItem(KEY, JSON.stringify(items));
+        estado.textContent = "Guardado";
+        estado.classList.remove("bad");
+    } catch {
+        estado.textContent = "No quedó anotado";
+        estado.classList.add("bad");
     }
+    document.getElementById("texto").value = "";
+    paint(items);
 });
-
-// Movimiento de ojos interactivo
-document.addEventListener('mousemove', (e) => {
-    const pupils = document.querySelectorAll('.pupil');
-    const x = (e.clientX / window.innerWidth - 0.5) * 4;
-    const y = (e.clientY / window.innerHeight - 0.5) * 4;
-    pupils.forEach(p => p.style.transform = `translate(${x}px,${y}px)`);
-});
-
-// Animación de parpadeo
-setInterval(() => {
-    const eyes = document.querySelectorAll('.eye');
-    eyes.forEach(e => e.style.height = '2px');
-    setTimeout(() => eyes.forEach(e => e.style.height = '12px'), 150);
-}, 4500);
 </script>
 </body>
 </html>
-
