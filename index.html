@@ -23,6 +23,27 @@ body {
     display: flex;
     flex-direction: column;
 }
+body.boot header,
+body.boot main,
+body.boot form { opacity: 0; visibility: hidden; }
+header, main, form { transition: opacity .4s ease; }
+.aurora-wrap {
+    position: fixed;
+    z-index: 30;
+    left: 16px;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: top .55s ease, left .55s ease, width .55s ease, height .55s ease, transform .55s ease;
+}
+body.boot .aurora-wrap {
+    left: 50%;
+    top: 46%;
+    width: min(72vw, 300px);
+    height: min(72vw, 300px);
+    transform: translate(-50%, -50%);
+}
 header {
     height: 56px;
     display: flex;
@@ -31,7 +52,7 @@ header {
     padding: 0 16px;
     border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; padding-left: 42px; }
 .meta { color: var(--mute); font-size: 13px; text-align: right; }
 #estado.bad { color: var(--bad); }
 main { flex: 1; overflow: auto; padding: 24px 0 12px; }
@@ -45,12 +66,11 @@ main { flex: 1; overflow: auto; padding: 24px 0 12px; }
     max-width: 85%;
     line-height: 1.45;
 }
-.msg.crelis .text { line-height: 1.5; padding-top: 4px; }
+.msg .aurora { width: 32px; height: 32px; flex: 0 0 32px; }
 .aurora {
-    width: 32px;
-    height: 32px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    flex: 0 0 32px;
     position: relative;
     overflow: hidden;
     background: #06140f;
@@ -113,9 +133,12 @@ textarea {
 }
 </style>
 </head>
-<body>
+<body class="boot">
+<div class="aurora-wrap" id="face-wrap">
+    <div class="aurora" id="face"><i></i></div>
+</div>
 <header>
-    <div class="brand"><div class="aurora" id="face"><i></i></div> Crelis</div>
+    <div class="brand">Crelis</div>
     <div class="meta"><span id="fecha"></span><br><span id="estado">Guardado</span></div>
 </header>
 <main>
@@ -241,7 +264,17 @@ function startMic() {
     face.classList.add("listening");
     try { recognition.start(); } catch (e) {}
 }
-micBtn.addEventListener("click", () => listening ? stopMic() : startMic());
+function engage() {
+    document.body.classList.remove("boot");
+}
+document.getElementById("face-wrap").addEventListener("click", () => {
+    engage();
+    hush();
+});
+document.addEventListener("keydown", (e) => {
+    if (document.body.classList.contains("boot") && e.key.length === 1 && !e.ctrlKey && !e.metaKey) engage();
+});
+micBtn.addEventListener("click", () => { engage(); listening ? stopMic() : startMic(); });
 document.getElementById("mute-btn").addEventListener("click", hush);
 
 let items = load();
