@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniSim Lab Pro - Entorno Multidisciplinario Avanzado</title>
+    <title>OmniSim Lab Ultimate - Entorno Multidisciplinario Avanzado</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,7 +33,6 @@
             font-family: 'Orbitron', sans-serif;
         }
 
-        /* Sci-Fi Glassmorphism */
         .glass-panel {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(12px);
@@ -41,7 +40,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -57,7 +55,6 @@
             background: rgba(56, 189, 248, 0.8);
         }
 
-        /* Custom Range Slider */
         input[type=range] {
             -webkit-appearance: none;
             background: rgba(30, 41, 59, 0.8);
@@ -83,7 +80,7 @@
         <div class="flex items-center space-x-3">
             <i data-lucide="cpu" class="text-cyan-400 w-6 h-6 animate-pulse"></i>
             <h1 class="font-orbitron font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-indigo-400">
-                OMNISIM PRO <span class="text-xs font-normal text-cyan-400/70 border border-cyan-500/30 px-2 py-0.5 rounded ml-2">v5.2.0</span>
+                OMNISIM ULTIMATE <span class="text-xs font-normal text-cyan-400/70 border border-cyan-500/30 px-2 py-0.5 rounded ml-2">v6.0.0</span>
             </h1>
         </div>
 
@@ -111,6 +108,7 @@
             <div>
                 <label class="text-xs font-orbitron text-cyan-400 tracking-wider block mb-2">MÓDULO DE SIMULACIÓN</label>
                 <select id="sim-selector" class="w-full bg-slate-900 border border-cyan-500/40 text-cyan-100 rounded px-3 py-2 font-medium focus:outline-none focus:border-cyan-400">
+                    <option value="atomic">Laboratorio de Química y Átomos (3D)</option>
                     <option value="gravity">Orbitador Gravitacional (3D)</option>
                     <option value="galaxy">Colisión de Galaxias / Agujeros Negros (3D)</option>
                     <option value="particles">Dinámica de Fluidos (3D)</option>
@@ -134,7 +132,7 @@
                 </div>
             </div>
 
-            <!-- Tema Visual / Neón -->
+            <!-- Tema Visual -->
             <div>
                 <label class="text-xs font-orbitron text-slate-400 block mb-1">TEMA ESPECTRAL</label>
                 <select id="theme-selector" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1.5 focus:outline-none">
@@ -173,7 +171,7 @@
             <!-- Overlay HUD -->
             <div class="absolute top-4 right-4 pointer-events-none flex flex-col items-end space-y-2">
                 <div class="bg-slate-900/80 border border-cyan-500/30 backdrop-blur px-3 py-1.5 rounded text-xs font-mono text-cyan-300">
-                    SISTEMA: <span id="hud-mode-name">GRAVITACIONAL 3D</span>
+                    SISTEMA: <span id="hud-mode-name">QUÍMICA ATÓMICA 3D</span>
                 </div>
                 <div class="bg-slate-900/80 border border-slate-700 backdrop-blur px-3 py-1.5 rounded text-[11px] font-mono text-slate-400">
                     OBJETOS ACTIVOS: <span id="hud-object-count" class="text-white font-bold">0</span>
@@ -217,7 +215,7 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
                 </div>
                 <div id="console-log" class="flex-1 overflow-y-auto font-mono text-[10px] text-cyan-400/80 space-y-1">
-                    <div>[00:00:00] Núcleo OmniSim Pro cargado correctamente.</div>
+                    <div>[00:00:00] Núcleo OmniSim Ultimate cargado.</div>
                 </div>
             </div>
         </aside>
@@ -229,7 +227,7 @@
         lucide.createIcons();
 
         const state = {
-            currentMode: 'gravity',
+            currentMode: 'atomic',
             isRunning: true,
             fps: 60,
             frameCount: 0,
@@ -334,7 +332,7 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // INTERACTIVIDAD DE RATÓN: Raycaster para clics e impulsos
+        // INTERACTIVIDAD DE RATÓN
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -360,6 +358,173 @@
         // ==========================================
         // MÓDULOS DE SIMULACIÓN
         // ==========================================
+
+        // 0. NUEVO: LABORATORIO DE QUÍMICA & ÁTOMOS (3D)
+        const AtomicSim = {
+            group: new THREE.Group(),
+            electrons: [],
+            nucleus: null,
+            elementsDB: {
+                H: { name: 'Hidrógeno', z: 1, color: 0x38bdf8 },
+                He: { name: 'Helio', z: 2, color: 0xfacc15 },
+                C: { name: 'Carbono', z: 6, color: 0x94a3b8 },
+                N: { name: 'Nitrógeno', z: 7, color: 0x60a5fa },
+                O: { name: 'Oxígeno', z: 8, color: 0xf87171 },
+                Na: { name: 'Sodio', z: 11, color: 0xc084fc },
+                Cl: { name: 'Cloro', z: 17, color: 0x4ade80 }
+            },
+
+            init() {
+                scene.add(this.group);
+                state.params = { protons: 6, el1: 'H', el2: 'O' };
+                this.buildControls();
+                this.reset();
+            },
+
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Número Atómico (Protones):</span>
+                            <span id="val-protons" class="text-cyan-400 font-mono">${state.params.protons}</span>
+                        </div>
+                        <input type="range" id="param-protons" min="1" max="18" value="${state.params.protons}" class="w-full">
+                    </div>
+                    
+                    <div class="border-t border-slate-800 pt-3">
+                        <label class="text-xs font-orbitron text-cyan-400 block mb-2">REACTOR DE SÍNTESIS / COMBINACIÓN</label>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <select id="select-el1" class="bg-slate-900 border border-slate-700 text-xs text-white rounded p-1">
+                                <option value="H">H (Hidrógeno)</option>
+                                <option value="Na">Na (Sodio)</option>
+                                <option value="C">C (Carbono)</option>
+                            </select>
+                            <select id="select-el2" class="bg-slate-900 border border-slate-700 text-xs text-white rounded p-1">
+                                <option value="O">O (Oxígeno)</option>
+                                <option value="Cl">Cl (Cloro)</option>
+                                <option value="H">H (Hidrógeno)</option>
+                            </select>
+                        </div>
+                        <button onclick="AtomicSim.synthesize()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-xs transition">
+                            Sintetizar / Reaccionar
+                        </button>
+                    </div>
+                `;
+
+                presetButtons.innerHTML = `
+                    <button onclick="AtomicSim.loadPreset('H')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Átomo Hidrógeno</button>
+                    <button onclick="AtomicSim.loadPreset('C')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Átomo Carbono</button>
+                `;
+
+                document.getElementById('param-protons').addEventListener('input', (e) => {
+                    state.params.protons = parseInt(e.target.value);
+                    document.getElementById('val-protons').textContent = state.params.protons;
+                    this.reset();
+                });
+            },
+
+            reset() {
+                this.clear();
+                const z = state.params.protons;
+
+                // Construcción del Núcleo
+                const nucGroup = new THREE.Group();
+                const sphereGeo = new THREE.SphereGeometry(0.8, 16, 16);
+                const pMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.3 }); // Protones Rojos
+                const nMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.3 }); // Neutrones Grises
+
+                for (let i = 0; i < z * 2; i++) {
+                    const m = new THREE.Mesh(sphereGeo, i % 2 === 0 ? pMat : nMat);
+                    m.position.set(
+                        (Math.random() - 0.5) * 2.5,
+                        (Math.random() - 0.5) * 2.5,
+                        (Math.random() - 0.5) * 2.5
+                    );
+                    nucGroup.add(m);
+                }
+                this.nucleus = nucGroup;
+                this.group.add(nucGroup);
+
+                // Construcción de Órbitas Electrónicas (Modelo de Bohr)
+                this.electrons = [];
+                const eGeo = new THREE.SphereGeometry(0.4, 16, 16);
+                const eMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+                for (let i = 0; i < z; i++) {
+                    const shell = Math.floor(i / 8) + 1;
+                    const radius = shell * 8 + 4;
+                    const speed = (3 / shell) * (i % 2 === 0 ? 1 : -1);
+
+                    const orbitLine = new THREE.Mesh(
+                        new THREE.TorusGeometry(radius, 0.05, 16, 100),
+                        new THREE.MeshBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.5 })
+                    );
+                    orbitLine.rotation.x = Math.PI / 2 + (i * 0.2);
+                    this.group.add(orbitLine);
+
+                    const eMesh = new THREE.Mesh(eGeo, eMat);
+                    this.group.add(eMesh);
+                    this.electrons.push({
+                        mesh: eMesh,
+                        radius: radius,
+                        angle: (i / z) * Math.PI * 2,
+                        speed: speed,
+                        tilt: i * 0.2
+                    });
+                }
+
+                state.objectsCount = z * 3; // Protones + Neutrones + Electrones
+            },
+
+            update() {
+                // Rotación del núcleo
+                if (this.nucleus) {
+                    this.nucleus.rotation.x += 0.01;
+                    this.nucleus.rotation.y += 0.01;
+                }
+
+                // Orbitación de los Electrones
+                this.electrons.forEach(e => {
+                    e.angle += 0.02 * e.speed;
+                    e.mesh.position.set(
+                        Math.cos(e.angle) * e.radius,
+                        Math.sin(e.angle * 2) * (e.radius * 0.2),
+                        Math.sin(e.angle) * e.radius
+                    );
+                });
+            },
+
+            synthesize() {
+                const el1 = document.getElementById('select-el1').value;
+                const el2 = document.getElementById('select-el2').value;
+
+                let res = "Reacción desconocida";
+                if ((el1 === 'H' && el2 === 'O') || (el1 === 'O' && el2 === 'H')) res = "SÍNTESIS EXITOSA: Agua (H₂O)";
+                else if ((el1 === 'Na' && el2 === 'Cl') || (el1 === 'Cl' && el2 === 'Na')) res = "SÍNTESIS EXITOSA: Sal Común (NaCl)";
+                else if (el1 === 'C' && el2 === 'O') res = "SÍNTESIS EXITOSA: Dióxido de Carbono (CO₂)";
+                else res = `COMBINACIÓN INESTABLE: Mezcla de ${el1} y ${el2}`;
+
+                log(`[REACTOR] ${res}`);
+                
+                // Efecto visual de destello
+                pointLight.color.setHex(0x4ade80);
+                setTimeout(() => pointLight.color.setHex(state.currentColorHex), 1000);
+            },
+
+            loadPreset(symbol) {
+                if (symbol === 'H') state.params.protons = 1;
+                if (symbol === 'C') state.params.protons = 6;
+                this.buildControls();
+                this.reset();
+            },
+
+            clear() {
+                while (this.group.children.length > 0) this.group.remove(this.group.children[0]);
+                this.electrons = [];
+            },
+
+            destroy() { this.clear(); scene.remove(this.group); }
+        };
 
         // 1. GRAVITACIONAL
         const GravitySim = {
@@ -455,16 +620,13 @@
             destroy() { this.clear(); scene.remove(this.group); }
         };
 
-        // 2. NUEVO: COLISIÓN DE GALAXIAS (3D)
+        // 2. COLISIÓN DE GALAXIAS (3D)
         const GalaxySim = {
-            group: new THREE.Group(),
-            stars: [],
-            bh1: null, bh2: null,
+            group: new THREE.Group(), stars: [], bh1: null, bh2: null,
             init() {
                 scene.add(this.group);
                 state.params = { count: 1200, massBH: 500 };
-                this.buildControls();
-                this.reset();
+                this.buildControls(); this.reset();
             },
             buildControls() {
                 dynamicControls.innerHTML = `
@@ -497,11 +659,9 @@
                     const angle = Math.random() * Math.PI * 2;
                     const radius = 3 + Math.random() * 12;
 
-                    const x = center.x + Math.cos(angle) * radius;
-                    const y = center.y + (Math.random() - 0.5) * 2;
-                    const z = center.z + Math.sin(angle) * radius;
-
-                    posArr[i * 3] = x; posArr[i * 3 + 1] = y; posArr[i * 3 + 2] = z;
+                    posArr[i * 3] = center.x + Math.cos(angle) * radius;
+                    posArr[i * 3 + 1] = center.y + (Math.random() - 0.5) * 2;
+                    posArr[i * 3 + 2] = center.z + Math.sin(angle) * radius;
 
                     const speed = Math.sqrt((0.5 * state.params.massBH) / radius);
                     const vel = (isG1 ? this.bh1.vel : this.bh2.vel).clone().add(new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)).multiplyScalar(speed));
@@ -509,43 +669,32 @@
                 }
 
                 geom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-                const mat = new THREE.PointsMaterial({ color: state.currentColorHex, size: 0.6, transparent: true, opacity: 0.8 });
-                this.group.add(new THREE.Points(geom, mat));
+                this.group.add(new THREE.Points(geom, new THREE.PointsMaterial({ color: state.currentColorHex, size: 0.6, transparent: true, opacity: 0.8 })));
                 state.objectsCount = state.params.count + 2;
             },
             update() {
                 const dt = 0.02;
-                // Atracción entre Agujeros Negros
                 const diffBH = new THREE.Vector3().subVectors(this.bh2.pos, this.bh1.pos);
                 const distBH = Math.max(diffBH.length(), 2);
                 const fBH = diffBH.normalize().multiplyScalar((0.5 * this.bh1.mass * this.bh2.mass) / (distBH * distBH));
 
                 this.bh1.vel.add(fBH.clone().divideScalar(this.bh1.mass).multiplyScalar(dt));
                 this.bh2.vel.sub(fBH.clone().divideScalar(this.bh2.mass).multiplyScalar(dt));
-
                 this.bh1.pos.add(this.bh1.vel.clone().multiplyScalar(dt));
                 this.bh2.pos.add(this.bh2.vel.clone().multiplyScalar(dt));
 
-                // Estrellas
                 const pAttr = this.group.children[0].geometry.attributes.position.array;
                 for (let i = 0; i < this.stars.length; i++) {
                     const sPos = new THREE.Vector3(pAttr[i * 3], pAttr[i * 3 + 1], pAttr[i * 3 + 2]);
-                    
                     const d1 = new THREE.Vector3().subVectors(this.bh1.pos, sPos);
                     const d2 = new THREE.Vector3().subVectors(this.bh2.pos, sPos);
-
                     const f1 = d1.clone().normalize().multiplyScalar((0.5 * this.bh1.mass) / Math.max(d1.lengthSq(), 4));
                     const f2 = d2.clone().normalize().multiplyScalar((0.5 * this.bh2.mass) / Math.max(d2.lengthSq(), 4));
-
                     this.stars[i].vel.add(f1.add(f2).multiplyScalar(dt));
                     sPos.add(this.stars[i].vel.clone().multiplyScalar(dt));
-
                     pAttr[i * 3] = sPos.x; pAttr[i * 3 + 1] = sPos.y; pAttr[i * 3 + 2] = sPos.z;
                 }
                 this.group.children[0].geometry.attributes.position.needsUpdate = true;
-            },
-            applyForceAt(point, sign) {
-                this.stars.forEach(s => s.vel.add(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(sign * 10)));
             },
             clear() { while (this.group.children.length > 0) this.group.remove(this.group.children[0]); },
             destroy() { this.clear(); scene.remove(this.group); }
@@ -553,22 +702,15 @@
 
         // 3. FLUIDOS / PARTÍCULAS (3D)
         const ParticleSim = {
-            particles: null, count: 3000, geometry: null, positions: null, velocities: null,
-            init() {
-                state.params = { vortexStrength: 0.5 };
-                this.buildControls(); this.reset();
-            },
+            particles: null, count: 3000, geometry: null,
+            init() { state.params = { vortexStrength: 0.5 }; this.buildControls(); this.reset(); },
             buildControls() {
                 dynamicControls.innerHTML = `
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">Vórtice:</span>
-                            <span id="val-vortex" class="text-cyan-400 font-mono">${state.params.vortexStrength}</span>
-                        </div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Vórtice:</span><span id="val-vortex" class="text-cyan-400 font-mono">${state.params.vortexStrength}</span></div>
                         <input type="range" id="param-vortex" min="0.1" max="2.0" step="0.1" value="${state.params.vortexStrength}" class="w-full">
                     </div>
                 `;
-                presetButtons.innerHTML = `<button onclick="ParticleSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Re-dispersar</button>`;
                 document.getElementById('param-vortex').addEventListener('input', (e) => {
                     state.params.vortexStrength = parseFloat(e.target.value);
                     document.getElementById('val-vortex').textContent = state.params.vortexStrength;
@@ -577,15 +719,13 @@
             reset() {
                 if (this.particles) scene.remove(this.particles);
                 this.geometry = new THREE.BufferGeometry();
-                this.positions = new Float32Array(this.count * 3);
-                this.velocities = new Float32Array(this.count * 3);
-
+                const pos = new Float32Array(this.count * 3);
                 for (let i = 0; i < this.count; i++) {
-                    this.positions[i * 3] = (Math.random() - 0.5) * 40;
-                    this.positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
-                    this.positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+                    pos[i * 3] = (Math.random() - 0.5) * 40;
+                    pos[i * 3 + 1] = (Math.random() - 0.5) * 40;
+                    pos[i * 3 + 2] = (Math.random() - 0.5) * 40;
                 }
-                this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+                this.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
                 this.particles = new THREE.Points(this.geometry, new THREE.PointsMaterial({ color: state.currentColorHex, size: 0.5, transparent: true, opacity: 0.8 }));
                 scene.add(this.particles);
                 state.objectsCount = this.count;
@@ -594,23 +734,13 @@
                 const pos = this.geometry.attributes.position.array;
                 const v = state.params.vortexStrength;
                 for (let i = 0; i < this.count; i++) {
-                    const x = pos[i * 3], y = pos[i * 3 + 1], z = pos[i * 3 + 2];
+                    const x = pos[i * 3], z = pos[i * 3 + 2];
                     pos[i * 3] += (-z * 0.05 * v);
                     pos[i * 3 + 1] += (Math.sin(x * 0.1) * 0.05);
                     pos[i * 3 + 2] += (x * 0.05 * v);
                     if (Math.abs(pos[i * 3]) > 35) pos[i * 3] *= -0.9;
                 }
                 this.geometry.attributes.position.needsUpdate = true;
-            },
-            applyForceAt(point, sign) {
-                const pos = this.geometry.attributes.position.array;
-                for (let i = 0; i < this.count; i++) {
-                    const dir = new THREE.Vector3(pos[i * 3] - point.x, pos[i * 3 + 1] - point.y, pos[i * 3 + 2] - point.z);
-                    if (dir.length() < 15) {
-                        dir.normalize().multiplyScalar(sign * 5);
-                        pos[i * 3] += dir.x; pos[i * 3 + 1] += dir.y; pos[i * 3 + 2] += dir.z;
-                    }
-                }
             },
             destroy() { if (this.particles) scene.remove(this.particles); }
         };
@@ -626,7 +756,6 @@
                         <input type="range" id="param-g-pend" min="0.1" max="3.0" step="0.1" value="${state.params.gravity}" class="w-full">
                     </div>
                 `;
-                presetButtons.innerHTML = `<button onclick="PendulumSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Restablecer</button>`;
                 document.getElementById('param-g-pend').addEventListener('input', (e) => {
                     state.params.gravity = parseFloat(e.target.value); this.g = state.params.gravity;
                     document.getElementById('val-g-pend').textContent = state.params.gravity;
@@ -705,7 +834,7 @@
         };
 
         // Ruteador de Módulos
-        const modules = { gravity: GravitySim, galaxy: GalaxySim, particles: ParticleSim, pendulum: PendulumSim, waves: WavesSim };
+        const modules = { atomic: AtomicSim, gravity: GravitySim, galaxy: GalaxySim, particles: ParticleSim, pendulum: PendulumSim, waves: WavesSim };
         let currentModule = null;
 
         function switchModule(modeKey) {
@@ -728,7 +857,6 @@
 
         simSelector.addEventListener('change', (e) => switchModule(e.target.value));
 
-        // Selector de Temas Neón
         themeSelector.addEventListener('change', (e) => {
             const t = e.target.value;
             if (t === 'matrix') state.currentColorHex = 0x22c55e;
@@ -738,7 +866,7 @@
             
             pointLight.color.setHex(state.currentColorHex);
             if (currentModule && currentModule.reset) currentModule.reset();
-            log(`Tema cromático cambiado a: ${t.toUpperCase()}`);
+            log(`Tema cambiado a: ${t.toUpperCase()}`);
         });
 
         btnPlayPause.addEventListener('click', () => {
@@ -752,7 +880,6 @@
 
         btnReset.addEventListener('click', () => { if (currentModule && currentModule.reset) currentModule.reset(); });
 
-        // Exportador de Telemetría
         function exportData() {
             const dataReport = {
                 timestamp: new Date().toISOString(),
@@ -770,7 +897,6 @@
             log("Telemetría exportada a JSON.");
         }
 
-        // Loop de Renderizado
         function animate(timestamp) {
             requestAnimationFrame(animate);
 
@@ -800,14 +926,14 @@
                 }
             }
 
-            if (state.currentMode === 'gravity' || state.currentMode === 'particles' || state.currentMode === 'galaxy') {
+            if (state.currentMode === 'atomic' || state.currentMode === 'gravity' || state.currentMode === 'particles' || state.currentMode === 'galaxy') {
                 controls.update();
                 renderer.render(scene, camera);
             }
         }
 
         resizeCanvas();
-        switchModule('gravity');
+        switchModule('atomic');
         animate(performance.now());
     </script>
 </body>
