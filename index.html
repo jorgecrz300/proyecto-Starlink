@@ -1,300 +1,886 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crelis</title>
-<style>
-:root {
-    --bg: #212121;
-    --bar: #171717;
-    --user: #2f2f2f;
-    --ink: #ececec;
-    --mute: #9b9b9b;
-    --line: rgba(255,255,255,0.08);
-    --bad: #f06a6a;
-}
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
-body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Segoe UI", sans-serif;
-    display: flex;
-    flex-direction: column;
-}
-body.boot header,
-body.boot main,
-body.boot form { opacity: 0; visibility: hidden; }
-header, main, form { transition: opacity .4s ease; }
-.aurora-wrap {
-    position: fixed;
-    z-index: 30;
-    left: 16px;
-    top: 12px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    transition: top .55s ease, left .55s ease, width .55s ease, height .55s ease, transform .55s ease;
-}
-body.boot .aurora-wrap {
-    left: 50%;
-    top: 46%;
-    width: min(72vw, 300px);
-    height: min(72vw, 300px);
-    transform: translate(-50%, -50%);
-}
-header {
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--line);
-}
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; padding-left: 42px; }
-.meta { color: var(--mute); font-size: 13px; text-align: right; }
-#estado.bad { color: var(--bad); }
-main { flex: 1; overflow: auto; padding: 24px 0 12px; }
-.col { max-width: 760px; margin: 0 auto; padding: 0 16px; }
-.msg { display: flex; gap: 14px; padding: 14px 0; }
-.msg.user { justify-content: flex-end; }
-.bubble {
-    background: var(--user);
-    border-radius: 22px;
-    padding: 12px 16px;
-    max-width: 85%;
-    line-height: 1.45;
-}
-.msg .aurora { width: 32px; height: 32px; flex: 0 0 32px; }
-.aurora {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
-    background: #06140f;
-    box-shadow: 0 0 14px rgba(80, 220, 170, 0.35);
-}
-.aurora i {
-    position: absolute;
-    inset: -50%;
-    background:
-        radial-gradient(circle at 30% 40%, rgba(140, 255, 200, 0.95), transparent 40%),
-        radial-gradient(circle at 70% 55%, rgba(110, 90, 255, 0.8), transparent 42%),
-        radial-gradient(circle at 45% 80%, rgba(40, 190, 150, 0.85), transparent 38%);
-    animation: drift 6s ease-in-out infinite alternate;
-}
-.aurora.listening { box-shadow: 0 0 16px rgba(140, 255, 200, 0.7); }
-.aurora.speaking i { animation-duration: 1.4s; }
-@keyframes drift {
-    from { transform: translate(-6%, -4%) rotate(0deg); }
-    to { transform: translate(8%, 6%) rotate(18deg); }
-}
-form { padding: 8px 16px 16px; }
-.composer {
-    max-width: 760px;
-    margin: 0 auto;
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    background: var(--bar);
-    border: 1px solid var(--line);
-    border-radius: 26px;
-    padding: 8px 8px 8px 10px;
-}
-textarea {
-    flex: 1;
-    resize: none;
-    height: 44px;
-    border: 0;
-    outline: none;
-    background: transparent;
-    color: var(--ink);
-    font: 16px/1.4 "Segoe UI", sans-serif;
-    padding: 10px 0;
-}
-.side, .send {
-    height: 36px;
-    border: 0;
-    border-radius: 18px;
-    cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-}
-.side { background: transparent; color: var(--ink); padding: 0 10px; }
-.side.active { background: #1c3a30; color: #b6ffdf; }
-.send {
-    width: 36px;
-    border-radius: 50%;
-    background: #fff;
-    color: #111;
-    font-size: 18px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniSim Lab - Entorno de Simulación Avanzada</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js para 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Chart.js para telemetría -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Sci-Fi Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-glow {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.8);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 4px;
+            height: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 8px #38bdf8;
+        }
+
+        /* Glow utilities */
+        .text-glow {
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+        }
+        .text-glow-green {
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+        }
+    </style>
 </head>
-<body class="boot">
-<div class="aurora-wrap" id="face-wrap">
-    <div class="aurora" id="face"><i></i></div>
-</div>
-<header>
-    <div class="brand">Crelis</div>
-    <div class="meta"><span id="fecha"></span><br><span id="estado">Guardado</span></div>
-</header>
-<main>
-    <div class="col" id="libro"></div>
-</main>
-<form id="linea">
-    <div class="composer">
-        <button type="button" class="side" id="mic-btn">VOZ</button>
-        <button type="button" class="side" id="mute-btn">MUTE</button>
-        <textarea id="texto" placeholder="Escribe lo que hay que anotar" required></textarea>
-        <button class="send" type="submit" aria-label="Enviar">↑</button>
+<body class="h-screen w-screen flex flex-col select-none">
+
+    <!-- Top Header Navigation -->
+    <header class="h-14 glass-panel border-b border-cyan-900/50 flex items-center justify-between px-6 z-20">
+        <div class="flex items-center space-x-3">
+            <i data-lucide="cpu" class="text-cyan-400 w-6 h-6 animate-pulse"></i>
+            <h1 class="font-orbitron font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-indigo-400">
+                OMNISIM <span class="text-xs font-normal text-cyan-400/70 border border-cyan-500/30 px-2 py-0.5 rounded ml-2">v4.0.8</span>
+            </h1>
+        </div>
+
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="flex items-center space-x-2 bg-slate-900/80 px-3 py-1 rounded border border-slate-700/50">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-slate-400 text-xs">ESTADO:</span>
+                <span class="text-emerald-400 font-mono font-bold" id="status-display">ACTIVO</span>
+            </div>
+
+            <div class="flex items-center space-x-4 font-mono text-xs text-slate-400">
+                <div>FPS: <span id="fps-counter" class="text-cyan-400 font-bold">60</span></div>
+                <div>TIEMPO: <span id="time-display" class="text-cyan-400 font-bold">00:00:00</span></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex relative overflow-hidden">
+        
+        <!-- Sidebar Controls -->
+        <aside class="w-80 glass-panel border-r border-cyan-900/40 p-4 flex flex-col space-y-5 z-10 overflow-y-auto">
+            
+            <!-- Selector de Módulo -->
+            <div>
+                <label class="text-xs font-orbitron text-cyan-400 tracking-wider block mb-2">MÓDULO DE SIMULACIÓN</label>
+                <select id="sim-selector" class="w-full bg-slate-900 border border-cyan-500/40 text-cyan-100 rounded px-3 py-2 font-medium focus:outline-none focus:border-cyan-400">
+                    <option value="gravity">Orbitador Gravitacional (3D)</option>
+                    <option value="particles">Dinámica de Fluidos (3D)</option>
+                    <option value="pendulum">Péndulo Doble Caótico (2D)</option>
+                    <option value="waves">Campos de Interferencia (2D)</option>
+                </select>
+            </div>
+
+            <!-- Panel de Control Principal -->
+            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 space-y-3">
+                <div class="text-xs font-orbitron text-slate-400 border-b border-slate-800 pb-1">EJECUCIÓN</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-play-pause" class="flex items-center justify-center space-x-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-3 rounded text-sm transition">
+                        <i data-lucide="pause" id="play-icon" class="w-4 h-4"></i>
+                        <span id="play-text">Pausar</span>
+                    </button>
+                    <button id="btn-reset" class="flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded text-sm border border-slate-700 transition">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Reiniciar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parámetros Dinámicos -->
+            <div id="dynamic-controls" class="space-y-4">
+                <div class="text-xs font-orbitron text-cyan-400 tracking-wider">PARÁMETROS FÍSICOS</div>
+                <!-- Los controles dinámicos se insertan desde JS -->
+            </div>
+
+            <!-- Presets predefinidos -->
+            <div>
+                <label class="text-xs font-orbitron text-slate-400 block mb-2">ESCENARIOS PRECONFIGURADOS</label>
+                <div class="grid grid-cols-2 gap-2" id="preset-buttons">
+                    <!-- Botones de Preset dinámicos -->
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-t border-slate-800">
+                <div class="text-[10px] font-mono text-slate-500 text-center">
+                    Simulación computacional acelerada por Hardware
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Display Principal (Canvas 3D / 2D) -->
+        <main class="flex-1 relative bg-black flex items-center justify-center">
+            
+            <!-- Three.js Canvas Container -->
+            <div id="canvas-3d-container" class="absolute inset-0 w-full h-full"></div>
+            
+            <!-- 2D Canvas Fallback/Alternative -->
+            <canvas id="canvas-2d" class="absolute inset-0 w-full h-full hidden"></canvas>
+
+            <!-- Overlay HUD Elementos de Fondo -->
+            <div class="absolute top-4 right-4 pointer-events-none flex flex-col items-end space-y-2">
+                <div class="bg-slate-900/80 border border-cyan-500/30 backdrop-blur px-3 py-1.5 rounded text-xs font-mono text-cyan-300">
+                    SISTEMA: <span id="hud-mode-name">GRAVITACIONAL 3D</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-700 backdrop-blur px-3 py-1.5 rounded text-[11px] font-mono text-slate-400">
+                    OBJETOS ACTIVOS: <span id="hud-object-count" class="text-white font-bold">0</span>
+                </div>
+            </div>
+
+            <!-- Guía rápida en pantalla -->
+            <div class="absolute bottom-4 left-4 pointer-events-none bg-slate-900/60 backdrop-blur px-3 py-2 rounded border border-slate-800 text-xs font-mono text-slate-400">
+                <div>🖱️ Click Izquierdo + Arrastrar: Rotar cámara (3D)</div>
+                <div>🖱️ Click Derecho + Arrastrar: Mover vista (3D)</div>
+                <div>🔍 Rueda del Ratón: Zoom</div>
+            </div>
+        </main>
+
+        <!-- Right Telemetry Panel -->
+        <aside class="w-72 glass-panel border-l border-cyan-900/40 p-4 flex flex-col space-y-4 z-10">
+            <h2 class="text-xs font-orbitron text-cyan-400 tracking-wider">TELEMETRÍA EN TIEMPO REAL</h2>
+            
+            <!-- Chart Container -->
+            <div class="h-44 bg-slate-900/80 rounded-lg border border-slate-800 p-2">
+                <canvas id="telemetryChart"></canvas>
+            </div>
+
+            <!-- Datos Vectoriales / Lecturas -->
+            <div class="space-y-2 font-mono text-xs">
+                <div class="bg-slate-900/60 p-2 rounded border border-slate-800/80 flex justify-between">
+                    <span class="text-slate-500">Energía Total:</span>
+                    <span id="val-energy" class="text-emerald-400">0.00 J</span>
+                </div>
+                <div class="bg-slate-900/60 p-2 rounded border border-slate-800/80 flex justify-between">
+                    <span class="text-slate-500">Entropía Estimada:</span>
+                    <span id="val-entropy" class="text-cyan-400">0.00 S</span>
+                </div>
+                <div class="bg-slate-900/60 p-2 rounded border border-slate-800/80 flex justify-between">
+                    <span class="text-slate-500">Carga Computacional:</span>
+                    <span id="val-load" class="text-yellow-400">0.0 %</span>
+                </div>
+            </div>
+
+            <!-- Terminal / Console Logs -->
+            <div class="flex-1 bg-slate-950 rounded border border-slate-800/80 p-2 flex flex-col overflow-hidden">
+                <div class="text-[10px] font-orbitron text-slate-500 mb-1 flex items-center justify-between">
+                    <span>REGISTRO DEL SISTEMA</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                </div>
+                <div id="console-log" class="flex-1 overflow-y-auto font-mono text-[10px] text-cyan-400/80 space-y-1">
+                    <div>[00:00:00] Núcleo inicializado correctamente.</div>
+                </div>
+            </div>
+        </aside>
+
     </div>
-</form>
-<script>
-const KEY = "crelis-libro-v3";
-const libro = document.getElementById("libro");
-const estado = document.getElementById("estado");
-const face = document.getElementById("face");
-const micBtn = document.getElementById("mic-btn");
-document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short" });
 
-let listening = false;
-let recognition = null;
-let mouthOpen = false;
+    <!-- JavaScript Principal Logic -->
+    <script>
+        // Inicializar Iconos Lucide
+        lucide.createIcons();
 
-function hush() {
-    window.speechSynthesis.cancel();
-    mouthOpen = false;
-    face.classList.remove("speaking");
-}
-function speak(text) {
-    const clean = String(text || "").replace(/[*_`]/g, " ").replace(/\s{2,}/g, " ").trim();
-    if (!clean) return;
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const utter = new SpeechSynthesisUtterance(clean);
-    utter.lang = "es-MX";
-    const voices = synth.getVoices();
-    const voice = voices.find((v) => /sabina|paulina|m[oó]nica|helena/i.test(v.name) && v.lang.toLowerCase().startsWith("es"))
-        || voices.find((v) => v.lang.toLowerCase().startsWith("es"));
-    if (voice) utter.voice = voice;
-    utter.rate = 1;
-    utter.onstart = () => { mouthOpen = true; face.classList.add("speaking"); };
-    utter.onend = () => { mouthOpen = false; face.classList.remove("speaking"); };
-    synth.speak(utter);
-}
-function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-    catch { return []; }
-}
-function paint(items) {
-    libro.innerHTML = "";
-    const list = items.length ? items : [{ who: "Crelis", text: "Hoy no hay nada anotado." }];
-    for (const item of list) {
-        const row = document.createElement("div");
-        row.className = "msg " + (item.who === "Crelis" ? "crelis" : "user");
-        if (item.who === "Crelis") {
-            row.innerHTML = '<div class="aurora"><i></i></div><div class="text"></div>';
-            row.querySelector(".text").textContent = item.text;
-        } else {
-            row.innerHTML = '<div class="bubble"></div>';
-            row.querySelector(".bubble").textContent = item.text;
+        // ----------------------------------------------------
+        // Estado Global de la Aplicación
+        // ----------------------------------------------------
+        const state = {
+            currentMode: 'gravity',
+            isRunning: true,
+            fps: 60,
+            frameCount: 0,
+            lastFpsUpdate: performance.now(),
+            startTime: Date.now(),
+            params: {},
+            objectsCount: 0
+        };
+
+        // ----------------------------------------------------
+        // Referencias del DOM
+        // ----------------------------------------------------
+        const simSelector = document.getElementById('sim-selector');
+        const container3D = document.getElementById('canvas-3d-container');
+        const canvas2D = document.getElementById('canvas-2d');
+        const ctx2D = canvas2D.getContext('2d');
+        const dynamicControls = document.getElementById('dynamic-controls');
+        const presetButtons = document.getElementById('preset-buttons');
+        const btnPlayPause = document.getElementById('btn-play-pause');
+        const btnReset = document.getElementById('btn-reset');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        const fpsCounter = document.getElementById('fps-counter');
+        const timeDisplay = document.getElementById('time-display');
+        const consoleLog = document.getElementById('console-log');
+        const hudModeName = document.getElementById('hud-mode-name');
+        const hudObjectCount = document.getElementById('hud-object-count');
+
+        // Telemetría DOM
+        const valEnergy = document.getElementById('val-energy');
+        const valEntropy = document.getElementById('val-entropy');
+        const valLoad = document.getElementById('val-load');
+
+        // ----------------------------------------------------
+        // Configuración de Three.js
+        // ----------------------------------------------------
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.005);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 30, 60);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container3D.clientWidth, container3D.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container3D.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Iluminación Three.js
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x38bdf8, 2, 200);
+        pointLight.position.set(0, 20, 0);
+        scene.add(pointLight);
+
+        // Grid helper para estética sci-fi
+        const gridHelper = new THREE.GridHelper(100, 50, 0x38bdf8, 0x1e293b);
+        gridHelper.position.y = -15;
+        scene.add(gridHelper);
+
+        // ----------------------------------------------------
+        // Configuración de Chart.js
+        // ----------------------------------------------------
+        const chartCtx = document.getElementById('telemetryChart').getContext('2d');
+        const telemetryChart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'Kinetic Energy',
+                    borderColor: '#38bdf8',
+                    borderWidth: 2,
+                    data: Array(20).fill(0),
+                    fill: false,
+                    pointRadius: 0,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { 
+                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                        ticks: { color: '#64748b', font: { size: 9 } }
+                    }
+                },
+                animation: false
+            }
+        });
+
+        // ----------------------------------------------------
+        // Funciones Útiles & Logs
+        // ----------------------------------------------------
+        function log(message) {
+            const time = new Date().toISOString().substr(11, 8);
+            const entry = document.createElement('div');
+            entry.textContent = `[${time}] ${message}`;
+            consoleLog.appendChild(entry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
         }
-        libro.appendChild(row);
-    }
-    libro.parentElement.scrollTop = libro.parentElement.scrollHeight;
-}
-function reply(text, say) {
-    items.push({ who: "Crelis", text });
-    save();
-    paint(items);
-    if (say !== false) speak(text);
-}
-function save() {
-    try {
-        localStorage.setItem(KEY, JSON.stringify(items));
-        estado.textContent = "Guardado";
-        estado.classList.remove("bad");
-    } catch {
-        estado.textContent = "No quedó anotado";
-        estado.classList.add("bad");
-    }
-}
-function takeOrder(transcript) {
-    const lower = transcript.toLowerCase();
-    if (/^(silencio|basta|ya|mute|callate|cállate)$/i.test(lower)) {
-        hush();
-        return;
-    }
-    const order = transcript.replace(/oye |ok |hey /ig, "").replace(/crelis|creles|krelis/ig, "").replace(/^[,.\s]+/, "").trim();
-    if (!order) return;
-    items.push({ who: "Tú", text: order });
-    reply("Quedó anotado. No agregué nada que tú no hayas escrito.");
-}
-function stopMic() {
-    listening = false;
-    micBtn.classList.remove("active");
-    face.classList.remove("listening");
-    if (recognition) recognition.stop();
-}
-function startMic() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { estado.textContent = "Este navegador no oye"; return; }
-    recognition = new SR();
-    recognition.lang = "es-MX";
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-        if (mouthOpen) return;
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) transcript += event.results[i][0].transcript;
-        }
-        transcript = transcript.trim();
-        if (transcript) takeOrder(transcript);
-    };
-    recognition.onend = () => { if (listening) setTimeout(() => { try { recognition.start(); } catch (e) {} }, 300); };
-    recognition.onerror = (event) => {
-        if (event.error !== "no-speech" && listening) setTimeout(() => { try { recognition.start(); } catch (e) {} }, 800);
-    };
-    listening = true;
-    micBtn.classList.add("active");
-    face.classList.add("listening");
-    try { recognition.start(); } catch (e) {}
-}
-function engage() {
-    document.body.classList.remove("boot");
-}
-document.getElementById("face-wrap").addEventListener("click", () => {
-    engage();
-    hush();
-});
-document.addEventListener("keydown", (e) => {
-    if (document.body.classList.contains("boot") && e.key.length === 1 && !e.ctrlKey && !e.metaKey) engage();
-});
-micBtn.addEventListener("click", () => { engage(); listening ? stopMic() : startMic(); });
-document.getElementById("mute-btn").addEventListener("click", hush);
 
-let items = load();
-if (!items.length) {
-    items = [
-        { who: "Tú", text: "El patrón pidió contar los de la cerca norte." },
-        { who: "Crelis", text: "Quedó anotado. No hay número. No lo invento." }
-    ];
-    localStorage.setItem(KEY, JSON.stringify(items));
-}
-paint(items);
-document.getElementById("linea").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = document.getElementById("texto").value.trim();
-    if (!text) return;
-    document.getElementById("texto").value = "";
-    if (/^(silencio|mute)$/i.test(text)) { hush(); return; }
-    items.push({ who: "Tú", text });
-    reply("Quedó anotado. No agregué nada que tú no hayas escrito.");
-});
-</script>
+        function resizeCanvas() {
+            const width = container3D.clientWidth;
+            const height = container3D.clientHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+
+            canvas2D.width = width;
+            canvas2D.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // ----------------------------------------------------
+        // MOTOR DE SIMULACIONES
+        // ----------------------------------------------------
+
+        // === 1. SIMULACIÓN GRAVITACIONAL 3D ===
+        const GravitySim = {
+            bodies: [],
+            group: new THREE.Group(),
+
+            init() {
+                scene.add(this.group);
+                state.params = { count: 40, G: 0.8, mass: 10 };
+                this.buildControls();
+                this.reset();
+            },
+
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Cuerpos Celestiales:</span>
+                            <span id="val-count" class="text-cyan-400 font-mono">${state.params.count}</span>
+                        </div>
+                        <input type="range" id="param-count" min="10" max="150" value="${state.params.count}" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Constante Gravitatoria (G):</span>
+                            <span id="val-g" class="text-cyan-400 font-mono">${state.params.G}</span>
+                        </div>
+                        <input type="range" id="param-g" min="0.1" max="3.0" step="0.1" value="${state.params.G}" class="w-full">
+                    </div>
+                `;
+
+                presetButtons.innerHTML = `
+                    <button onclick="GravitySim.loadPreset('solar')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Sistema Solar</button>
+                    <button onclick="GravitySim.loadPreset('chaos')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Enjambre Caótico</button>
+                `;
+
+                document.getElementById('param-count').addEventListener('input', (e) => {
+                    state.params.count = parseInt(e.target.value);
+                    document.getElementById('val-count').textContent = state.params.count;
+                    this.reset();
+                });
+                document.getElementById('param-g').addEventListener('input', (e) => {
+                    state.params.G = parseFloat(e.target.value);
+                    document.getElementById('val-g').textContent = state.params.G;
+                });
+            },
+
+            reset() {
+                this.clear();
+                
+                // Sol Central
+                const sunGeo = new THREE.SphereGeometry(3, 32, 32);
+                const sunMat = new THREE.MeshBasicMaterial({ color: 0xfcb900 });
+                const sun = new THREE.Mesh(sunGeo, sunMat);
+                sun.userData = { mass: 1000, velocity: new THREE.Vector3(), fixed: true };
+                this.group.add(sun);
+                this.bodies.push(sun);
+
+                // Planetas
+                const sphereGeo = new THREE.SphereGeometry(0.6, 16, 16);
+                for (let i = 0; i < state.params.count; i++) {
+                    const material = new THREE.MeshStandardMaterial({ 
+                        color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+                        roughness: 0.4
+                    });
+                    const body = new THREE.Mesh(sphereGeo, material);
+
+                    const radius = 10 + Math.random() * 35;
+                    const angle = Math.random() * Math.PI * 2;
+                    body.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 4, Math.sin(angle) * radius);
+
+                    // Velocidad orbital tangencial
+                    const speed = Math.sqrt((state.params.G * 1000) / radius);
+                    const velocity = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)).multiplyScalar(speed);
+
+                    body.userData = { mass: 1, velocity: velocity };
+                    this.group.add(body);
+                    this.bodies.push(body);
+                }
+                state.objectsCount = this.bodies.length;
+            },
+
+            update() {
+                const dt = 0.016;
+                const G = state.params.G;
+
+                for (let i = 0; i < this.bodies.length; i++) {
+                    const b1 = this.bodies[i];
+                    if (b1.userData.fixed) continue;
+
+                    const force = new THREE.Vector3();
+
+                    for (let j = 0; j < this.bodies.length; j++) {
+                        if (i === j) continue;
+                        const b2 = this.bodies[j];
+
+                        const diff = new THREE.Vector3().subVectors(b2.position, b1.position);
+                        const dist = Math.max(diff.length(), 2.0); // Evitar división por cero
+                        const fMagnitude = (G * b1.userData.mass * b2.userData.mass) / (dist * dist);
+                        
+                        force.add(diff.normalize().multiplyScalar(fMagnitude));
+                    }
+
+                    b1.userData.velocity.add(force.divideScalar(b1.userData.mass).multiplyScalar(dt));
+                    b1.position.add(b1.userData.velocity.clone().multiplyScalar(dt));
+                }
+            },
+
+            loadPreset(type) {
+                if(type === 'solar') {
+                    state.params.G = 1.0;
+                    state.params.count = 25;
+                } else {
+                    state.params.G = 2.5;
+                    state.params.count = 100;
+                }
+                this.buildControls();
+                this.reset();
+                log(`Preset cargado: ${type.toUpperCase()}`);
+            },
+
+            clear() {
+                while (this.group.children.length > 0) {
+                    this.group.remove(this.group.children[0]);
+                }
+                this.bodies = [];
+            },
+
+            destroy() {
+                this.clear();
+                scene.remove(this.group);
+            }
+        };
+
+        // === 2. SIMULACIÓN DE FLUIDOS / PARTÍCULAS 3D ===
+        const ParticleSim = {
+            particles: null,
+            count: 3000,
+            geometry: null,
+            positions: null,
+            velocities: null,
+
+            init() {
+                state.params = { speed: 1.2, vortexStrength: 0.5 };
+                this.buildControls();
+                this.reset();
+            },
+
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Fuerza del Vórtice:</span>
+                            <span id="val-vortex" class="text-cyan-400 font-mono">${state.params.vortexStrength}</span>
+                        </div>
+                        <input type="range" id="param-vortex" min="0.1" max="2.0" step="0.1" value="${state.params.vortexStrength}" class="w-full">
+                    </div>
+                `;
+                presetButtons.innerHTML = `
+                    <button onclick="ParticleSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Re dispersar</button>
+                `;
+
+                document.getElementById('param-vortex').addEventListener('input', (e) => {
+                    state.params.vortexStrength = parseFloat(e.target.value);
+                    document.getElementById('val-vortex').textContent = state.params.vortexStrength;
+                });
+            },
+
+            reset() {
+                if (this.particles) scene.remove(this.particles);
+
+                this.geometry = new THREE.BufferGeometry();
+                this.positions = new Float32Array(this.count * 3);
+                this.velocities = new Float32Array(this.count * 3);
+
+                for (let i = 0; i < this.count; i++) {
+                    this.positions[i * 3] = (Math.random() - 0.5) * 40;
+                    this.positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+                    this.positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+
+                    this.velocities[i * 3] = (Math.random() - 0.5) * 0.1;
+                    this.velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
+                    this.velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+                }
+
+                this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+
+                const material = new THREE.PointsMaterial({
+                    color: 0x38bdf8,
+                    size: 0.5,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+
+                this.particles = new THREE.Points(this.geometry, material);
+                scene.add(this.particles);
+                state.objectsCount = this.count;
+            },
+
+            update() {
+                const pos = this.geometry.attributes.position.array;
+                const vStrength = state.params.vortexStrength;
+
+                for (let i = 0; i < this.count; i++) {
+                    const x = pos[i * 3];
+                    const y = pos[i * 3 + 1];
+                    const z = pos[i * 3 + 2];
+
+                    // Fuerza rotacional tipo Vórtice
+                    pos[i * 3] += (-z * 0.05 * vStrength) + this.velocities[i * 3];
+                    pos[i * 3 + 1] += (Math.sin(x * 0.1) * 0.05);
+                    pos[i * 3 + 2] += (x * 0.05 * vStrength) + this.velocities[i * 3 + 2];
+
+                    // Mantener contenedor implícito
+                    if (Math.abs(pos[i * 3]) > 35) pos[i * 3] *= -0.9;
+                    if (Math.abs(pos[i * 3 + 1]) > 35) pos[i * 3 + 1] *= -0.9;
+                    if (Math.abs(pos[i * 3 + 2]) > 35) pos[i * 3 + 2] *= -0.9;
+                }
+
+                this.geometry.attributes.position.needsUpdate = true;
+            },
+
+            destroy() {
+                if (this.particles) scene.remove(this.particles);
+            }
+        };
+
+        // === 3. PÉNDULO DOBLE CAÓTICO 2D ===
+        const PendulumSim = {
+            r1: 120, r2: 120,
+            m1: 10, m2: 10,
+            a1: Math.PI / 2, a2: Math.PI / 2,
+            a1_v: 0, a2_v: 0,
+            g: 1,
+            history: [],
+
+            init() {
+                state.params = { gravity: 1 };
+                this.buildControls();
+                this.reset();
+            },
+
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Gravedad:</span>
+                            <span id="val-g-pend" class="text-cyan-400 font-mono">${state.params.gravity}</span>
+                        </div>
+                        <input type="range" id="param-g-pend" min="0.1" max="3.0" step="0.1" value="${state.params.gravity}" class="w-full">
+                    </div>
+                `;
+                presetButtons.innerHTML = `
+                    <button onclick="PendulumSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Restablecer Ángulos</button>
+                `;
+
+                document.getElementById('param-g-pend').addEventListener('input', (e) => {
+                    state.params.gravity = parseFloat(e.target.value);
+                    this.g = state.params.gravity;
+                    document.getElementById('val-g-pend').textContent = state.params.gravity;
+                });
+            },
+
+            reset() {
+                this.a1 = Math.PI / 2;
+                this.a2 = Math.PI / 2;
+                this.a1_v = 0;
+                this.a2_v = 0;
+                this.history = [];
+                state.objectsCount = 2;
+            },
+
+            update() {
+                // Ecuaciones de Euler-Lagrange para el péndulo doble
+                const num1 = -this.g * (2 * this.m1 + this.m2) * Math.sin(this.a1);
+                const num2 = -this.m2 * this.g * Math.sin(this.a1 - 2 * this.a2);
+                const num3 = -2 * Math.sin(this.a1 - this.a2) * this.m2;
+                const num4 = this.a2_v * this.a2_v * this.r2 + this.a1_v * this.a1_v * this.r1 * Math.cos(this.a1 - this.a2);
+                const den = this.r1 * (2 * this.m1 + this.m2 - this.m2 * Math.cos(2 * this.a1 - 2 * this.a2));
+                const a1_a = (num1 + num2 + num3 * num4) / den;
+
+                const num5 = 2 * Math.sin(this.a1 - this.a2);
+                const num6 = (this.a1_v * this.a1_v * this.r1 * (this.m1 + this.m2));
+                const num7 = this.g * (this.m1 + this.m2) * Math.cos(this.a1);
+                const num8 = this.a2_v * this.a2_v * this.r2 * this.m2 * Math.cos(this.a1 - this.a2);
+                const den2 = this.r2 * (2 * this.m1 + this.m2 - this.m2 * Math.cos(2 * this.a1 - 2 * this.a2));
+                const a2_a = (num5 * (num6 + num7 + num8)) / den2;
+
+                this.a1_v += a1_a;
+                this.a2_v += a2_a;
+                this.a1 += this.a1_v;
+                this.a2 += this.a2_v;
+
+                // Render en Canvas 2D
+                ctx2D.fillStyle = 'rgba(3, 7, 18, 0.2)';
+                ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
+
+                const cx = canvas2D.width / 2;
+                const cy = canvas2D.height / 3;
+
+                const x1 = cx + this.r1 * Math.sin(this.a1);
+                const y1 = cy + this.r1 * Math.cos(this.a1);
+
+                const x2 = x1 + this.r2 * Math.sin(this.a2);
+                const y2 = y1 + this.r2 * Math.cos(this.a2);
+
+                this.history.push({ x: x2, y: y2 });
+                if (this.history.length > 250) this.history.shift();
+
+                // Dibujar Traza
+                ctx2D.beginPath();
+                for (let i = 0; i < this.history.length - 1; i++) {
+                    ctx2D.strokeStyle = `rgba(56, 189, 248, ${i / this.history.length})`;
+                    ctx2D.lineWidth = 2;
+                    ctx2D.moveTo(this.history[i].x, this.history[i].y);
+                    ctx2D.lineTo(this.history[i + 1].x, this.history[i + 1].y);
+                    ctx2D.stroke();
+                }
+
+                // Dibujar Brazos y Masas
+                ctx2D.strokeStyle = '#64748b';
+                ctx2D.lineWidth = 3;
+                ctx2D.beginPath();
+                ctx2D.moveTo(cx, cy);
+                ctx2D.lineTo(x1, y1);
+                ctx2D.lineTo(x2, y2);
+                ctx2D.stroke();
+
+                ctx2D.fillStyle = '#38bdf8';
+                ctx2D.beginPath(); ctx2D.arc(x1, y1, 8, 0, Math.PI * 2); ctx2D.fill();
+                ctx2D.fillStyle = '#4ade80';
+                ctx2D.beginPath(); ctx2D.arc(x2, y2, 8, 0, Math.PI * 2); ctx2D.fill();
+            },
+
+            destroy() {}
+        };
+
+        // === 4. ONDAS DE INTERFERENCIA 2D ===
+        const WavesSim = {
+            t: 0,
+            freq: 0.05,
+
+            init() {
+                state.params = { freq: 0.05 };
+                this.buildControls();
+                state.objectsCount = 2; // Dos fuentes de emisión
+            },
+
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Frecuencia de Onda:</span>
+                            <span id="val-freq" class="text-cyan-400 font-mono">${state.params.freq}</span>
+                        </div>
+                        <input type="range" id="param-freq" min="0.01" max="0.15" step="0.01" value="${state.params.freq}" class="w-full">
+                    </div>
+                `;
+                presetButtons.innerHTML = ``;
+
+                document.getElementById('param-freq').addEventListener('input', (e) => {
+                    state.params.freq = parseFloat(e.target.value);
+                    document.getElementById('val-freq').textContent = state.params.freq;
+                });
+            },
+
+            reset() { this.t = 0; },
+
+            update() {
+                this.t += 1;
+                ctx2D.fillStyle = '#030712';
+                ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
+
+                const cx1 = canvas2D.width / 3;
+                const cy = canvas2D.height / 2;
+                const cx2 = (canvas2D.width / 3) * 2;
+
+                const step = 8;
+                for (let x = 0; x < canvas2D.width; x += step) {
+                    for (let y = 0; y < canvas2D.height; y += step) {
+                        const d1 = Math.hypot(x - cx1, y - cy);
+                        const d2 = Math.hypot(x - cx2, y - cy);
+
+                        const v1 = Math.sin(d1 * state.params.freq - this.t * 0.1);
+                        const v2 = Math.sin(d2 * state.params.freq - this.t * 0.1);
+                        const val = (v1 + v2) / 2;
+
+                        const intensity = Math.floor((val + 1) * 127);
+                        ctx2D.fillStyle = `rgb(0, ${Math.floor(intensity * 0.7)}, ${intensity})`;
+                        ctx2D.fillRect(x, y, step, step);
+                    }
+                }
+            },
+
+            destroy() {}
+        };
+
+        // ----------------------------------------------------
+        // Controlador de Cambio de Módulos
+        // ----------------------------------------------------
+        const modules = {
+            gravity: GravitySim,
+            particles: ParticleSim,
+            pendulum: PendulumSim,
+            waves: WavesSim
+        };
+
+        let currentModule = null;
+
+        function switchModule(modeKey) {
+            if (currentModule && currentModule.destroy) {
+                currentModule.destroy();
+            }
+
+            state.currentMode = modeKey;
+            currentModule = modules[modeKey];
+
+            // Alternar visibilidad de Canvas 3D vs 2D
+            if (modeKey === 'pendulum' || modeKey === 'waves') {
+                container3D.classList.add('hidden');
+                canvas2D.classList.remove('hidden');
+            } else {
+                canvas2D.classList.add('hidden');
+                container3D.classList.remove('hidden');
+            }
+
+            hudModeName.textContent = simSelector.options[simSelector.selectedIndex].text.toUpperCase();
+            currentModule.init();
+            log(`Módulo cambiado a: ${modeKey.toUpperCase()}`);
+        }
+
+        simSelector.addEventListener('change', (e) => switchModule(e.target.value));
+
+        // ----------------------------------------------------
+        // Controles de Ejecución (Play/Pause/Reset)
+        // ----------------------------------------------------
+        btnPlayPause.addEventListener('click', () => {
+            state.isRunning = !state.isRunning;
+            if (state.isRunning) {
+                playIcon.setAttribute('data-lucide', 'pause');
+                playText.textContent = 'Pausar';
+                document.getElementById('status-display').textContent = 'ACTIVO';
+                document.getElementById('status-display').className = 'text-emerald-400 font-mono font-bold';
+            } else {
+                playIcon.setAttribute('data-lucide', 'play');
+                playText.textContent = 'Reanudar';
+                document.getElementById('status-display').textContent = 'PAUSADO';
+                document.getElementById('status-display').className = 'text-yellow-400 font-mono font-bold';
+            }
+            lucide.createIcons();
+        });
+
+        btnReset.addEventListener('click', () => {
+            if (currentModule && currentModule.reset) {
+                currentModule.reset();
+                log('Simulación reiniciada.');
+            }
+        });
+
+        // ----------------------------------------------------
+        // Bucle Principal de Renderizado (Main Loop)
+        // ----------------------------------------------------
+        function animate(timestamp) {
+            requestAnimationFrame(animate);
+
+            // Contador de FPS
+            state.frameCount++;
+            if (timestamp - state.lastFpsUpdate >= 1000) {
+                state.fps = state.frameCount;
+                fpsCounter.textContent = state.fps;
+                state.frameCount = 0;
+                state.lastFpsUpdate = timestamp;
+            }
+
+            // Actualización de Tiempo Transcurrido
+            const elapsedSec = Math.floor((Date.now() - state.startTime) / 1000);
+            const hrs = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
+            const secs = String(elapsedSec % 60).padStart(2, '0');
+            timeDisplay.textContent = `${hrs}:${mins}:${secs}`;
+
+            // Actualizar HUD Objetos
+            hudObjectCount.textContent = state.objectsCount;
+
+            // Renderizar Simulación Activa
+            if (state.isRunning && currentModule) {
+                currentModule.update();
+
+                // Telemetría Ficticia basada en dinámica real
+                const energy = (Math.sin(timestamp * 0.002) * 50 + 150).toFixed(2);
+                valEnergy.textContent = `${energy} J`;
+                valEntropy.textContent = `${(Math.log(state.objectsCount + 1) * 1.5).toFixed(2)} S`;
+                valLoad.textContent = `${(Math.min(100, (1000 / state.fps) * 5)).toFixed(1)} %`;
+
+                // Actualizar Gráfico
+                if (state.frameCount % 10 === 0) {
+                    telemetryChart.data.datasets[0].data.shift();
+                    telemetryChart.data.datasets[0].data.push(parseFloat(energy));
+                    telemetryChart.update();
+                }
+            }
+
+            // Render de Three.js si está en modo 3D
+            if (state.currentMode === 'gravity' || state.currentMode === 'particles') {
+                controls.update();
+                renderer.render(scene, camera);
+            }
+        }
+
+        // Inicializar Aplicación
+        resizeCanvas();
+        switchModule('gravity');
+        animate(performance.now());
+    </script>
 </body>
 </html>
