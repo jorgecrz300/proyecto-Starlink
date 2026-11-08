@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniSim Lab - Entorno de Simulación Avanzada</title>
+    <title>OmniSim Lab Pro - Entorno Multidisciplinario Avanzado</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,10 +41,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .glass-panel-glow {
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
-        }
-
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -78,24 +74,16 @@
             cursor: pointer;
             box-shadow: 0 0 8px #38bdf8;
         }
-
-        /* Glow utilities */
-        .text-glow {
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
-        }
-        .text-glow-green {
-            text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
-        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col select-none">
 
-    <!-- Top Header Navigation -->
+    <!-- Header Principal -->
     <header class="h-14 glass-panel border-b border-cyan-900/50 flex items-center justify-between px-6 z-20">
         <div class="flex items-center space-x-3">
             <i data-lucide="cpu" class="text-cyan-400 w-6 h-6 animate-pulse"></i>
             <h1 class="font-orbitron font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-indigo-400">
-                OMNISIM <span class="text-xs font-normal text-cyan-400/70 border border-cyan-500/30 px-2 py-0.5 rounded ml-2">v4.0.8</span>
+                OMNISIM PRO <span class="text-xs font-normal text-cyan-400/70 border border-cyan-500/30 px-2 py-0.5 rounded ml-2">v5.2.0</span>
             </h1>
         </div>
 
@@ -113,26 +101,27 @@
         </div>
     </header>
 
-    <!-- Main Workspace -->
+    <!-- Espacio de trabajo -->
     <div class="flex-1 flex relative overflow-hidden">
         
-        <!-- Sidebar Controls -->
-        <aside class="w-80 glass-panel border-r border-cyan-900/40 p-4 flex flex-col space-y-5 z-10 overflow-y-auto">
+        <!-- Sidebar de Controles -->
+        <aside class="w-80 glass-panel border-r border-cyan-900/40 p-4 flex flex-col space-y-4 z-10 overflow-y-auto">
             
             <!-- Selector de Módulo -->
             <div>
                 <label class="text-xs font-orbitron text-cyan-400 tracking-wider block mb-2">MÓDULO DE SIMULACIÓN</label>
                 <select id="sim-selector" class="w-full bg-slate-900 border border-cyan-500/40 text-cyan-100 rounded px-3 py-2 font-medium focus:outline-none focus:border-cyan-400">
                     <option value="gravity">Orbitador Gravitacional (3D)</option>
+                    <option value="galaxy">Colisión de Galaxias / Agujeros Negros (3D)</option>
                     <option value="particles">Dinámica de Fluidos (3D)</option>
                     <option value="pendulum">Péndulo Doble Caótico (2D)</option>
                     <option value="waves">Campos de Interferencia (2D)</option>
                 </select>
             </div>
 
-            <!-- Panel de Control Principal -->
+            <!-- Panel de Ejecución -->
             <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 space-y-3">
-                <div class="text-xs font-orbitron text-slate-400 border-b border-slate-800 pb-1">EJECUCIÓN</div>
+                <div class="text-xs font-orbitron text-slate-400 border-b border-slate-800 pb-1">EJECUCIÓN & HERRAMIENTAS</div>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="btn-play-pause" class="flex items-center justify-center space-x-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-3 rounded text-sm transition">
                         <i data-lucide="pause" id="play-icon" class="w-4 h-4"></i>
@@ -145,38 +134,43 @@
                 </div>
             </div>
 
+            <!-- Tema Visual / Neón -->
+            <div>
+                <label class="text-xs font-orbitron text-slate-400 block mb-1">TEMA ESPECTRAL</label>
+                <select id="theme-selector" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1.5 focus:outline-none">
+                    <option value="cyan">Cyan Neón (Predeterminado)</option>
+                    <option value="matrix">Verde Matrix</option>
+                    <option value="fire">Térmico / Fuego</option>
+                    <option value="purple">Espacio Profundo (Purple)</option>
+                </select>
+            </div>
+
             <!-- Parámetros Dinámicos -->
             <div id="dynamic-controls" class="space-y-4">
                 <div class="text-xs font-orbitron text-cyan-400 tracking-wider">PARÁMETROS FÍSICOS</div>
-                <!-- Los controles dinámicos se insertan desde JS -->
             </div>
 
-            <!-- Presets predefinidos -->
+            <!-- Presets -->
             <div>
                 <label class="text-xs font-orbitron text-slate-400 block mb-2">ESCENARIOS PRECONFIGURADOS</label>
-                <div class="grid grid-cols-2 gap-2" id="preset-buttons">
-                    <!-- Botones de Preset dinámicos -->
-                </div>
+                <div class="grid grid-cols-2 gap-2" id="preset-buttons"></div>
             </div>
 
-            <div class="mt-auto pt-4 border-t border-slate-800">
-                <div class="text-[10px] font-mono text-slate-500 text-center">
-                    Simulación computacional acelerada por Hardware
-                </div>
-            </div>
+            <!-- Botón Exportar Telemetría -->
+            <button id="btn-export" onclick="exportData()" class="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-cyan-900/40 text-cyan-400 border border-cyan-500/30 font-bold py-2 px-3 rounded text-xs transition mt-auto">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Exportar Registro Telemétrico</span>
+            </button>
 
         </aside>
 
-        <!-- Display Principal (Canvas 3D / 2D) -->
+        <!-- Viewport Principal -->
         <main class="flex-1 relative bg-black flex items-center justify-center">
             
-            <!-- Three.js Canvas Container -->
             <div id="canvas-3d-container" class="absolute inset-0 w-full h-full"></div>
-            
-            <!-- 2D Canvas Fallback/Alternative -->
             <canvas id="canvas-2d" class="absolute inset-0 w-full h-full hidden"></canvas>
 
-            <!-- Overlay HUD Elementos de Fondo -->
+            <!-- Overlay HUD -->
             <div class="absolute top-4 right-4 pointer-events-none flex flex-col items-end space-y-2">
                 <div class="bg-slate-900/80 border border-cyan-500/30 backdrop-blur px-3 py-1.5 rounded text-xs font-mono text-cyan-300">
                     SISTEMA: <span id="hud-mode-name">GRAVITACIONAL 3D</span>
@@ -186,24 +180,22 @@
                 </div>
             </div>
 
-            <!-- Guía rápida en pantalla -->
-            <div class="absolute bottom-4 left-4 pointer-events-none bg-slate-900/60 backdrop-blur px-3 py-2 rounded border border-slate-800 text-xs font-mono text-slate-400">
-                <div>🖱️ Click Izquierdo + Arrastrar: Rotar cámara (3D)</div>
-                <div>🖱️ Click Derecho + Arrastrar: Mover vista (3D)</div>
-                <div>🔍 Rueda del Ratón: Zoom</div>
+            <!-- Controles / Atajos Interactivos -->
+            <div class="absolute bottom-4 left-4 pointer-events-none bg-slate-900/70 backdrop-blur px-3 py-2 rounded border border-slate-800 text-xs font-mono text-slate-400 space-y-1">
+                <div>💥 <b>Clic Izquierdo:</b> Proyectar Onda de Choque Repulsiva</div>
+                <div>🧲 <b>Shift + Clic:</b> Crear Campo Atrractor Temporal</div>
+                <div>🖱️ <b>Arrastrar Ratón:</b> Rotar / Mover Cámara</div>
             </div>
         </main>
 
-        <!-- Right Telemetry Panel -->
+        <!-- Panel Derecha Telemetría -->
         <aside class="w-72 glass-panel border-l border-cyan-900/40 p-4 flex flex-col space-y-4 z-10">
             <h2 class="text-xs font-orbitron text-cyan-400 tracking-wider">TELEMETRÍA EN TIEMPO REAL</h2>
             
-            <!-- Chart Container -->
             <div class="h-44 bg-slate-900/80 rounded-lg border border-slate-800 p-2">
                 <canvas id="telemetryChart"></canvas>
             </div>
 
-            <!-- Datos Vectoriales / Lecturas -->
             <div class="space-y-2 font-mono text-xs">
                 <div class="bg-slate-900/60 p-2 rounded border border-slate-800/80 flex justify-between">
                     <span class="text-slate-500">Energía Total:</span>
@@ -219,28 +211,23 @@
                 </div>
             </div>
 
-            <!-- Terminal / Console Logs -->
             <div class="flex-1 bg-slate-950 rounded border border-slate-800/80 p-2 flex flex-col overflow-hidden">
                 <div class="text-[10px] font-orbitron text-slate-500 mb-1 flex items-center justify-between">
                     <span>REGISTRO DEL SISTEMA</span>
                     <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
                 </div>
                 <div id="console-log" class="flex-1 overflow-y-auto font-mono text-[10px] text-cyan-400/80 space-y-1">
-                    <div>[00:00:00] Núcleo inicializado correctamente.</div>
+                    <div>[00:00:00] Núcleo OmniSim Pro cargado correctamente.</div>
                 </div>
             </div>
         </aside>
 
     </div>
 
-    <!-- JavaScript Principal Logic -->
+    <!-- Scripts Logic -->
     <script>
-        // Inicializar Iconos Lucide
         lucide.createIcons();
 
-        // ----------------------------------------------------
-        // Estado Global de la Aplicación
-        // ----------------------------------------------------
         const state = {
             currentMode: 'gravity',
             isRunning: true,
@@ -249,13 +236,12 @@
             lastFpsUpdate: performance.now(),
             startTime: Date.now(),
             params: {},
-            objectsCount: 0
+            objectsCount: 0,
+            currentColorHex: 0x38bdf8
         };
 
-        // ----------------------------------------------------
-        // Referencias del DOM
-        // ----------------------------------------------------
         const simSelector = document.getElementById('sim-selector');
+        const themeSelector = document.getElementById('theme-selector');
         const container3D = document.getElementById('canvas-3d-container');
         const canvas2D = document.getElementById('canvas-2d');
         const ctx2D = canvas2D.getContext('2d');
@@ -271,14 +257,11 @@
         const hudModeName = document.getElementById('hud-mode-name');
         const hudObjectCount = document.getElementById('hud-object-count');
 
-        // Telemetría DOM
         const valEnergy = document.getElementById('val-energy');
         const valEntropy = document.getElementById('val-entropy');
         const valLoad = document.getElementById('val-load');
 
-        // ----------------------------------------------------
         // Configuración de Three.js
-        // ----------------------------------------------------
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x030712, 0.005);
 
@@ -292,9 +275,7 @@
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
 
-        // Iluminación Three.js
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
@@ -302,21 +283,18 @@
         pointLight.position.set(0, 20, 0);
         scene.add(pointLight);
 
-        // Grid helper para estética sci-fi
         const gridHelper = new THREE.GridHelper(100, 50, 0x38bdf8, 0x1e293b);
         gridHelper.position.y = -15;
         scene.add(gridHelper);
 
-        // ----------------------------------------------------
-        // Configuración de Chart.js
-        // ----------------------------------------------------
+        // Chart.js
         const chartCtx = document.getElementById('telemetryChart').getContext('2d');
         const telemetryChart = new Chart(chartCtx, {
             type: 'line',
             data: {
                 labels: Array(20).fill(''),
                 datasets: [{
-                    label: 'Kinetic Energy',
+                    label: 'Energía',
                     borderColor: '#38bdf8',
                     borderWidth: 2,
                     data: Array(20).fill(0),
@@ -331,18 +309,12 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { display: false },
-                    y: { 
-                        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                        ticks: { color: '#64748b', font: { size: 9 } }
-                    }
+                    y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#64748b', font: { size: 9 } } }
                 },
                 animation: false
             }
         });
 
-        // ----------------------------------------------------
-        // Funciones Útiles & Logs
-        // ----------------------------------------------------
         function log(message) {
             const time = new Date().toISOString().substr(11, 8);
             const entry = document.createElement('div');
@@ -354,32 +326,50 @@
         function resizeCanvas() {
             const width = container3D.clientWidth;
             const height = container3D.clientHeight;
-            
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-
             canvas2D.width = width;
             canvas2D.height = height;
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // ----------------------------------------------------
-        // MOTOR DE SIMULACIONES
-        // ----------------------------------------------------
+        // INTERACTIVIDAD DE RATÓN: Raycaster para clics e impulsos
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
-        // === 1. SIMULACIÓN GRAVITACIONAL 3D ===
+        window.addEventListener('pointerdown', (e) => {
+            if (state.currentMode === 'pendulum' || state.currentMode === 'waves') return;
+            
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const target = new THREE.Vector3();
+            raycaster.ray.intersectPlane(plane, target);
+
+            const isAttract = e.shiftKey;
+            log(isAttract ? "¡Campo Atractor Activo!" : "¡Onda de Choque Repulsiva!");
+
+            if (currentModule && currentModule.applyForceAt) {
+                currentModule.applyForceAt(target, isAttract ? -1 : 1);
+            }
+        });
+
+        // ==========================================
+        // MÓDULOS DE SIMULACIÓN
+        // ==========================================
+
+        // 1. GRAVITACIONAL
         const GravitySim = {
-            bodies: [],
-            group: new THREE.Group(),
-
+            bodies: [], group: new THREE.Group(),
             init() {
                 scene.add(this.group);
-                state.params = { count: 40, G: 0.8, mass: 10 };
+                state.params = { count: 40, G: 0.8 };
                 this.buildControls();
                 this.reset();
             },
-
             buildControls() {
                 dynamicControls.innerHTML = `
                     <div>
@@ -391,18 +381,16 @@
                     </div>
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">Constante Gravitatoria (G):</span>
+                            <span class="text-slate-400">G (Gravedad):</span>
                             <span id="val-g" class="text-cyan-400 font-mono">${state.params.G}</span>
                         </div>
                         <input type="range" id="param-g" min="0.1" max="3.0" step="0.1" value="${state.params.G}" class="w-full">
                     </div>
                 `;
-
                 presetButtons.innerHTML = `
                     <button onclick="GravitySim.loadPreset('solar')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Sistema Solar</button>
                     <button onclick="GravitySim.loadPreset('chaos')" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Enjambre Caótico</button>
                 `;
-
                 document.getElementById('param-count').addEventListener('input', (e) => {
                     state.params.count = parseInt(e.target.value);
                     document.getElementById('val-count').textContent = state.params.count;
@@ -413,131 +401,181 @@
                     document.getElementById('val-g').textContent = state.params.G;
                 });
             },
-
             reset() {
                 this.clear();
-                
-                // Sol Central
-                const sunGeo = new THREE.SphereGeometry(3, 32, 32);
-                const sunMat = new THREE.MeshBasicMaterial({ color: 0xfcb900 });
-                const sun = new THREE.Mesh(sunGeo, sunMat);
+                const sun = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfcb900 }));
                 sun.userData = { mass: 1000, velocity: new THREE.Vector3(), fixed: true };
                 this.group.add(sun);
                 this.bodies.push(sun);
 
-                // Planetas
                 const sphereGeo = new THREE.SphereGeometry(0.6, 16, 16);
                 for (let i = 0; i < state.params.count; i++) {
-                    const material = new THREE.MeshStandardMaterial({ 
-                        color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
-                        roughness: 0.4
-                    });
-                    const body = new THREE.Mesh(sphereGeo, material);
-
+                    const body = new THREE.Mesh(sphereGeo, new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6) }));
                     const radius = 10 + Math.random() * 35;
                     const angle = Math.random() * Math.PI * 2;
                     body.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 4, Math.sin(angle) * radius);
-
-                    // Velocidad orbital tangencial
                     const speed = Math.sqrt((state.params.G * 1000) / radius);
-                    const velocity = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)).multiplyScalar(speed);
-
-                    body.userData = { mass: 1, velocity: velocity };
+                    body.userData = { mass: 1, velocity: new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)).multiplyScalar(speed) };
                     this.group.add(body);
                     this.bodies.push(body);
                 }
                 state.objectsCount = this.bodies.length;
             },
-
             update() {
-                const dt = 0.016;
-                const G = state.params.G;
-
+                const dt = 0.016, G = state.params.G;
                 for (let i = 0; i < this.bodies.length; i++) {
                     const b1 = this.bodies[i];
                     if (b1.userData.fixed) continue;
-
                     const force = new THREE.Vector3();
-
                     for (let j = 0; j < this.bodies.length; j++) {
                         if (i === j) continue;
                         const b2 = this.bodies[j];
-
                         const diff = new THREE.Vector3().subVectors(b2.position, b1.position);
-                        const dist = Math.max(diff.length(), 2.0); // Evitar división por cero
-                        const fMagnitude = (G * b1.userData.mass * b2.userData.mass) / (dist * dist);
-                        
-                        force.add(diff.normalize().multiplyScalar(fMagnitude));
+                        const dist = Math.max(diff.length(), 2.0);
+                        force.add(diff.normalize().multiplyScalar((G * b1.userData.mass * b2.userData.mass) / (dist * dist)));
                     }
-
                     b1.userData.velocity.add(force.divideScalar(b1.userData.mass).multiplyScalar(dt));
                     b1.position.add(b1.userData.velocity.clone().multiplyScalar(dt));
                 }
             },
-
+            applyForceAt(point, sign) {
+                this.bodies.forEach(b => {
+                    if (b.userData.fixed) return;
+                    const dir = new THREE.Vector3().subVectors(b.position, point);
+                    const dist = Math.max(dir.length(), 1);
+                    b.userData.velocity.add(dir.normalize().multiplyScalar((sign * 300) / (dist * dist)));
+                });
+            },
             loadPreset(type) {
-                if(type === 'solar') {
-                    state.params.G = 1.0;
-                    state.params.count = 25;
-                } else {
-                    state.params.G = 2.5;
-                    state.params.count = 100;
-                }
-                this.buildControls();
-                this.reset();
-                log(`Preset cargado: ${type.toUpperCase()}`);
+                state.params.G = type === 'solar' ? 1.0 : 2.5;
+                state.params.count = type === 'solar' ? 25 : 100;
+                this.buildControls(); this.reset();
             },
-
-            clear() {
-                while (this.group.children.length > 0) {
-                    this.group.remove(this.group.children[0]);
-                }
-                this.bodies = [];
-            },
-
-            destroy() {
-                this.clear();
-                scene.remove(this.group);
-            }
+            clear() { while (this.group.children.length > 0) this.group.remove(this.group.children[0]); this.bodies = []; },
+            destroy() { this.clear(); scene.remove(this.group); }
         };
 
-        // === 2. SIMULACIÓN DE FLUIDOS / PARTÍCULAS 3D ===
-        const ParticleSim = {
-            particles: null,
-            count: 3000,
-            geometry: null,
-            positions: null,
-            velocities: null,
-
+        // 2. NUEVO: COLISIÓN DE GALAXIAS (3D)
+        const GalaxySim = {
+            group: new THREE.Group(),
+            stars: [],
+            bh1: null, bh2: null,
             init() {
-                state.params = { speed: 1.2, vortexStrength: 0.5 };
+                scene.add(this.group);
+                state.params = { count: 1200, massBH: 500 };
                 this.buildControls();
                 this.reset();
             },
-
             buildControls() {
                 dynamicControls.innerHTML = `
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">Fuerza del Vórtice:</span>
+                            <span class="text-slate-400">Masa de Agujeros Negros:</span>
+                            <span id="val-bh-mass" class="text-cyan-400 font-mono">${state.params.massBH}</span>
+                        </div>
+                        <input type="range" id="param-bh-mass" min="100" max="1500" value="${state.params.massBH}" class="w-full">
+                    </div>
+                `;
+                presetButtons.innerHTML = `<button onclick="GalaxySim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Reiniciar Galaxias</button>`;
+                document.getElementById('param-bh-mass').addEventListener('input', (e) => {
+                    state.params.massBH = parseFloat(e.target.value);
+                    document.getElementById('val-bh-mass').textContent = state.params.massBH;
+                });
+            },
+            reset() {
+                this.clear();
+                this.bh1 = { pos: new THREE.Vector3(-15, 0, 0), vel: new THREE.Vector3(0, 0, 1.2), mass: state.params.massBH };
+                this.bh2 = { pos: new THREE.Vector3(15, 0, 0), vel: new THREE.Vector3(0, 0, -1.2), mass: state.params.massBH };
+
+                const geom = new THREE.BufferGeometry();
+                const posArr = new Float32Array(state.params.count * 3);
+                this.stars = [];
+
+                for (let i = 0; i < state.params.count; i++) {
+                    const isG1 = i < state.params.count / 2;
+                    const center = isG1 ? this.bh1.pos : this.bh2.pos;
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = 3 + Math.random() * 12;
+
+                    const x = center.x + Math.cos(angle) * radius;
+                    const y = center.y + (Math.random() - 0.5) * 2;
+                    const z = center.z + Math.sin(angle) * radius;
+
+                    posArr[i * 3] = x; posArr[i * 3 + 1] = y; posArr[i * 3 + 2] = z;
+
+                    const speed = Math.sqrt((0.5 * state.params.massBH) / radius);
+                    const vel = (isG1 ? this.bh1.vel : this.bh2.vel).clone().add(new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)).multiplyScalar(speed));
+                    this.stars.push({ vel: vel });
+                }
+
+                geom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+                const mat = new THREE.PointsMaterial({ color: state.currentColorHex, size: 0.6, transparent: true, opacity: 0.8 });
+                this.group.add(new THREE.Points(geom, mat));
+                state.objectsCount = state.params.count + 2;
+            },
+            update() {
+                const dt = 0.02;
+                // Atracción entre Agujeros Negros
+                const diffBH = new THREE.Vector3().subVectors(this.bh2.pos, this.bh1.pos);
+                const distBH = Math.max(diffBH.length(), 2);
+                const fBH = diffBH.normalize().multiplyScalar((0.5 * this.bh1.mass * this.bh2.mass) / (distBH * distBH));
+
+                this.bh1.vel.add(fBH.clone().divideScalar(this.bh1.mass).multiplyScalar(dt));
+                this.bh2.vel.sub(fBH.clone().divideScalar(this.bh2.mass).multiplyScalar(dt));
+
+                this.bh1.pos.add(this.bh1.vel.clone().multiplyScalar(dt));
+                this.bh2.pos.add(this.bh2.vel.clone().multiplyScalar(dt));
+
+                // Estrellas
+                const pAttr = this.group.children[0].geometry.attributes.position.array;
+                for (let i = 0; i < this.stars.length; i++) {
+                    const sPos = new THREE.Vector3(pAttr[i * 3], pAttr[i * 3 + 1], pAttr[i * 3 + 2]);
+                    
+                    const d1 = new THREE.Vector3().subVectors(this.bh1.pos, sPos);
+                    const d2 = new THREE.Vector3().subVectors(this.bh2.pos, sPos);
+
+                    const f1 = d1.clone().normalize().multiplyScalar((0.5 * this.bh1.mass) / Math.max(d1.lengthSq(), 4));
+                    const f2 = d2.clone().normalize().multiplyScalar((0.5 * this.bh2.mass) / Math.max(d2.lengthSq(), 4));
+
+                    this.stars[i].vel.add(f1.add(f2).multiplyScalar(dt));
+                    sPos.add(this.stars[i].vel.clone().multiplyScalar(dt));
+
+                    pAttr[i * 3] = sPos.x; pAttr[i * 3 + 1] = sPos.y; pAttr[i * 3 + 2] = sPos.z;
+                }
+                this.group.children[0].geometry.attributes.position.needsUpdate = true;
+            },
+            applyForceAt(point, sign) {
+                this.stars.forEach(s => s.vel.add(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(sign * 10)));
+            },
+            clear() { while (this.group.children.length > 0) this.group.remove(this.group.children[0]); },
+            destroy() { this.clear(); scene.remove(this.group); }
+        };
+
+        // 3. FLUIDOS / PARTÍCULAS (3D)
+        const ParticleSim = {
+            particles: null, count: 3000, geometry: null, positions: null, velocities: null,
+            init() {
+                state.params = { vortexStrength: 0.5 };
+                this.buildControls(); this.reset();
+            },
+            buildControls() {
+                dynamicControls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Vórtice:</span>
                             <span id="val-vortex" class="text-cyan-400 font-mono">${state.params.vortexStrength}</span>
                         </div>
                         <input type="range" id="param-vortex" min="0.1" max="2.0" step="0.1" value="${state.params.vortexStrength}" class="w-full">
                     </div>
                 `;
-                presetButtons.innerHTML = `
-                    <button onclick="ParticleSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Re dispersar</button>
-                `;
-
+                presetButtons.innerHTML = `<button onclick="ParticleSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Re-dispersar</button>`;
                 document.getElementById('param-vortex').addEventListener('input', (e) => {
                     state.params.vortexStrength = parseFloat(e.target.value);
                     document.getElementById('val-vortex').textContent = state.params.vortexStrength;
                 });
             },
-
             reset() {
                 if (this.particles) scene.remove(this.particles);
-
                 this.geometry = new THREE.BufferGeometry();
                 this.positions = new Float32Array(this.count * 3);
                 this.velocities = new Float32Array(this.count * 3);
@@ -546,246 +584,135 @@
                     this.positions[i * 3] = (Math.random() - 0.5) * 40;
                     this.positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
                     this.positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
-
-                    this.velocities[i * 3] = (Math.random() - 0.5) * 0.1;
-                    this.velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
-                    this.velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
                 }
-
                 this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
-
-                const material = new THREE.PointsMaterial({
-                    color: 0x38bdf8,
-                    size: 0.5,
-                    transparent: true,
-                    opacity: 0.8,
-                    blending: THREE.AdditiveBlending
-                });
-
-                this.particles = new THREE.Points(this.geometry, material);
+                this.particles = new THREE.Points(this.geometry, new THREE.PointsMaterial({ color: state.currentColorHex, size: 0.5, transparent: true, opacity: 0.8 }));
                 scene.add(this.particles);
                 state.objectsCount = this.count;
             },
-
             update() {
                 const pos = this.geometry.attributes.position.array;
-                const vStrength = state.params.vortexStrength;
-
+                const v = state.params.vortexStrength;
                 for (let i = 0; i < this.count; i++) {
-                    const x = pos[i * 3];
-                    const y = pos[i * 3 + 1];
-                    const z = pos[i * 3 + 2];
-
-                    // Fuerza rotacional tipo Vórtice
-                    pos[i * 3] += (-z * 0.05 * vStrength) + this.velocities[i * 3];
+                    const x = pos[i * 3], y = pos[i * 3 + 1], z = pos[i * 3 + 2];
+                    pos[i * 3] += (-z * 0.05 * v);
                     pos[i * 3 + 1] += (Math.sin(x * 0.1) * 0.05);
-                    pos[i * 3 + 2] += (x * 0.05 * vStrength) + this.velocities[i * 3 + 2];
-
-                    // Mantener contenedor implícito
+                    pos[i * 3 + 2] += (x * 0.05 * v);
                     if (Math.abs(pos[i * 3]) > 35) pos[i * 3] *= -0.9;
-                    if (Math.abs(pos[i * 3 + 1]) > 35) pos[i * 3 + 1] *= -0.9;
-                    if (Math.abs(pos[i * 3 + 2]) > 35) pos[i * 3 + 2] *= -0.9;
                 }
-
                 this.geometry.attributes.position.needsUpdate = true;
             },
-
-            destroy() {
-                if (this.particles) scene.remove(this.particles);
-            }
+            applyForceAt(point, sign) {
+                const pos = this.geometry.attributes.position.array;
+                for (let i = 0; i < this.count; i++) {
+                    const dir = new THREE.Vector3(pos[i * 3] - point.x, pos[i * 3 + 1] - point.y, pos[i * 3 + 2] - point.z);
+                    if (dir.length() < 15) {
+                        dir.normalize().multiplyScalar(sign * 5);
+                        pos[i * 3] += dir.x; pos[i * 3 + 1] += dir.y; pos[i * 3 + 2] += dir.z;
+                    }
+                }
+            },
+            destroy() { if (this.particles) scene.remove(this.particles); }
         };
 
-        // === 3. PÉNDULO DOBLE CAÓTICO 2D ===
+        // 4. PÉNDULO DOBLE (2D)
         const PendulumSim = {
-            r1: 120, r2: 120,
-            m1: 10, m2: 10,
-            a1: Math.PI / 2, a2: Math.PI / 2,
-            a1_v: 0, a2_v: 0,
-            g: 1,
-            history: [],
-
-            init() {
-                state.params = { gravity: 1 };
-                this.buildControls();
-                this.reset();
-            },
-
+            r1: 120, r2: 120, m1: 10, m2: 10, a1: Math.PI / 2, a2: Math.PI / 2, a1_v: 0, a2_v: 0, g: 1, history: [],
+            init() { state.params = { gravity: 1 }; this.buildControls(); this.reset(); },
             buildControls() {
                 dynamicControls.innerHTML = `
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">Gravedad:</span>
-                            <span id="val-g-pend" class="text-cyan-400 font-mono">${state.params.gravity}</span>
-                        </div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Gravedad:</span><span id="val-g-pend" class="text-cyan-400 font-mono">${state.params.gravity}</span></div>
                         <input type="range" id="param-g-pend" min="0.1" max="3.0" step="0.1" value="${state.params.gravity}" class="w-full">
                     </div>
                 `;
-                presetButtons.innerHTML = `
-                    <button onclick="PendulumSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Restablecer Ángulos</button>
-                `;
-
+                presetButtons.innerHTML = `<button onclick="PendulumSim.reset()" class="bg-slate-800 hover:bg-slate-700 text-xs py-1.5 px-2 rounded text-cyan-300 border border-slate-700">Restablecer</button>`;
                 document.getElementById('param-g-pend').addEventListener('input', (e) => {
-                    state.params.gravity = parseFloat(e.target.value);
-                    this.g = state.params.gravity;
+                    state.params.gravity = parseFloat(e.target.value); this.g = state.params.gravity;
                     document.getElementById('val-g-pend').textContent = state.params.gravity;
                 });
             },
-
-            reset() {
-                this.a1 = Math.PI / 2;
-                this.a2 = Math.PI / 2;
-                this.a1_v = 0;
-                this.a2_v = 0;
-                this.history = [];
-                state.objectsCount = 2;
-            },
-
+            reset() { this.a1 = Math.PI / 2; this.a2 = Math.PI / 2; this.a1_v = 0; this.a2_v = 0; this.history = []; state.objectsCount = 2; },
             update() {
-                // Ecuaciones de Euler-Lagrange para el péndulo doble
-                const num1 = -this.g * (2 * this.m1 + this.m2) * Math.sin(this.a1);
-                const num2 = -this.m2 * this.g * Math.sin(this.a1 - 2 * this.a2);
-                const num3 = -2 * Math.sin(this.a1 - this.a2) * this.m2;
-                const num4 = this.a2_v * this.a2_v * this.r2 + this.a1_v * this.a1_v * this.r1 * Math.cos(this.a1 - this.a2);
-                const den = this.r1 * (2 * this.m1 + this.m2 - this.m2 * Math.cos(2 * this.a1 - 2 * this.a2));
-                const a1_a = (num1 + num2 + num3 * num4) / den;
+                const num1 = -this.g * (2 * this.m1 + this.m2) * Math.sin(this.a1) - this.m2 * this.g * Math.sin(this.a1 - 2 * this.a2);
+                const num2 = -2 * Math.sin(this.a1 - this.a2) * this.m2 * (this.a2_v * this.a2_v * this.r2 + this.a1_v * this.a1_v * this.r1 * Math.cos(this.a1 - this.a2));
+                const den1 = this.r1 * (2 * this.m1 + this.m2 - this.m2 * Math.cos(2 * this.a1 - 2 * this.a2));
+                this.a1_v += (num1 + num2) / den1;
 
-                const num5 = 2 * Math.sin(this.a1 - this.a2);
-                const num6 = (this.a1_v * this.a1_v * this.r1 * (this.m1 + this.m2));
-                const num7 = this.g * (this.m1 + this.m2) * Math.cos(this.a1);
-                const num8 = this.a2_v * this.a2_v * this.r2 * this.m2 * Math.cos(this.a1 - this.a2);
+                const num3 = 2 * Math.sin(this.a1 - this.a2) * (this.a1_v * this.a1_v * this.r1 * (this.m1 + this.m2) + this.g * (this.m1 + this.m2) * Math.cos(this.a1) + this.a2_v * this.a2_v * this.r2 * this.m2 * Math.cos(this.a1 - this.a2));
                 const den2 = this.r2 * (2 * this.m1 + this.m2 - this.m2 * Math.cos(2 * this.a1 - 2 * this.a2));
-                const a2_a = (num5 * (num6 + num7 + num8)) / den2;
+                this.a2_v += num3 / den2;
 
-                this.a1_v += a1_a;
-                this.a2_v += a2_a;
-                this.a1 += this.a1_v;
-                this.a2 += this.a2_v;
+                this.a1 += this.a1_v; this.a2 += this.a2_v;
 
-                // Render en Canvas 2D
                 ctx2D.fillStyle = 'rgba(3, 7, 18, 0.2)';
                 ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
 
-                const cx = canvas2D.width / 2;
-                const cy = canvas2D.height / 3;
-
-                const x1 = cx + this.r1 * Math.sin(this.a1);
-                const y1 = cy + this.r1 * Math.cos(this.a1);
-
-                const x2 = x1 + this.r2 * Math.sin(this.a2);
-                const y2 = y1 + this.r2 * Math.cos(this.a2);
+                const cx = canvas2D.width / 2, cy = canvas2D.height / 3;
+                const x1 = cx + this.r1 * Math.sin(this.a1), y1 = cy + this.r1 * Math.cos(this.a1);
+                const x2 = x1 + this.r2 * Math.sin(this.a2), y2 = y1 + this.r2 * Math.cos(this.a2);
 
                 this.history.push({ x: x2, y: y2 });
                 if (this.history.length > 250) this.history.shift();
 
-                // Dibujar Traza
                 ctx2D.beginPath();
                 for (let i = 0; i < this.history.length - 1; i++) {
-                    ctx2D.strokeStyle = `rgba(56, 189, 248, ${i / this.history.length})`;
-                    ctx2D.lineWidth = 2;
+                    ctx2D.strokeStyle = `#38bdf8`; ctx2D.lineWidth = 2;
                     ctx2D.moveTo(this.history[i].x, this.history[i].y);
                     ctx2D.lineTo(this.history[i + 1].x, this.history[i + 1].y);
                     ctx2D.stroke();
                 }
 
-                // Dibujar Brazos y Masas
-                ctx2D.strokeStyle = '#64748b';
-                ctx2D.lineWidth = 3;
-                ctx2D.beginPath();
-                ctx2D.moveTo(cx, cy);
-                ctx2D.lineTo(x1, y1);
-                ctx2D.lineTo(x2, y2);
-                ctx2D.stroke();
-
-                ctx2D.fillStyle = '#38bdf8';
-                ctx2D.beginPath(); ctx2D.arc(x1, y1, 8, 0, Math.PI * 2); ctx2D.fill();
-                ctx2D.fillStyle = '#4ade80';
-                ctx2D.beginPath(); ctx2D.arc(x2, y2, 8, 0, Math.PI * 2); ctx2D.fill();
+                ctx2D.strokeStyle = '#64748b'; ctx2D.lineWidth = 3;
+                ctx2D.beginPath(); ctx2D.moveTo(cx, cy); ctx2D.lineTo(x1, y1); ctx2D.lineTo(x2, y2); ctx2D.stroke();
             },
-
             destroy() {}
         };
 
-        // === 4. ONDAS DE INTERFERENCIA 2D ===
+        // 5. ONDAS (2D)
         const WavesSim = {
-            t: 0,
-            freq: 0.05,
-
-            init() {
-                state.params = { freq: 0.05 };
-                this.buildControls();
-                state.objectsCount = 2; // Dos fuentes de emisión
-            },
-
+            t: 0, freq: 0.05,
+            init() { state.params = { freq: 0.05 }; this.buildControls(); state.objectsCount = 2; },
             buildControls() {
                 dynamicControls.innerHTML = `
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">Frecuencia de Onda:</span>
-                            <span id="val-freq" class="text-cyan-400 font-mono">${state.params.freq}</span>
-                        </div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Frecuencia:</span><span id="val-freq" class="text-cyan-400 font-mono">${state.params.freq}</span></div>
                         <input type="range" id="param-freq" min="0.01" max="0.15" step="0.01" value="${state.params.freq}" class="w-full">
                     </div>
                 `;
-                presetButtons.innerHTML = ``;
-
                 document.getElementById('param-freq').addEventListener('input', (e) => {
                     state.params.freq = parseFloat(e.target.value);
                     document.getElementById('val-freq').textContent = state.params.freq;
                 });
             },
-
             reset() { this.t = 0; },
-
             update() {
                 this.t += 1;
-                ctx2D.fillStyle = '#030712';
-                ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
-
-                const cx1 = canvas2D.width / 3;
-                const cy = canvas2D.height / 2;
-                const cx2 = (canvas2D.width / 3) * 2;
-
+                ctx2D.fillStyle = '#030712'; ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
+                const cx1 = canvas2D.width / 3, cy = canvas2D.height / 2, cx2 = (canvas2D.width / 3) * 2;
                 const step = 8;
                 for (let x = 0; x < canvas2D.width; x += step) {
                     for (let y = 0; y < canvas2D.height; y += step) {
-                        const d1 = Math.hypot(x - cx1, y - cy);
-                        const d2 = Math.hypot(x - cx2, y - cy);
-
-                        const v1 = Math.sin(d1 * state.params.freq - this.t * 0.1);
-                        const v2 = Math.sin(d2 * state.params.freq - this.t * 0.1);
-                        const val = (v1 + v2) / 2;
-
-                        const intensity = Math.floor((val + 1) * 127);
+                        const v1 = Math.sin(Math.hypot(x - cx1, y - cy) * state.params.freq - this.t * 0.1);
+                        const v2 = Math.sin(Math.hypot(x - cx2, y - cy) * state.params.freq - this.t * 0.1);
+                        const intensity = Math.floor(((v1 + v2) / 2 + 1) * 127);
                         ctx2D.fillStyle = `rgb(0, ${Math.floor(intensity * 0.7)}, ${intensity})`;
                         ctx2D.fillRect(x, y, step, step);
                     }
                 }
             },
-
             destroy() {}
         };
 
-        // ----------------------------------------------------
-        // Controlador de Cambio de Módulos
-        // ----------------------------------------------------
-        const modules = {
-            gravity: GravitySim,
-            particles: ParticleSim,
-            pendulum: PendulumSim,
-            waves: WavesSim
-        };
-
+        // Ruteador de Módulos
+        const modules = { gravity: GravitySim, galaxy: GalaxySim, particles: ParticleSim, pendulum: PendulumSim, waves: WavesSim };
         let currentModule = null;
 
         function switchModule(modeKey) {
-            if (currentModule && currentModule.destroy) {
-                currentModule.destroy();
-            }
-
+            if (currentModule && currentModule.destroy) currentModule.destroy();
             state.currentMode = modeKey;
             currentModule = modules[modeKey];
 
-            // Alternar visibilidad de Canvas 3D vs 2D
             if (modeKey === 'pendulum' || modeKey === 'waves') {
                 container3D.classList.add('hidden');
                 canvas2D.classList.remove('hidden');
@@ -796,44 +723,57 @@
 
             hudModeName.textContent = simSelector.options[simSelector.selectedIndex].text.toUpperCase();
             currentModule.init();
-            log(`Módulo cambiado a: ${modeKey.toUpperCase()}`);
+            log(`Módulo activado: ${modeKey.toUpperCase()}`);
         }
 
         simSelector.addEventListener('change', (e) => switchModule(e.target.value));
 
-        // ----------------------------------------------------
-        // Controles de Ejecución (Play/Pause/Reset)
-        // ----------------------------------------------------
+        // Selector de Temas Neón
+        themeSelector.addEventListener('change', (e) => {
+            const t = e.target.value;
+            if (t === 'matrix') state.currentColorHex = 0x22c55e;
+            else if (t === 'fire') state.currentColorHex = 0xf97316;
+            else if (t === 'purple') state.currentColorHex = 0xa855f7;
+            else state.currentColorHex = 0x38bdf8;
+            
+            pointLight.color.setHex(state.currentColorHex);
+            if (currentModule && currentModule.reset) currentModule.reset();
+            log(`Tema cromático cambiado a: ${t.toUpperCase()}`);
+        });
+
         btnPlayPause.addEventListener('click', () => {
             state.isRunning = !state.isRunning;
-            if (state.isRunning) {
-                playIcon.setAttribute('data-lucide', 'pause');
-                playText.textContent = 'Pausar';
-                document.getElementById('status-display').textContent = 'ACTIVO';
-                document.getElementById('status-display').className = 'text-emerald-400 font-mono font-bold';
-            } else {
-                playIcon.setAttribute('data-lucide', 'play');
-                playText.textContent = 'Reanudar';
-                document.getElementById('status-display').textContent = 'PAUSADO';
-                document.getElementById('status-display').className = 'text-yellow-400 font-mono font-bold';
-            }
+            playIcon.setAttribute('data-lucide', state.isRunning ? 'pause' : 'play');
+            playText.textContent = state.isRunning ? 'Pausar' : 'Reanudar';
+            document.getElementById('status-display').textContent = state.isRunning ? 'ACTIVO' : 'PAUSADO';
+            document.getElementById('status-display').className = state.isRunning ? 'text-emerald-400 font-mono font-bold' : 'text-yellow-400 font-mono font-bold';
             lucide.createIcons();
         });
 
-        btnReset.addEventListener('click', () => {
-            if (currentModule && currentModule.reset) {
-                currentModule.reset();
-                log('Simulación reiniciada.');
-            }
-        });
+        btnReset.addEventListener('click', () => { if (currentModule && currentModule.reset) currentModule.reset(); });
 
-        // ----------------------------------------------------
-        // Bucle Principal de Renderizado (Main Loop)
-        // ----------------------------------------------------
+        // Exportador de Telemetría
+        function exportData() {
+            const dataReport = {
+                timestamp: new Date().toISOString(),
+                modulo: state.currentMode,
+                fps: state.fps,
+                objetos: state.objectsCount,
+                parametros: state.params
+            };
+            const blob = new Blob([JSON.stringify(dataReport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `omnisim-report-${Date.now()}.json`;
+            a.click();
+            log("Telemetría exportada a JSON.");
+        }
+
+        // Loop de Renderizado
         function animate(timestamp) {
             requestAnimationFrame(animate);
 
-            // Contador de FPS
             state.frameCount++;
             if (timestamp - state.lastFpsUpdate >= 1000) {
                 state.fps = state.frameCount;
@@ -842,27 +782,17 @@
                 state.lastFpsUpdate = timestamp;
             }
 
-            // Actualización de Tiempo Transcurrido
             const elapsedSec = Math.floor((Date.now() - state.startTime) / 1000);
-            const hrs = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
-            const secs = String(elapsedSec % 60).padStart(2, '0');
-            timeDisplay.textContent = `${hrs}:${mins}:${secs}`;
-
-            // Actualizar HUD Objetos
+            timeDisplay.textContent = `${String(Math.floor(elapsedSec / 3600)).padStart(2, '0')}:${String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0')}:${String(elapsedSec % 60).padStart(2, '0')}`;
             hudObjectCount.textContent = state.objectsCount;
 
-            // Renderizar Simulación Activa
             if (state.isRunning && currentModule) {
                 currentModule.update();
-
-                // Telemetría Ficticia basada en dinámica real
                 const energy = (Math.sin(timestamp * 0.002) * 50 + 150).toFixed(2);
                 valEnergy.textContent = `${energy} J`;
                 valEntropy.textContent = `${(Math.log(state.objectsCount + 1) * 1.5).toFixed(2)} S`;
                 valLoad.textContent = `${(Math.min(100, (1000 / state.fps) * 5)).toFixed(1)} %`;
 
-                // Actualizar Gráfico
                 if (state.frameCount % 10 === 0) {
                     telemetryChart.data.datasets[0].data.shift();
                     telemetryChart.data.datasets[0].data.push(parseFloat(energy));
@@ -870,14 +800,12 @@
                 }
             }
 
-            // Render de Three.js si está en modo 3D
-            if (state.currentMode === 'gravity' || state.currentMode === 'particles') {
+            if (state.currentMode === 'gravity' || state.currentMode === 'particles' || state.currentMode === 'galaxy') {
                 controls.update();
                 renderer.render(scene, camera);
             }
         }
 
-        // Inicializar Aplicación
         resizeCanvas();
         switchModule('gravity');
         animate(performance.now());
